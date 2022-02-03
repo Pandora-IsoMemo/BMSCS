@@ -1,0 +1,7 @@
+^.+\.Rproj$
+^\.Rproj\.user$
+^lib$
+^RScripts$
+^\.dockerignore$
+^Dockerfile$
+^Jenkinsfile$

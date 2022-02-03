@@ -1,4 +1,4 @@
-# mpi-constraint-estimation-app (BMSC)
+# constraint-estimation-app (BMSC)
 
 ## Naming Conventions in R
 
@@ -9,4 +9,3 @@
 - 02: Helper shiny modules (files include ui + server component)
 - 03: Main shiny modules (basically tabs in the app)
 - 04: Start application / main functionality
-# constraint-estimation-app

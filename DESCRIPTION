@@ -28,7 +28,7 @@ Imports:
   readr,
   rstan (>= 2.21.2),
   tidyr
-License: GPL-3
+License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: true
 Suggests: lintr, testthat

@@ -1,4 +1,4 @@
-# constraint-estimation-app (BMSC)
+# BMSC App (constraint-estimation-app)
 
 ## Naming Conventions in R
 

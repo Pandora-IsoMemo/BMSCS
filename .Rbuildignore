@@ -6,3 +6,5 @@
 ^Dockerfile$
 ^Jenkinsfile$
 ^LICENSE\.md$
+^\..*$
+^bin$

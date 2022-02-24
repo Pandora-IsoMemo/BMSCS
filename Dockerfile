@@ -1,4 +1,4 @@
-FROM bmsc-shiny-base:latest
+FROM ghcr.io/pandora-isomemo/base-image:latest
 
 ADD . .
 

@@ -1,5 +1,7 @@
 # BMSC App (constraint-estimation-app)
 
+- Access beta version: https://isomemoapp.com/app/osteo-bio-r-beta
+
 ## Naming Conventions in R
 
 - Numbers as Prefix. Grouped into files with same type of functionality

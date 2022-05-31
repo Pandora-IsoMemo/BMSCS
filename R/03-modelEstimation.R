@@ -82,10 +82,10 @@ modelEstimation <- function(input, output, session, data) {
   callModule(modelVariablesImp, "modelVariablesImp", model = m)
   
   formulaParts <- reactive({
-    if(!is.null(input$y) && input$y != "" && !is.null(input$x) && input$x != ""){
+    if(!is.null(input$y) && !is.null(input$x) && input$y != "" && any(input$x != "")){
     xVars <- input$x
     xCat <- ""
-    if(!is.null(input$xCat) && input$xCat != ""){
+    if(!is.null(input$xCat) && any(input$xCat != "")){
       xVars <- c(xVars, input$xCat)
       xCat <- input$xCat
     }
@@ -114,12 +114,12 @@ modelEstimation <- function(input, output, session, data) {
       return(NULL)
     }
     
-    if(is.null(input$x) || input$x == ""){
+    if(is.null(input$x) || all(input$x == "")){
       shinyjs::alert("Please select an independent variable(s)")
       return(NULL)
     }
     xVars <- input$x
-    if(!is.null(input$xCat) && input$xCat != ""){
+    if(!is.null(input$xCat) && any(input$xCat != "")){
       xVars <- c(xVars, input$xCat)
       xCat <- input$xCat
     } else {

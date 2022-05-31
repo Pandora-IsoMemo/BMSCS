@@ -20,5 +20,8 @@ generateExampleData <- function() {
 }
 
 generateFormula <- function(y, x){
+  # replace all special characters except numbers and letters with dot
+  y <- gsub("[^[:alnum:]]", ".", y)
+  x <- gsub("[^[:alnum:]]", ".", x)
   as.formula(paste0(y, "~", paste0(x, collapse = "+")))
 }

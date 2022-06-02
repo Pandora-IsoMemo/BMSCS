@@ -35,20 +35,7 @@ loadData <- function(file, type, sep = ",", dec = ".", rownames = FALSE) {
     data <- as.data.frame(data)
   }
   vNames <- colnames(data)
-  vNames <- gsub("\\+", "", vNames)
-  vNames <- gsub("\\*", "", vNames)
-  vNames <- gsub("\\/", "", vNames)
-  vNames <- gsub("\\-", "", vNames)
-  vNames <- gsub("\\^", "", vNames)
-  vNames <- gsub("\\?", "", vNames)
-  
-  if(any(grepl("^[0-9]{1,}$", substr(vNames,1,1)))){
-    shinyjs::alert("One or more variable begins with number, name changed.")
-    vNames[grepl("^[0-9]{1,}$", substr(vNames,1,1))] <- paste0("x", vNames[grepl("^[0-9]{1,}$", substr(vNames,1,1))])
-  }
-  
-  
-  colnames(data) <- vNames
+  colnames(data) <- vNames %>% formatColumnNames()
   return(data)
 }
 
@@ -167,7 +154,7 @@ importData <- function(input, output, session,
   observeEvent(input$accept, {
     removeModal()
 
-    if (length(values$fileImportWarning) == 0)
+    if (length(values$fileImportWarning) == 0) 
       values$data <- values$dataImport
   })
 
@@ -205,4 +192,33 @@ importDataDialog <- function(ns){
     div(class = "text-success", textOutput(ns("success"))),
     tableOutput(ns("preview"))
   )
+}
+
+
+#' Format Column Names
+#' 
+#' Replaces all not alpha-numeric characters in the names of columns with a dot.
+#' 
+#' @param vNames (character) names of the imported data's columns 
+#' @param isTest (logical) set TRUE if function is used in tests
+formatColumnNames <- function(vNames, isTest = FALSE) {
+  if (any(grepl("[^[:alnum:] | ^\\.]", vNames))) {
+    if (!isTest) {
+      shinyjs::alert("One or more column names contain non-alphanumeric characters, name changed.")
+    }
+    # replace non-alphanum characters with dot
+    vNames <- gsub("[^[:alnum:] | ^\\.]", ".", vNames)
+    # remove dots at the beginning of a column name
+    vNames <- gsub("^\\.", "", vNames)
+  }
+  
+  if(any(grepl("^[0-9]{1,}$", substr(vNames,1,1)))){
+    if (!isTest) {
+      shinyjs::alert("One or more column names begin with number, name changed.")
+    }
+    # if name begins with a number paste x before name
+    vNames[grepl("^[0-9]{1,}$", substr(vNames,1,1))] <- paste0("x", vNames[grepl("^[0-9]{1,}$", substr(vNames,1,1))])
+  }
+  
+  return(vNames)
 }

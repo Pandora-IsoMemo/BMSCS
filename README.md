@@ -1,6 +1,6 @@
 # BMSC App (constraint-estimation-app)
 
-- Access beta version: https://isomemoapp.com/app/osteo-bio-r-beta
+- Access beta version: https://isomemoapp.com/app/bmsc-beta
 
 # DOWNLOAD INSTALLATION ON LOCAL MACHINE
 - First download Docker (see instructions: https://docs.docker.com/desktop/windows/install/) and see video instructions (https://www.youtube.com/watch?v=_9AWYlt86B8)

@@ -3,7 +3,8 @@
 - Access beta version: https://isomemoapp.com/app/bmsc-beta
 
 # DOWNLOAD INSTALLATION ON LOCAL MACHINE
-- First download Docker (see instructions: https://docs.docker.com/desktop/windows/install/) and see video instructions (https://www.youtube.com/watch?v=_9AWYlt86B8)
+- For windows: download Docker (see instructions: https://docs.docker.com/desktop/windows/install/) and see video instructions (https://www.youtube.com/watch?v=_9AWYlt86B8) 
+- For MacOS: https://docs.docker.com/desktop/mac/install/
 - Next, open your windows CMD line and run these following commands:
   > - download and install BMSC app: `docker pull ghcr.io/pandora-isomemo/bmsc-app:main`
   > - start the app run: `docker run -p 3838:3838 ghcr.io/pandora-isomemo/bmsc-app:main`

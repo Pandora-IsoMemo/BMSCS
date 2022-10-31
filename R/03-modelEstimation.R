@@ -96,7 +96,7 @@ modelEstimation <- function(input, output, session, data) {
                   interactionDepth = input$interactionDepth,
                   intercept = input$intercept,
                   categorical = xCat)
-    return(attr(terms(FORMULA), "term.labels"))
+    return(strsplit(strsplit(as.character(FORMULA)[3], "~")[[1]], " \\+ ")[[1]])
     } else {
       return("")
     }
@@ -106,8 +106,7 @@ modelEstimation <- function(input, output, session, data) {
     updatePickerInput(session, "mustInclude", choices = formulaParts(), selected = "")
     updatePickerInput(session, "mustExclude", choices = formulaParts(), selected = "")
   })
-  
-  
+
   m <- eventReactive(input$run, {
     if(is.null(input$y) || input$y == ""){
       shinyjs::alert("Please select an dependent variable")
@@ -214,7 +213,7 @@ modelEstimation <- function(input, output, session, data) {
                  intercept = input$intercept,
                  constraint_1 = input$constraint, data = dataModel,
                  xUncertainty = xUnc,
-                 xCatUncertainty = "",
+                 xCatUncertainty = xCatUnc,
                  yUncertainty = yUnc, maxNumTerms = input$maxTerms,
                  type = input$regType,
                  scale = input$scale,

@@ -41,7 +41,7 @@ modelEstimationUI <- function(id, title = "") {
       sliderInput(ns("iter"), label = "Number of MCMC iterations",
                   min = 100, max = 20000, step = 100, value = 500),
       actionButton(ns("run"), "Run model"),
-      hr(),
+      hr(style = "border-top: 1px solid #000000;"),
       h5("Model average (applicable after model run)"),
       selectInput(ns("wMeasure"), label = "Weighting measure for model averaging",
                   choices = c("Loo", "WAIC", "AIC", "AICc", "BIC", "logLik")),

@@ -213,7 +213,6 @@ modelEstimation <- function(input, output, session, data) {
     } else {
       mustExclude <- NULL
     }
-    browser()
     model <- withProgress({constrSelEst(
                 formula = FORMULA,
                 mustInclude = mustInclude, 

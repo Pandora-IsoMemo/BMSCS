@@ -203,17 +203,17 @@ modelEstimation <- function(input, output, session, data) {
     set.seed(1234)
     
     #for longer var list "\\n  " appears which has to be stripped
-    if(is.null(input$mustInclude)){
+    if(!is.null(input$mustInclude)){
       mustInclude <- gsub('[\n ]', '', input$mustInclude)
     } else {
       mustInclude <- NULL
     }
-    if(is.null(input$mustExclude)){
+    if(!is.null(input$mustExclude)){
       mustExclude <- gsub('[\n ]', '', input$mustExclude)
     } else {
       mustExclude <- NULL
     }
-    
+    browser()
     model <- withProgress({constrSelEst(
                 formula = FORMULA,
                 mustInclude = mustInclude, 

@@ -201,11 +201,23 @@ modelEstimation <- function(input, output, session, data) {
       return(NULL)
     }
     set.seed(1234)
+    
+    #for longer var list "\\n  " appears which has to be stripped
+    if(is.null(input$mustInclude)){
+      mustInclude <- gsub('[\n ]', '', input$mustInclude)
+    } else {
+      mustInclude <- NULL
+    }
+    if(is.null(input$mustExclude)){
+      mustExclude <- gsub('[\n ]', '', input$mustExclude)
+    } else {
+      mustExclude <- NULL
+    }
+    
     model <- withProgress({constrSelEst(
                 formula = FORMULA,
-                #for longer var list "\\n  " appears which has to be stripped
-                mustInclude = gsub('[\n ]', '', input$mustInclude), 
-                mustExclude = gsub('[\n ]', '', input$mustExclude),
+                mustInclude = mustInclude, 
+                mustExclude = mustExclude,
                  maxExponent = input$maxExp,
                  interactionDepth = input$interactionDepth,
                  categorical = xCat,

@@ -201,11 +201,11 @@ modelEstimation <- function(input, output, session, data) {
       return(NULL)
     }
     set.seed(1234)
-    
     model <- withProgress({constrSelEst(
                 formula = FORMULA,
-                mustInclude = input$mustInclude,
-                mustExclude = input$mustExclude,
+                #for longer var list "\\n  " appears which has to be stripped
+                mustInclude = gsub('[\n ]', '', input$mustInclude), 
+                mustExclude = gsub('[\n ]', '', input$mustExclude),
                  maxExponent = input$maxExp,
                  interactionDepth = input$interactionDepth,
                  categorical = xCat,

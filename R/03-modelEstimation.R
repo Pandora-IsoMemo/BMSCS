@@ -206,8 +206,8 @@ modelEstimation <- function(input, output, session, data) {
     
     model <- withProgress({constrSelEst(
                 formula = FORMULA,
-                mustInclude = mustInclude, 
-                mustExclude = mustExclude,
+                mustInclude = input$mustInclude, 
+                mustExclude = input$mustExclude,
                  maxExponent = input$maxExp,
                  interactionDepth = input$interactionDepth,
                  categorical = xCat,

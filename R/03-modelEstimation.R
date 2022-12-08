@@ -96,7 +96,9 @@ modelEstimation <- function(input, output, session, data) {
                   interactionDepth = input$interactionDepth,
                   intercept = input$intercept,
                   categorical = xCat)
-    return(strsplit(strsplit(as.character(FORMULA)[3], "~")[[1]], " \\+ ")[[1]])
+    
+    ret <- gsub('[\n ]', '', strsplit(strsplit(as.character(FORMULA)[3], "~")[[1]], " \\+ ")[[1]])
+    return(ret)
     } else {
       return("")
     }
@@ -202,17 +204,6 @@ modelEstimation <- function(input, output, session, data) {
     }
     set.seed(1234)
     
-    #for longer var list "\\n  " appears which has to be stripped
-    if(!is.null(input$mustInclude)){
-      mustInclude <- gsub('[\n ]', '', input$mustInclude)
-    } else {
-      mustInclude <- NULL
-    }
-    if(!is.null(input$mustExclude)){
-      mustExclude <- gsub('[\n ]', '', input$mustExclude)
-    } else {
-      mustExclude <- NULL
-    }
     model <- withProgress({constrSelEst(
                 formula = FORMULA,
                 mustInclude = mustInclude, 

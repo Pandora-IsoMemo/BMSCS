@@ -246,6 +246,7 @@ modelEstimation <- function(input, output, session, data) {
   m_AVG <- eventReactive(input$modelAvg, {
       req(m())
       weights <- get_model_weights(m()$fits, measure = input$wMeasure)
+      req(!is.null(weights))
       model_avg <- withProgress({list(get_avg_model(m()$models, weights))}, value = 0, message = "Calculate model average")
       names(model_avg) <- paste0("model_average_", input$wMeasure)
       return(model_avg)

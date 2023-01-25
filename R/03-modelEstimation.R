@@ -105,7 +105,9 @@ modelEstimation <- function(input, output, session, data) {
                   interactionDepth = input$interactionDepth,
                   intercept = input$intercept,
                   categorical = xCat)
-    return(strsplit(strsplit(as.character(FORMULA)[3], "~")[[1]], " \\+ ")[[1]])
+    
+    ret <- gsub('[\n ]', '', strsplit(strsplit(as.character(FORMULA)[3], "~")[[1]], " \\+ ")[[1]])
+    return(ret)
     } else {
       return("")
     }
@@ -213,7 +215,7 @@ modelEstimation <- function(input, output, session, data) {
     
     model <- withProgress({constrSelEst(
                 formula = FORMULA,
-                mustInclude = input$mustInclude,
+                mustInclude = input$mustInclude, 
                 mustExclude = input$mustExclude,
                  maxExponent = input$maxExp,
                  inverseExponent = input$inverseExp,

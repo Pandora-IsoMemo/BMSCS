@@ -8,6 +8,7 @@ modelEstimationUI <- function(id, title = "") {
     value = id,
     useShinyjs(),
     sidebarPanel(
+      style = "position:fixed; width:31%; max-width:700px; overflow-y:auto; height:88%",
       selectizeInput(ns("x"), "Independent (X) numeric variables", choices = NULL, multiple = TRUE, selected = NULL),
       selectizeInput(ns("xCat"), "Independent (X) categorical variables (optional)", choices = NULL, multiple = TRUE, selected = NULL),
       pickerInput(ns("y"), "Dependent (Y) variable", choices = NULL, multiple = FALSE, selected = NULL),

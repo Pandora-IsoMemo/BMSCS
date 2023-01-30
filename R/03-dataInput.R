@@ -8,6 +8,7 @@ dataInputUI <- function(id, title = "") {
     id = id,
     value = id,
     sidebarPanel(
+      style = "position:fixed; width:31%; max-width:700px; overflow-y:auto; height:88%",
       importDataUI(ns("data"), "Import Data"),
       actionButton(ns("exampleData"), label = "Generate example data")
     ),

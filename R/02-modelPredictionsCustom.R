@@ -59,10 +59,14 @@ modelPredictionsCustom <- function(input, output, session, model) {
     updateSelectInput(session, "yNewI2", choices = c("", names(datCustom())), selected = "")
   })
 
-  importedDataCustom <- callModule(importData, "dataCustom")
+  importedDataCustom <- importDataServer(
+    "dataCustom",
+    defaultSource = "file"
+  )
   
   observeEvent(importedDataCustom(), {
-    datCustom(importedDataCustom())
+    req(length(importedDataCustom()) > 0)
+    datCustom(importedDataCustom()[[1]])
   })
 
   dataFun <- reactive({

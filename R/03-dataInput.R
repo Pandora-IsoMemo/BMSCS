@@ -24,10 +24,14 @@ dataInputUI <- function(id, title = "") {
 dataInput <- function(input, output, session) {
   dat <- reactiveVal(NULL)
 
-  importedData <- callModule(importData, "data")
+  importedData <- importDataServer(
+    "data",
+    defaultSource = "file"
+  )
 
   observeEvent(importedData(), {
-    dat(importedData())
+    req(length(importedData()) > 0)
+    dat(importedData()[[1]])
   })
 
   observeEvent(input$exampleData, {

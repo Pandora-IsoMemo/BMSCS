@@ -15,7 +15,7 @@ Imports:
   dplyr,
   jsonlite,
   ggplot2,
-  IsoAppTools (>= 23.1.5),
+  DataTools (>= 23.1.5),
   shiny,
   shinyjs,
   shinythemes,

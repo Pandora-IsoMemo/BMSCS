@@ -1,6 +1,6 @@
 Package: BMSCApp
 Title: Interface for Bayesian Model Selection under Constraints
-Version: 22.12.1
+Version: 23.01.1
 Authors@R: c(
     person("Marcus", "Groß", email = "marcus.gross@inwt-statistics.de", role = c("aut", "cre")),
     person("Ricardo", "Fernandes", email = "ldv1452@gmail.com", role = c("aut")),
@@ -15,6 +15,7 @@ Imports:
   dplyr,
   jsonlite,
   ggplot2,
+  DataTools (>= 23.1.5),
   shiny,
   shinyjs,
   shinythemes,
@@ -24,15 +25,12 @@ Imports:
   pROC,
   DT,
   Rcpp,
-  readxl,
-  readr,
   rstan (>= 2.21.2),
   tidyr
 License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: true
 Suggests: 
-    lintr,
-    testthat (>= 3.0.0)
+    lintr (>= 1.0.2),
+    testthat
 RoxygenNote: 7.1.2
-Config/testthat/edition: 3

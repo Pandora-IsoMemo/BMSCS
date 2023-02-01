@@ -16,6 +16,8 @@ modelEstimationUI <- function(id, title = "") {
                   min = 1, max = 3, step = 1, value = 1),
       sliderInput(ns("maxExp"), label = "Max exponent",
                   min = 1, max = 3, step = 1, value = 1),
+      sliderInput(ns("inverseExp"), label = "Max inverse exponent",
+                  min = 1, max = 3, step = 1, value = 1),
       checkboxInput(ns("intercept"), label = "Include intercept", value = TRUE),
       checkboxInput(ns("ar1"), label = "Include error autocorrelation term", value = FALSE),
       checkboxInput(ns("constraint"), label = "Constrain regression parameters to 1", value = FALSE),
@@ -32,13 +34,19 @@ modelEstimationUI <- function(id, title = "") {
         checkboxInput(ns("scale"), label = "Scale variables to mean 0 and sd 1 (recommended)", value = TRUE),
         ns = ns
       ),
+      checkboxInput(ns("imputeMissings"), label = "Impute missing values (multiple imputation via \"pmm\" method)", value = TRUE),
       sliderInput(ns("nChains"), label = "Number of MCMC chains",
                   min = 1, max = 8, step = 1, value = 3),
       sliderInput(ns("burnin"), label = "Number of burnin iterations",
                   min = 200, max = 3000, step = 100, value = 300),
       sliderInput(ns("iter"), label = "Number of MCMC iterations",
                   min = 100, max = 20000, step = 100, value = 500),
-      actionButton(ns("run"), "Run model")
+      actionButton(ns("run"), "Run model"),
+      hr(style = "border-top: 1px solid #000000;"),
+      h5("Model average (applicable after model run)"),
+      selectInput(ns("wMeasure"), label = "Weighting measure for model averaging",
+                  choices = c("Loo", "WAIC", "AIC", "AICc", "BIC", "logLik")),
+      actionButton(ns("modelAvg"), "Create model average")
     ),
     mainPanel(
       tabsetPanel(
@@ -71,16 +79,16 @@ modelEstimation <- function(input, output, session, data) {
     updatePickerInput(session, "yUnc", choices = names(data()), selected = "")
   })
 
-  callModule(modelSummary, "modelSummary", model = m)
+  callModule(modelSummary, "modelSummary", model = m, modelAVG = m_AVG)
   callModule(modelDiagnostics, "modelDiagnostics", model = m, nChains = input$nChains)
   callModule(modelEvaluation, "modelEvaluation", model = m)
-  callModule(modelPredictions, "modelPredictions", model = m, data = data)
-  callModule(modelParameters, "modelParameters", model = m)
-  callModule(modelPredictionsCustom, "modelPredictionsCustom", model = m)
-  callModule(modelROC, "modelROC", model = m, data = data)
-  callModule(modelDW, "modelDW", model = m, data = data)
-  callModule(modelVariables, "modelVariables", model = m, data = data)
-  callModule(modelVariablesImp, "modelVariablesImp", model = m)
+  callModule(modelPredictions, "modelPredictions", model = m, data = data, modelAVG = m_AVG)
+  callModule(modelParameters, "modelParameters", model = m, modelAVG = m_AVG)
+  callModule(modelPredictionsCustom, "modelPredictionsCustom", model = m, modelAVG = m_AVG)
+  callModule(modelROC, "modelROC", model = m, data = data, modelAVG = m_AVG)
+  callModule(modelDW, "modelDW", model = m, data = data, modelAVG = m_AVG)
+  callModule(modelVariables, "modelVariables", model = m, data = data, modelAVG = m_AVG)
+  callModule(modelVariablesImp, "modelVariablesImp", model = m, modelAVG = m_AVG)
   
   formulaParts <- reactive({
     if(!is.null(input$y) && !is.null(input$x) && input$y != "" && any(input$x != "")){
@@ -94,6 +102,7 @@ modelEstimation <- function(input, output, session, data) {
     FORMULA <- generateFormula(input$y, xVars)
     FORMULA <- createFormula(formula = FORMULA,
                   maxExponent = input$maxExp,
+                  inverseExponent = input$inverseExp,
                   interactionDepth = input$interactionDepth,
                   intercept = input$intercept,
                   categorical = xCat)
@@ -210,7 +219,9 @@ modelEstimation <- function(input, output, session, data) {
                 mustInclude = input$mustInclude, 
                 mustExclude = input$mustExclude,
                  maxExponent = input$maxExp,
+                 inverseExponent = input$inverseExp,
                  interactionDepth = input$interactionDepth,
+                
                  categorical = xCat,
                  ar1 = input$ar1,
                  intercept = input$intercept,
@@ -223,7 +234,8 @@ modelEstimation <- function(input, output, session, data) {
                  chains = input$nChains,
                  burnin = input$burnin,
                  iterations = input$iter,
-                 shiny = TRUE)}, value = 0, message = "Calculation in progess",
+                 shiny = TRUE,
+                 imputeMissings = input$imputeMissings)}, value = 0, message = "Calculation in progess",
                  detail = 'This may take a while')
     names(model$models) <- prepModelNames(model$models)
     # if(any(sapply(1:length(model), function(x) is.null(model[[x]])))){
@@ -233,7 +245,16 @@ modelEstimation <- function(input, output, session, data) {
     
     return(list(models = model$models, fits = fits, dependent = input$y, variableData = model$variableData))
   })
-
+  
+  m_AVG <- eventReactive(input$modelAvg, {
+      req(m())
+      weights <- get_model_weights(m()$fits, measure = input$wMeasure)
+      req(!is.null(weights))
+      model_avg <- withProgress({list(get_avg_model(m()$models, weights))}, value = 0, message = "Calculate model average")
+      names(model_avg) <- paste0("model_average_", input$wMeasure)
+      return(model_avg)
+  })
+  
   observe({
     req(m())
     if(m()$models[[1]]@type == "linear"){

@@ -57,10 +57,10 @@ modelEvaluation <- function(input, output, session, model) {
             # for csv / excel - export:
             fits <- model()$fits[[input$ic]]
             if (input$ic == "Loo") {
-                fits <- sapply(fits, function(x) x$elpd_loo)
+              fits <- sapply(fits, function(x) x$estimates["elpd_loo","Estimate"])
             }
             if (input$ic == "WAIC") {
-                fits <- sapply(fits, function(x) x$elpd_waic)
+              fits <- sapply(fits, function(x) x$estimates["elpd_waic", "Estimate"])
             }
             fits <- data.frame(fits)
             names(fits) <- input$ic

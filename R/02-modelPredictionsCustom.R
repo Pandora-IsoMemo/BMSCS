@@ -43,12 +43,14 @@ modelPredictionsCustomTab <- function(id) {
   )
 }
 
-modelPredictionsCustom <- function(input, output, session, model) {
+modelPredictionsCustom <- function(input, output, session, model, modelAVG) {
   datCustom <- reactiveVal(NULL)
   
   observe({
     req(model())
     updateSelectInput(session, "modelSelection", choices = names(model()$models))
+    req(modelAVG())
+    updateSelectInput(session, "modelSelection", choices = c(names(model()$models), names(modelAVG())))
   })
   
   observe({
@@ -73,14 +75,20 @@ modelPredictionsCustom <- function(input, output, session, model) {
     req(model())
     req(datCustom())
     
-    function() {            
-      modelVars <- all.vars(model()$models[[input$modelSelection]]@formula)[-1]
+    function() { 
+      if((input$modelSelection %in% names(model()$models))){
+        mPar <- model()$models[[input$modelSelection]]
+      } else {
+        mPar <- modelAVG()[[input$modelSelection]]
+      }
+      
+      modelVars <- all.vars(mPar@formula)[-1]
       
       if(!all(modelVars %in% colnames(datCustom()))){
         shinyjs::alert("Not all model variables supplied in uploaded data")
         return(NULL)
       }
-      predictions <- t(BMSC::predict(model()$models[[input$modelSelection]], datCustom(), samples = TRUE))
+      predictions <- t(BMSC::predict(mPar, datCustom(), samples = TRUE))
       resData <- data.frame(mean = colMeans(predictions),
                                   median = apply(predictions, 2, median),
                                   sd = apply(predictions, 2, sd),

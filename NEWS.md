@@ -1,5 +1,16 @@
 # BMSCApp app 
 
+## Version 23.02.1
+
+### New Features
+- in the tab _Model Input_
+  - new slider _Max inverse exponent_: Now one can add x^-1, x^-2,.. as potential modelling 
+  features
+  - new checkbox _Impute missing values_: Imputation of missing values added (multiple
+  imputation via the mice package)
+  - new UI _Create model average_: Model averaging added. Now models can be averaged by a 
+  criterion (AIC, AICc, WAIC, logLik, BIC and Loo)
+
 ## Version 23.01.1
 
 ### New Features

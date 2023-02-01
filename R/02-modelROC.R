@@ -20,19 +20,27 @@ modelROCTab <- function(id) {
     )
 }
 
-modelROC <- function(input, output, session, model, data) {
+modelROC <- function(input, output, session, model, data, modelAVG) {
     observe({
         req(model())
         updateSelectInput(session, "modelSelection", choices = names(model()$models))
+        req(modelAVG())
+        updateSelectInput(session, "modelSelection", choices = c(names(model()$models), names(modelAVG())))
     })
 
     plotFun <- reactive({
         req(model())
-        req((input$modelSelection %in% names(model()$models)))
+        req((input$modelSelection %in% names(model()$models)) || (input$modelSelection %in% names(modelAVG())))
         
         function() {
+            if((input$modelSelection %in% names(model()$models))){
+                mPar <- model()$models[[input$modelSelection]]
+            } else {
+                mPar <- modelAVG()[[input$modelSelection]]
+            }
+            
             if(model()$models[[input$modelSelection]]@type == "logistic"){
-                plot.roc(data()[, model()$dependent], BMSC::predict(model()$models[[input$modelSelection]], newdata = data()),
+                plot.roc(data()[, model()$dependent], BMSC::predict(mPar, newdata = data()),
                         percent=TRUE,
                         ci=input$AUCI, print.auc=input$AUC, cex.axis = input$rocAxis, cex.lab = input$rocAxisT, main = input$roctitle, cex.main = input$rocT)
             }

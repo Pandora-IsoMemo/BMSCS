@@ -19,7 +19,7 @@
 #' @importFrom grDevices dev.off pdf png svg tiff
 #' @importFrom utils capture.output head read.csv write.table
 #' @importFrom tidyr gather
-#' @importFrom BMSC prepModelNames getModelFits plotModelFit
+#' @importFrom BMSC prepModelNames get_avg_model getModelFits get_model_weights plotModelFit
 NULL
 
 #' Server and UI Functions for Shiny Module

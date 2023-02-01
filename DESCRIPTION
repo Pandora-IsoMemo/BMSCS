@@ -15,6 +15,7 @@ Imports:
   dplyr,
   jsonlite,
   ggplot2,
+  DataTools (>= 23.1.5),
   shiny,
   shinyjs,
   shinythemes,
@@ -24,15 +25,12 @@ Imports:
   pROC,
   DT,
   Rcpp,
-  readxl,
-  readr,
   rstan (>= 2.21.2),
   tidyr
 License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: true
 Suggests: 
-    lintr,
-    testthat (>= 3.0.0)
+    lintr (>= 1.0.2),
+    testthat
 RoxygenNote: 7.1.2
-Config/testthat/edition: 3

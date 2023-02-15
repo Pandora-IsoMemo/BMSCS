@@ -3,7 +3,7 @@
 ## Version 23.02.2
 
 ### Bug Fixes
-- add tryCatch to modeling with forwarding of warnings and error messages to the UI
+- add tryCatch to modeling with forwarding of warnings and error messages to the UI (#18)
 
 ## Version 23.02.1
 

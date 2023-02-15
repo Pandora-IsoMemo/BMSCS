@@ -214,29 +214,52 @@ modelEstimation <- function(input, output, session, data) {
     }
     set.seed(1234)
     
-    model <- withProgress({constrSelEst(
-                formula = FORMULA,
-                mustInclude = input$mustInclude, 
-                mustExclude = input$mustExclude,
-                 maxExponent = input$maxExp,
-                 inverseExponent = input$inverseExp,
-                 interactionDepth = input$interactionDepth,
-                
-                 categorical = xCat,
-                 ar1 = input$ar1,
-                 intercept = input$intercept,
-                 constraint_1 = input$constraint, data = dataModel,
-                 xUncertainty = xUnc,
-                 xCatUncertainty = xCatUnc,
-                 yUncertainty = yUnc, maxNumTerms = input$maxTerms,
-                 type = input$regType,
-                 scale = input$scale,
-                 chains = input$nChains,
-                 burnin = input$burnin,
-                 iterations = input$iter,
-                 shiny = TRUE,
-                 imputeMissings = input$imputeMissings)}, value = 0, message = "Calculation in progess",
-                 detail = 'This may take a while')
+    # catch and forward warnings
+    modelWarnings <- NULL
+    w.handler <- function(w){ # warning handler
+      modelWarnings <<- w
+      invokeRestart("muffleWarning")
+    }
+    
+    model <- withProgress({
+      withCallingHandlers(tryCatch({
+        constrSelEst(
+          formula = FORMULA,
+          mustInclude = input$mustInclude, 
+          mustExclude = input$mustExclude,
+          maxExponent = input$maxExp,
+          inverseExponent = input$inverseExp,
+          interactionDepth = input$interactionDepth,
+          categorical = xCat,
+          ar1 = input$ar1,
+          intercept = input$intercept,
+          constraint_1 = input$constraint, data = dataModel,
+          xUncertainty = xUnc,
+          xCatUncertainty = xCatUnc,
+          yUncertainty = yUnc, maxNumTerms = input$maxTerms,
+          type = input$regType,
+          scale = input$scale,
+          chains = input$nChains,
+          burnin = input$burnin,
+          iterations = input$iter,
+          shiny = TRUE,
+          imputeMissings = input$imputeMissings)
+      },
+      error = function(cond) {
+        shinyjs::alert(paste("Modeling failed:", cond$message))
+        return(NULL)
+      }),
+      warning = w.handler)
+    }, 
+    value = 0, 
+    message = "Calculation in progess",
+    detail = 'This may take a while')
+    
+    if (is.null(model)) return(NULL)
+    
+    if (!is.null(modelWarnings)) {
+      shinyjs::alert(paste0(modelWarnings, collapse = "\n"))
+    }
     names(model$models) <- prepModelNames(model$models)
     # if(any(sapply(1:length(model), function(x) is.null(model[[x]])))){
     #   browser()
@@ -264,4 +287,3 @@ modelEstimation <- function(input, output, session, data) {
     }
   })
 }
-

@@ -6,7 +6,7 @@
 #' @importFrom dplyr ungroup summarise group_by "%>%" summarise_ group_by_
 #' @importFrom ggplot2 aes_string element_text geom_errorbar geom_point ggplot
 #' labs scale_x_discrete theme aes aes_ geom_boxplot ylab xlab
-#' @importFrom DataTools importDataUI importDataServer
+#' @importFrom DataTools importDataUI importDataServer tryCatchWithWarningsAndErrors
 #' @importFrom shinyjs useShinyjs alert
 #' @importFrom shinyWidgets pickerInput updatePickerInput
 #' @importFrom openxlsx write.xlsx

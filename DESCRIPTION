@@ -33,4 +33,4 @@ LazyData: true
 Suggests: 
     lintr (>= 1.0.2),
     testthat
-RoxygenNote: 7.1.2
+RoxygenNote: 7.2.1

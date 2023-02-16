@@ -214,13 +214,6 @@ modelEstimation <- function(input, output, session, data) {
     }
     set.seed(1234)
     
-    # catch and forward warnings
-    modelWarnings <- NULL
-    w.handler <- function(w){ # warning handler
-      modelWarnings <<- w
-      invokeRestart("muffleWarning")
-    }
-    
     model <- withProgress({constrSelEst(
       formula = FORMULA,
       mustInclude = input$mustInclude, 
@@ -242,7 +235,7 @@ modelEstimation <- function(input, output, session, data) {
       iterations = input$iter,
       shiny = TRUE,
       imputeMissings = input$imputeMissings) %>%
-        tryCatch.W.E()
+        tryCatchWithWarningsAndErrors()
     }, 
     value = 0, 
     message = "Calculation in progess",
@@ -276,28 +269,4 @@ modelEstimation <- function(input, output, session, data) {
       showTab(inputId = "modTabs", target = "ROC")
     }
   })
-}
-
-tryCatch.W.E <- function(expr) {
-  # catch and forward warnings
-  exprWarnings <- NULL
-  w.handler <- function(w){ # warning handler
-    exprWarnings <<- w
-    invokeRestart("muffleWarning")
-  }
-  
-  res <- withCallingHandlers(tryCatch({
-      expr
-    },
-    error = function(cond) {
-      shinyjs::alert(paste("Modeling failed:", cond$message))
-      return(NULL)
-    }),
-    warning = w.handler)
-  
-  if (!is.null(exprWarnings)) {
-    shinyjs::alert(paste0(exprWarnings, collapse = "\n"))
-  }
-
-  res
 }

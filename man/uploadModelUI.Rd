@@ -12,5 +12,5 @@ uploadModelUI(id, label)
 \item{label}{label of module}
 }
 \description{
-UI function to upload a zip file with notes and a list of models
+UI function to upload a zip file with exportNotes and a list of models
 }

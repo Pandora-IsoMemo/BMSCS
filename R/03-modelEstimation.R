@@ -14,7 +14,7 @@ modelEstimationUI <- function(id, title = "") {
       downloadModelUI(ns("modelDownload"), label = NULL),
       hr(style = "border-top: 1px solid #000000;"),
       selectizeInput(ns("x"), "Independent (X) numeric variables", choices = NULL, multiple = TRUE, selected = NULL),
-      selectizeInput(ns("xCat"), "Independent (X) categorical variables (optional)", choices = NULL, multiple = TRUE, selected = NULL),
+      selectizeInput(ns("xCategorical"), "Independent (X) categorical variables (optional)", choices = NULL, multiple = TRUE, selected = NULL),
       pickerInput(ns("y"), "Dependent (Y) variable", choices = NULL, multiple = FALSE, selected = NULL),
       sliderInput(ns("interactionDepth"), label = "Interaction depth",
                   min = 1, max = 3, step = 1, value = 1),
@@ -77,7 +77,7 @@ modelEstimation <- function(input, output, session, data) {
   
   observe({
     updateSelectizeInput(session, "x", choices = names(data()), selected = "")
-    updateSelectizeInput(session, "xCat", choices = names(data()), selected = "")
+    updateSelectizeInput(session, "xCategorical", choices = names(data()), selected = "")
     updatePickerInput(session, "y", choices = names(data()), selected = "")
     updateSelectizeInput(session, "xUnc", choices = names(data()), selected = "")
     updateSelectizeInput(session, "xCatUnc", choices = names(data()), selected = "")
@@ -99,10 +99,10 @@ modelEstimation <- function(input, output, session, data) {
   formulaParts <- reactive({
     if(!is.null(input$y) && !is.null(input$x) && input$y != "" && any(input$x != "")){
     xVars <- input$x
-    xCat <- ""
-    if(!is.null(input$xCat) && any(input$xCat != "")){
-      xVars <- c(xVars, input$xCat)
-      xCat <- input$xCat
+    xCategorical <- ""
+    if(!is.null(input$xCategorical) && any(input$xCategorical != "")){
+      xVars <- c(xVars, input$xCategorical)
+      xCategorical <- input$xCategorical
     }
 
     FORMULA <- generateFormula(input$y, xVars)
@@ -111,7 +111,7 @@ modelEstimation <- function(input, output, session, data) {
                   inverseExponent = input$inverseExp,
                   interactionDepth = input$interactionDepth,
                   intercept = input$intercept,
-                  categorical = xCat)
+                  categorical = xCategorical)
     
     ret <- gsub('[\n ]', '', strsplit(strsplit(as.character(FORMULA)[3], "~")[[1]], " \\+ ")[[1]])
     return(ret)
@@ -126,9 +126,7 @@ modelEstimation <- function(input, output, session, data) {
   })
 
   # MODEL DOWN- / UPLOAD ----
-  uploadedNotes <- reactiveVal()
-  downloadModelServer("modelDownload", data = data, inputs = input, model = m, 
-                      uploadedNotes = uploadedNotes)
+  downloadModelServer("modelDownload", data = data, inputs = input, model = m)
   
   uploadedData <- uploadModelServer("modelUpload")
   
@@ -141,17 +139,14 @@ modelEstimation <- function(input, output, session, data) {
   observe(priority = -100, {
     ## update inputs ----
     inputIDs <- names(uploadedData$inputs)
-    for (i in 1:length(uploadedData$inputs)) { 
+    for (i in 1:length(uploadedData$inputs)) {
       session$sendInputMessage(inputIDs[i],  list(value = uploadedData$inputs[[inputIDs[i]]]) )
+      if (inputIDs[i] == "modelDownload-exportNotes") {
+        print(uploadedData$inputs[[inputIDs[i]]])
+      }
     }
   }) %>%
     bindEvent(uploadedData$inputs)
-  
-  # observeEvent(uploadedData$notes, {
-  #   #browser()
-  #   # update model and notes in tab "Estimates" ----
-  #   uploadedNotes(uploadedData$notes)
-  # })
   
   #observeEvent(uploadedData$model, priority = -100, {
     #browser()
@@ -171,11 +166,11 @@ modelEstimation <- function(input, output, session, data) {
       return(NULL)
     }
     xVars <- input$x
-    if(!is.null(input$xCat) && any(input$xCat != "")){
-      xVars <- c(xVars, input$xCat)
-      xCat <- input$xCat
+    if(!is.null(input$xCategorical) && any(input$xCategorical != "")){
+      xVars <- c(xVars, input$xCategorical)
+      xCategorical <- input$xCategorical
     } else {
-      xCat <- ""
+      xCategorical <- ""
     }
     FORMULA <- generateFormula(input$y, xVars)
     dataModel <- data()
@@ -209,12 +204,12 @@ modelEstimation <- function(input, output, session, data) {
     
     if(!is.null(input$xCatUnc)){
       xCatUnc <- dataModel[, input$xCatUnc, drop = FALSE]
-      names(xCatUnc) <- input$xCat
+      names(xCatUnc) <- input$xCategorical
       if(any(apply(dataModel[, input$xCatUnc, drop = FALSE], 2, function(k) all(as.numeric(is.na(k)))))){
         shinyjs::alert("At least one x categorical uncertainty variable has no numeric values")
         return(NULL)
       }
-      if(length(input$xCatUnc) != length(input$xCat)){
+      if(length(input$xCatUnc) != length(input$xCategorical)){
         shinyjs::alert("x-missclassification variables must have same length as x-categorical variables")
         return(NULL)
       }
@@ -222,10 +217,10 @@ modelEstimation <- function(input, output, session, data) {
     } else {
       xCatUnc <- NULL
     }
-    if(xCat[1] == ""){
+    if(xCategorical[1] == ""){
       mVars <- c(input$x)
     } else {
-      mVars <- c(input$x, xCat)
+      mVars <- c(input$x, xCategorical)
     }
     missingVars <- names(which(sapply(mVars, function(x) any(is.na(dataModel[, x])))))
     if(length(missingVars) > 0){
@@ -262,7 +257,7 @@ modelEstimation <- function(input, output, session, data) {
       maxExponent = input$maxExp,
       inverseExponent = input$inverseExp,
       interactionDepth = input$interactionDepth,
-      categorical = xCat,
+      categorical = xCategorical,
       ar1 = input$ar1,
       intercept = input$intercept,
       constraint_1 = input$constraint, data = dataModel,

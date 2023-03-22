@@ -4,14 +4,12 @@
 \alias{downloadModelServer}
 \title{Server function download model}
 \usage{
-downloadModelServer(id, data, inputs, model, uploadedNotes)
+downloadModelServer(id, data, inputs, model)
 }
 \arguments{
 \item{id}{namespace id}
 
 \item{data}{(reactive) data}
-
-\item{uploadedNotes}{(reactive) variable that stores content of README.txt}
 
 \item{allParentInput}{(reactive) list of inputs from parent module}
 

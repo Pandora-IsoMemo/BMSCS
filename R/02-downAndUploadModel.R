@@ -9,7 +9,7 @@ downloadModelUI <- function(id, label) {
   
   tagList(
     tags$h5(label),
-    textAreaInput(ns("notes"), "Notes"),
+    textAreaInput(ns("exportNotes"), "Notes"),
     checkboxInput(ns("onlyInputs"), "Store only data and model options"),
     downloadButton(ns("downloadModel"), "Download")
   )
@@ -26,16 +26,11 @@ downloadModelUI <- function(id, label) {
 #'  Distributions of the dependent variable.
 #' @param formulas (reactive) formulas
 #' @param data (reactive) data
-#' @param uploadedNotes (reactive) variable that stores content of README.txt
 downloadModelServer <-
   function(id,
-           data, inputs, model, uploadedNotes) {
+           data, inputs, model) {
     moduleServer(id,
                  function(input, output, session) {
-                   # observe({
-                   #   updateTextAreaInput(session, "notes", value = uploadedNotes())
-                   # })
-                   
                    output$downloadModel <- downloadHandler(
                      filename = function() {
                        paste(gsub("\ ", "_", Sys.time()), "bmsc-app.zip", sep = "_")
@@ -64,7 +59,7 @@ downloadModelServer <-
                          ),
                          file = modelfile,
                          compress = "xz")
-                         writeLines(input$notes, notesfile)
+                         writeLines(input$exportNotes, notesfile)
                          save_html(getHelp(id = ""), helpfile)
                          zip::zipr(file, c(modelfile, notesfile, helpfile))
                        },
@@ -78,7 +73,7 @@ downloadModelServer <-
 
 #' Upload model module
 #'
-#' UI function to upload a zip file with notes and a list of models
+#' UI function to upload a zip file with exportNotes and a list of models
 #'
 #' @param id id of module
 #' @param label label of module
@@ -112,7 +107,7 @@ uploadModelServer <-
                      inputs = NULL,
                      model = NULL,
                      version = NULL,
-                     notes = NULL
+                     exportNotes = NULL
                    )
                    
                    observeEvent(input$uploadModel, {
@@ -139,7 +134,6 @@ uploadModelServer <-
                      res <- try({
                        zip::unzip(pathToModel())
                        modelImport <- readRDS("model.rds")
-                       uploadedData$notes <- readLines("README.txt")
                      })
                      
                      if (inherits(res, "try-error")) {

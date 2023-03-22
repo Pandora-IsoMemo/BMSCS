@@ -62,7 +62,8 @@ downloadModelServer <-
                            model = modelExport,
                            version = paste("BMSCApp", packageVersion("BMSCApp"))
                          ),
-                         file = modelfile)
+                         file = modelfile,
+                         compress = "xz")
                          writeLines(input$notes, notesfile)
                          save_html(getHelp(id = ""), helpfile)
                          zip::zipr(file, c(modelfile, notesfile, helpfile))

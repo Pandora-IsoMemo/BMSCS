@@ -19,6 +19,7 @@ Imports:
   ggplot2,
   DataTools (>= 23.03.1),
   shiny,
+  shinyalert,
   shinyjs,
   shinythemes,
   shinyWidgets,

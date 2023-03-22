@@ -8,7 +8,11 @@ modelEstimationUI <- function(id, title = "") {
     value = id,
     useShinyjs(),
     sidebarPanel(
-      style = "position:fixed; width:31%; max-width:700px; overflow-y:auto; height:88%",
+      style = "position:fixed; width:23%; max-width:500px; overflow-y:auto; height:88%",
+      width = 3,
+      uploadModelUI(ns("modelUpload"), label = NULL),
+      downloadModelUI(ns("modelDownload"), label = NULL),
+      hr(style = "border-top: 1px solid #000000;"),
       selectizeInput(ns("x"), "Independent (X) numeric variables", choices = NULL, multiple = TRUE, selected = NULL),
       selectizeInput(ns("xCat"), "Independent (X) categorical variables (optional)", choices = NULL, multiple = TRUE, selected = NULL),
       pickerInput(ns("y"), "Dependent (Y) variable", choices = NULL, multiple = FALSE, selected = NULL),
@@ -49,6 +53,7 @@ modelEstimationUI <- function(id, title = "") {
       actionButton(ns("modelAvg"), "Create model average")
     ),
     mainPanel(
+      width = 9,
       tabsetPanel(
         id = ns("modTabs"),
         modelEvaluationTab(ns("modelEvaluation")),
@@ -77,8 +82,9 @@ modelEstimation <- function(input, output, session, data) {
     updateSelectizeInput(session, "xUnc", choices = names(data()), selected = "")
     updateSelectizeInput(session, "xCatUnc", choices = names(data()), selected = "")
     updatePickerInput(session, "yUnc", choices = names(data()), selected = "")
-  })
-
+  }, priority = 100) %>%
+    bindEvent(data())
+    
   callModule(modelSummary, "modelSummary", model = m, modelAVG = m_AVG)
   callModule(modelDiagnostics, "modelDiagnostics", model = m, nChains = input$nChains)
   callModule(modelEvaluation, "modelEvaluation", model = m)
@@ -119,6 +125,41 @@ modelEstimation <- function(input, output, session, data) {
     updatePickerInput(session, "mustExclude", choices = formulaParts(), selected = "")
   })
 
+  # MODEL DOWN- / UPLOAD ----
+  uploadedNotes <- reactiveVal()
+  downloadModelServer("modelDownload", data = data, inputs = input, model = m, 
+                      uploadedNotes = uploadedNotes)
+  
+  uploadedData <- uploadModelServer("modelUpload")
+  
+  observe(priority = 500, {
+    ## update data ----
+    data(uploadedData$data)
+  }) %>%
+    bindEvent(uploadedData$data)
+  
+  observe(priority = -100, {
+    ## update inputs ----
+    inputIDs <- names(uploadedData$inputs)
+    for (i in 1:length(uploadedData$inputs)) { 
+      session$sendInputMessage(inputIDs[i],  list(value = uploadedData$inputs[[inputIDs[i]]]) )
+    }
+  }) %>%
+    bindEvent(uploadedData$inputs)
+  
+  # observeEvent(uploadedData$notes, {
+  #   #browser()
+  #   # update model and notes in tab "Estimates" ----
+  #   uploadedNotes(uploadedData$notes)
+  # })
+  
+  #observeEvent(uploadedData$model, priority = -100, {
+    #browser()
+    # update model and notes in tab "Estimates" ----
+    #m(uploadedData$model)
+  #})
+  
+  # RUN MODEL ----
   m <- eventReactive(input$run, {
     if(is.null(input$y) || input$y == ""){
       shinyjs::alert("Please select an dependent variable")

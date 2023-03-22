@@ -29,12 +29,12 @@ downloadModelUI <- function(id, label) {
 #' @param uploadedNotes (reactive) variable that stores content of README.txt
 downloadModelServer <-
   function(id,
-           inputs, model, uploadedNotes) {
+           data, inputs, model, uploadedNotes) {
     moduleServer(id,
                  function(input, output, session) {
-                   observe({
-                     updateTextAreaInput(session, "notes", value = uploadedNotes())
-                   })
+                   # observe({
+                   #   updateTextAreaInput(session, "notes", value = uploadedNotes())
+                   # })
                    
                    output$downloadModel <- downloadHandler(
                      filename = function() {
@@ -47,6 +47,7 @@ downloadModelServer <-
                          notesfile <- file.path(zipdir, "README.txt")
                          helpfile <- file.path(zipdir, "help.html")
                          
+                         dataExport <- data()
                          inputExport <- reactiveValuesToList(inputs)
                          
                          if (input$onlyInputs) {
@@ -56,6 +57,7 @@ downloadModelServer <-
                          }
                          
                          saveRDS(list(
+                           data = dataExport,
                            inputs = inputExport,
                            model = modelExport,
                            version = paste("BMSCApp", packageVersion("BMSCApp"))
@@ -154,32 +156,45 @@ uploadModelServer <-
                      }
                      
                      if (!exists("modelImport") ||
-                         !all(names(modelImport) %in% c("inputs", "model", "version"))) {
+                         !all(names(modelImport) %in% c("data", "inputs", "model", "version"))) {
                        shinyalert(title = "Could not load file.",
                                   text = "File format not valid for BMSC app modelling. Model object not found.",
                                   type = alertType)
                        return()
                      }
                      
-                     if (is.null(modelImport$inputs)) {
-                       warningInputs <-
-                         "No input data or model selection parameters found."
+                     warning <- c()
+                     if (is.null(modelImport$data)) {
+                       warning[["data"]] <-
+                         "No input data found."
                        
                        alertType <- "warning"
                      } else {
-                       warningInputs <-
-                         "Input data and model selection parameters loaded. "
+                       warning[["data"]] <-
+                         "Input data loaded. "
+                       alertType <- "success"
+                     }
+                     
+                     if (is.null(modelImport$inputs)) {
+                       warning[["inputs"]] <-
+                         "No model selection parameters found."
+                       
+                       alertType <- "warning"
+                     } else {
+                       warning[["inputs"]] <-
+                         "Model selection parameters loaded. "
                        alertType <- "success"
                      }
                      
                      if (is.null(modelImport$model)) {
-                       warningModel <- "No model results found. "
+                       warning[["model"]] <- "No model results found. "
                        alertType <- "warning"
                      } else {
-                       warningModel <- "Model results loaded. "
+                       warning[["model"]] <- "Model results loaded. "
                        # no update of alertType, do not overwrite a warning
                      }
                      
+                     uploadedData$data <- modelImport$data
                      uploadedData$inputs <- modelImport$inputs
                      uploadedData$model <- modelImport$model
                      
@@ -189,7 +204,7 @@ uploadModelServer <-
                        uploadedVersion <- ""
                      }
                      
-                     dataLoadedAlert(warningInputs, warningModel, uploadedVersion, alertType)
+                     dataLoadedAlert(warning, uploadedVersion, alertType)
                      
                      # clean up
                      if (file.exists("model.rds"))
@@ -205,8 +220,7 @@ uploadModelServer <-
   }
 
 dataLoadedAlert <-
-  function(warningInputs,
-           warningModel,
+  function(warnings,
            uploadedVersion,
            alertType) {
     shinyalert(
@@ -214,10 +228,11 @@ dataLoadedAlert <-
       text = HTML(paste0(
         #"<div align='left'>",
         "<p>",
-        paste(warningInputs,
-              warningModel,
-              uploadedVersion,
-              sep = "</p><br/><p>"),
+        paste(
+          paste0(warnings, collapse = "<br/>"),
+          uploadedVersion,
+          sep = "</p><br/><p>"
+        ),
         "</p>"#,
         #"</div>"
       )),

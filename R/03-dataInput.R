@@ -25,7 +25,7 @@ dataInputUI <- function(id, title = "") {
 #' @rdname shinyModule
 #' @export
 dataInput <- function(input, output, session) {
-  dat <- reactiveVal(NULL)
+  data <- reactiveVal(NULL)
 
   importedData <- importDataServer(
     "data",
@@ -34,18 +34,18 @@ dataInput <- function(input, output, session) {
 
   observeEvent(importedData(), {
     req(length(importedData()) > 0)
-    dat(importedData()[[1]])
+    data(importedData()[[1]])
   })
 
   observeEvent(input$exampleData, {
-    dat(generateExampleData())
+    data(generateExampleData())
   })
 
-  output$table <- renderDT(prepareDataTable(dat()))
+  output$table <- renderDT(prepareDataTable(data()))
   
-  dat
+  data
 }
 
-prepareDataTable <- function(data) {
-  datatable(data)
+prepareDataTable <- function(dat) {
+  datatable(dat)
 }

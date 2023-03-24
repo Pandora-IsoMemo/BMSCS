@@ -30,7 +30,7 @@ modelEstimationUI <- function(id, title = "") {
       selectizeInput(ns("xUnc"), "X numerical variables uncertainty (optional)", choices = NULL, multiple = TRUE, selected = NULL),
       selectizeInput(ns("xCatUnc"), "X categorical variables misclassification rate (optional)", choices = NULL, multiple = TRUE, selected = NULL),
       pickerInput(ns("yUnc"), "Dependent variable uncertainty (optional)", choices = NULL, multiple = FALSE, selected = NULL),
-      radioButtons(ns("regType"), label = "Regression type", choices = c("linear", "logistic"), selected = "linear"),
+      radioButtons(ns("regType"), label = "Regression type", choices = c("linear", "logistic"), selected = "linear", inline = TRUE),
       sliderInput(ns("maxTerms"), label = "Max number of terms in formula",
                   min = 2, max = 200, step = 1, value = 8),
       conditionalPanel(

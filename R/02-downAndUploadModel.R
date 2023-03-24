@@ -10,8 +10,10 @@ downloadModelUI <- function(id, label) {
   tagList(
     tags$h5(label),
     textAreaInput(ns("exportNotes"), "Notes"),
-    checkboxInput(ns("onlyInputs"), "Store only data and model options"),
-    downloadButton(ns("downloadModel"), "Download")
+    #checkboxInput(ns("onlyInputs"), "Store only data and model options"),
+    tags$br(),
+    downloadButton(ns("downloadModel"), "Download Settings"),
+    helpText("Download of model output not possible! BMSC model output is too large.")
   )
 }
 
@@ -45,7 +47,7 @@ downloadModelServer <-
                          dataExport <- data()
                          inputExport <- reactiveValuesToList(inputs)
                          
-                         if (input$onlyInputs) {
+                         if (input$onlyInputs || is.null(model)) {
                            modelExport <- NULL
                          } else {
                            modelExport <- model()

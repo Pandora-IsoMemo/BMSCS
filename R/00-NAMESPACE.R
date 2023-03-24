@@ -19,7 +19,7 @@
 #' @importFrom stats lm as.formula predict rexp rnorm terms rpois median quantile sd qnorm chisq.test cor lm.fit model.matrix na.omit
 #' @importFrom jsonlite toJSON
 #' @importFrom grDevices dev.off pdf png svg tiff
-#' @importFrom utils capture.output head read.csv write.table
+#' @importFrom utils capture.output head packageVersion read.csv write.table
 #' @importFrom tidyr gather
 #' @importFrom BMSC constrSelEst createFormula prepModelNames get_avg_model getModelFits 
 #'  get_model_weights plotModelFit

@@ -30,7 +30,8 @@ Imports:
   DT,
   Rcpp,
   rstan (>= 2.21.2),
-  tidyr
+  tidyr,
+  zip
 License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: true

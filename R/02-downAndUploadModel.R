@@ -13,7 +13,9 @@ downloadModelUI <- function(id, label) {
     #checkboxInput(ns("onlyInputs"), "Store only data and model options"),
     tags$br(),
     downloadButton(ns("downloadModel"), "Download Settings"),
-    helpText("Download of model output not possible! BMSC model output is too large.")
+    helpText(
+      "Currently download of model output is not possible! BMSC model output is too large."
+    )
   )
 }
 
@@ -23,28 +25,26 @@ downloadModelUI <- function(id, label) {
 #' Backend for download model module
 #'
 #' @param id namespace id
-#' @param allParentInput (reactive) list of inputs from parent module
-#' @param yEstimates (reactive) An object created by \code{\link{estimateY}}.
-#'  Distributions of the dependent variable.
-#' @param formulas (reactive) formulas
-#' @param data (reactive) data
+#' @param dat (reactive) user data
+#' @param inputs (reactive) user inputs
+#' @param model (reactive) model output object
 downloadModelServer <-
-  function(id,
-           data, inputs, model) {
+  function(id, dat, inputs, model) {
     moduleServer(id,
                  function(input, output, session) {
                    output$downloadModel <- downloadHandler(
                      filename = function() {
-                       paste(gsub("\ ", "_", Sys.time()), "bmsc-app.zip", sep = "_")
+                       paste(gsub("\ ", "_", Sys.time()), "BMSCApp.zip", sep = "_")
                      },
                      content = function(file) {
                        withProgress({
                          zipdir <- tempdir()
                          modelfile <- file.path(zipdir, "model.rds")
-                         notesfile <- file.path(zipdir, "README.txt")
+                         notesfile <-
+                           file.path(zipdir, "README.txt")
                          helpfile <- file.path(zipdir, "help.html")
                          
-                         dataExport <- data()
+                         dataExport <- dat()
                          inputExport <- reactiveValuesToList(inputs)
                          
                          if (input$onlyInputs || is.null(model)) {
@@ -53,14 +53,16 @@ downloadModelServer <-
                            modelExport <- model()
                          }
                          
-                         saveRDS(list(
-                           data = dataExport,
-                           inputs = inputExport,
-                           model = modelExport,
-                           version = paste("BMSCApp", packageVersion("BMSCApp"))
-                         ),
-                         file = modelfile,
-                         compress = "xz")
+                         saveRDS(
+                           list(
+                             data = dataExport,
+                             inputs = inputExport,
+                             model = modelExport,
+                             version = paste("BMSCApp", packageVersion("BMSCApp"))
+                           ),
+                           file = modelfile,
+                           compress = "xz"
+                         )
                          writeLines(input$exportNotes, notesfile)
                          save_html(getHelp(id = ""), helpfile)
                          zip::zipr(file, c(modelfile, notesfile, helpfile))
@@ -225,11 +227,9 @@ dataLoadedAlert <-
       text = HTML(paste0(
         #"<div align='left'>",
         "<p>",
-        paste(
-          paste0(warnings, collapse = "<br/>"),
-          uploadedVersion,
-          sep = "</p><br/><p>"
-        ),
+        paste(paste0(warnings, collapse = "<br/>"),
+              uploadedVersion,
+              sep = "</p><br/><p>"),
         "</p>"#,
         #"</div>"
       )),

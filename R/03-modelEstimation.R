@@ -128,7 +128,7 @@ modelEstimation <- function(input, output, session, data) {
   # MODEL DOWN- / UPLOAD ----
   # no download of model output since it is too large to be uploadad again
   downloadModelServer("modelDownload",
-                      data = data, 
+                      dat = data, 
                       inputs = input, 
                       #model = rawModel,
                       model = NULL)

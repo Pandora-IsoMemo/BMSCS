@@ -4,19 +4,16 @@
 \alias{downloadModelServer}
 \title{Server function download model}
 \usage{
-downloadModelServer(id, data, inputs, model)
+downloadModelServer(id, dat, inputs, model)
 }
 \arguments{
 \item{id}{namespace id}
 
-\item{data}{(reactive) data}
+\item{dat}{(reactive) user data}
 
-\item{allParentInput}{(reactive) list of inputs from parent module}
+\item{inputs}{(reactive) user inputs}
 
-\item{yEstimates}{(reactive) An object created by \code{\link{estimateY}}.
-Distributions of the dependent variable.}
-
-\item{formulas}{(reactive) formulas}
+\item{model}{(reactive) model output object}
 }
 \description{
 Backend for download model module

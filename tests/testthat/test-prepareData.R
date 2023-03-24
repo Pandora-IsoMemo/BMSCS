@@ -3,20 +3,38 @@ testthat::test_that("Test prepareData", {
   testData <- generateExampleData()
   
   testPrepData <-
-    prepareData(testData,
-                in_x = c("x1", "x2", "x3"),
-                in_xUnc = NULL,
-                in_y = "y",
-                in_yUnc = "yUncertainty",
-                in_xCategorical = "x4",
-                in_xCatUnc = NULL,
-                in_regType = "logistic")
+    prepareData(
+      testData,
+      in_x = c("x1", "x2", "x3"),
+      in_xUnc = NULL,
+      in_y = "y",
+      in_yUnc = "yUncertainty",
+      in_xCategorical = "x4",
+      in_xCatUnc = NULL,
+      in_regType = "logistic"
+    )
   
-  testthat::expect_length(testPrepData, 5)
-  testthat::expect_equal(names(testPrepData), c("xCategorical", "xCatUnc", "xUnc", "yUnc", "dataModel"))
-  testthat::expect_equal(testPrepData[1:3] = list(xCategorical = "x4", xCatUnc = NULL, xUnc = NULL))
-  testthat::expect_equal(head(testPrepData[[4]]) = c(0.001, 0.001, 0.001, 0.002, 0.001, 0))
-  testthat::expect_equal(head(testPrepData[[5]]),
+  testthat::expect_length(testPrepData, 6)
+  testthat::expect_equal(
+    names(testPrepData),
+    c(
+      "xVars",
+      "xCategorical",
+      "xCatUnc",
+      "xUnc",
+      "yUnc",
+      "dataModel"
+    )
+  )
+  testthat::expect_equal(testPrepData[1:4],
+                         list(
+                           xVars = c("x1", "x2", "x3", "x4"),
+                           xCategorical = "x4",
+                           xCatUnc = NULL,
+                           xUnc = NULL
+                         ))
+  testthat::expect_equal(head(testPrepData[[5]]), c(0.001, 0.001, 0.001, 0.002, 0.001, 0))
+  testthat::expect_equal(head(testPrepData[[6]]),
                          structure(
                            list(
                              x1 = c(1.371, 1.16, 0.034, 1.035, 0.636, 0.319),
@@ -38,16 +56,20 @@ testthat::test_that("Test generateFormula", {
   testData <- generateExampleData()
   
   testPrepData <-
-    prepareData(testData,
-                in_x = c("x1", "x2", "x3"),
-                in_xUnc = NULL,
-                in_y = "y",
-                in_yUnc = "yUncertainty",
-                in_xCategorical = "x4",
-                in_xCatUnc = NULL,
-                in_regType = "logistic")
+    prepareData(
+      testData,
+      in_x = c("x1", "x2", "x3"),
+      in_xUnc = NULL,
+      in_y = "y",
+      in_yUnc = "yUncertainty",
+      in_xCategorical = "x4",
+      in_xCatUnc = NULL,
+      in_regType = "logistic"
+    )
   
-  testthat::expect_equal(generateFormula("y", testPrepData$xVars) %>%
-                           as.character(),
-                         c("~", "y", "x1 + x2 + x3 + x4"))
+  testthat::expect_equal(
+    generateFormula("y", testPrepData$xVars) %>%
+      as.character(),
+    c("~", "y", "x1 + x2 + x3 + x4")
+  )
 })

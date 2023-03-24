@@ -1,6 +1,6 @@
 Package: BMSCApp
 Title: Interface for Bayesian Model Selection under Constraints
-Version: 23.03.1
+Version: 23.03.2
 Authors@R: c(
     person("Marcus", "Groß", email = "marcus.gross@inwt-statistics.de", role = c("aut", "cre")),
     person("Ricardo", "Fernandes", email = "ldv1452@gmail.com", role = c("aut")),
@@ -17,7 +17,7 @@ Imports:
   dplyr,
   futile.logger,
   ggplot2,
-  DataTools (>= 23.03.1),
+  DataTools (>= 23.03.2),
   htmltools,
   jsonlite,
   openxlsx,

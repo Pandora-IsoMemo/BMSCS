@@ -1,8 +1,8 @@
 #' @import shiny
 #' @importFrom car durbinWatsonTest vif
 #' @importFrom coda raftery.diag gelman.diag geweke.diag heidel.diag mcmc
-#' @importFrom DataTools importDataUI importDataServer remoteModelsUI remoteModelsServer 
-#'  tryCatchWithWarningsAndErrors
+#' @importFrom DataTools downloadModelUI downloadModelServer importDataUI importDataServer
+#'  remoteModelsUI remoteModelsServer tryCatchWithWarningsAndErrors uploadModelUI uploadModelServer
 #' @importFrom DT datatable renderDT DTOutput
 #' @importFrom dplyr ungroup summarise group_by "%>%" summarise_ group_by_
 #' @importFrom ggplot2 aes_string element_text geom_errorbar geom_point ggplot

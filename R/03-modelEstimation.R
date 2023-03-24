@@ -128,19 +128,28 @@ modelEstimation <- function(input, output, session, data) {
   # MODEL DOWN- / UPLOAD ----
   # no download of model output since it is too large to be uploadad again
   downloadModelServer("modelDownload",
-                      dat = data, 
-                      inputs = input, 
+                      dat = data,
+                      inputs = input,
                       #model = rawModel,
-                      model = NULL)
+                      model = NULL,
+                      rPackageName = "BMSCApp",
+                      onlySettings = TRUE,
+                      compress = "xy")
   
-  uploadedData <- uploadModelServer("modelUpload")
-  
+  uploadedData <- uploadModelServer("modelUpload",
+                                    githubRepo = "bmsc-app",
+                                    rPackageName = "BMSCApp",
+                                    rPackageVersion = "BMSCApp" %>%
+                                      packageVersion() %>%
+                                      as.character(),
+                                    onlySettings = TRUE)
+
   observe(priority = 500, {
     ## update data ----
     data(uploadedData$data)
   }) %>%
     bindEvent(uploadedData$data)
-  
+
   observe(priority = -100, {
     ## update inputs ----
     inputIDs <- names(uploadedData$inputs)

@@ -108,10 +108,9 @@ uploadModelServer <-
                    pathToModel <- reactiveVal(NULL)
                    
                    uploadedData <- reactiveValues(
+                     data = NULL,
                      inputs = NULL,
-                     model = NULL,
-                     version = NULL,
-                     exportNotes = NULL
+                     model = NULL
                    )
                    
                    observeEvent(input$uploadModel, {
@@ -127,7 +126,7 @@ uploadModelServer <-
                        as.character(),
                      resetSelected = reset
                    )
-                   
+
                    observeEvent(pathToRemote(), {
                      pathToModel(pathToRemote())
                    })

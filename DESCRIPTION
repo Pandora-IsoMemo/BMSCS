@@ -17,7 +17,7 @@ Imports:
   dplyr,
   futile.logger,
   ggplot2,
-  DataTools (>= 23.03.2),
+  DataTools (>= 23.03.3),
   htmltools,
   jsonlite,
   openxlsx,

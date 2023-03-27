@@ -131,17 +131,15 @@ modelEstimation <- function(input, output, session, data) {
                       dat = data,
                       inputs = input,
                       #model = rawModel,
-                      model = NULL,
+                      model = reactive(NULL),
                       rPackageName = "BMSCApp",
+                      helpHTML = getHelp(id = ""),
                       onlySettings = TRUE,
-                      compress = "xy")
+                      compress = "xz")
   
   uploadedData <- uploadModelServer("modelUpload",
                                     githubRepo = "bmsc-app",
                                     rPackageName = "BMSCApp",
-                                    rPackageVersion = "BMSCApp" %>%
-                                      packageVersion() %>%
-                                      as.character(),
                                     onlySettings = TRUE)
 
   observe(priority = 500, {
@@ -155,9 +153,6 @@ modelEstimation <- function(input, output, session, data) {
     inputIDs <- names(uploadedData$inputs)
     for (i in 1:length(uploadedData$inputs)) {
       session$sendInputMessage(inputIDs[i],  list(value = uploadedData$inputs[[inputIDs[i]]]) )
-      if (inputIDs[i] == "modelDownload-exportNotes") {
-        print(uploadedData$inputs[[inputIDs[i]]])
-      }
     }
   }) %>%
     bindEvent(uploadedData$inputs)

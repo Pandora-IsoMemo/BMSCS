@@ -8,4 +8,4 @@
 - https://github.com/Pandora-IsoMemo/bmsc-app/wiki
 
 ### Folder for online models
-- `inst/app/predefinedModels`
+- [`inst/app/predefinedModels`](https://github.com/Pandora-IsoMemo/bmsc-app/tree/main/inst/app/predefinedModels)

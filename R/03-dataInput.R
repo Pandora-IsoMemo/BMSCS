@@ -8,11 +8,13 @@ dataInputUI <- function(id, title = "") {
     id = id,
     value = id,
     sidebarPanel(
-      style = "position:fixed; width:31%; max-width:700px; overflow-y:auto; height:88%",
+      style = "position:fixed; width:23%; max-width:500px; overflow-y:auto; height:88%",
+      width = 3,
       importDataUI(ns("data"), "Import Data"),
       actionButton(ns("exampleData"), label = "Generate example data")
     ),
     mainPanel(
+      width = 9,
       fluidRow(
         DTOutput(ns("table"))
       )
@@ -23,7 +25,7 @@ dataInputUI <- function(id, title = "") {
 #' @rdname shinyModule
 #' @export
 dataInput <- function(input, output, session) {
-  dat <- reactiveVal(NULL)
+  data <- reactiveVal(NULL)
 
   importedData <- importDataServer(
     "data",
@@ -32,18 +34,18 @@ dataInput <- function(input, output, session) {
 
   observeEvent(importedData(), {
     req(length(importedData()) > 0)
-    dat(importedData()[[1]])
+    data(importedData()[[1]])
   })
 
   observeEvent(input$exampleData, {
-    dat(generateExampleData())
+    data(generateExampleData())
   })
 
-  output$table <- renderDT(prepareDataTable(dat()))
+  output$table <- renderDT(prepareDataTable(data()))
   
-  dat
+  data
 }
 
-prepareDataTable <- function(data) {
-  datatable(data)
+prepareDataTable <- function(dat) {
+  datatable(dat)
 }

@@ -1,5 +1,16 @@
 # BMSCApp app 
 
+## Version 23.03.2
+
+### New Features
+- option to load remote models from the github folder `inst/app/predefinedModels` of the respective 
+repository
+- if there is no internet connection remote models are taken from the models that were saved with
+  the last deployed app version
+- option to save user inputs and data without the model output
+- option to upload user inputs and data. Upload of model output is not supported since the model
+output of BMSC is too large for the upload
+
 ## Version 23.03.1
 
 ### Bug fixes

@@ -1,6 +1,6 @@
 Package: BMSCApp
 Title: Interface for Bayesian Model Selection under Constraints
-Version: 23.03.1
+Version: 23.03.2
 Authors@R: c(
     person("Marcus", "Groß", email = "marcus.gross@inwt-statistics.de", role = c("aut", "cre")),
     person("Ricardo", "Fernandes", email = "ldv1452@gmail.com", role = c("aut")),
@@ -15,20 +15,21 @@ Imports:
   coda,
   BMSC (>= 23.01.1),
   dplyr,
-  jsonlite,
+  futile.logger,
   ggplot2,
-  DataTools (>= 23.03.1),
+  DataTools (>= 23.03.3),
+  jsonlite,
+  openxlsx,
+  pROC,
   shiny,
   shinyjs,
   shinythemes,
   shinyWidgets,
-  futile.logger,
-  openxlsx,
-  pROC,
   DT,
   Rcpp,
   rstan (>= 2.21.2),
-  tidyr
+  tidyr,
+  zip
 License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: true

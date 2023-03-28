@@ -8,9 +8,13 @@ modelEstimationUI <- function(id, title = "") {
     value = id,
     useShinyjs(),
     sidebarPanel(
-      style = "position:fixed; width:31%; max-width:700px; overflow-y:auto; height:88%",
+      style = "position:fixed; width:23%; max-width:500px; overflow-y:auto; height:88%",
+      width = 3,
+      uploadModelUI(ns("modelUpload"), label = NULL),
+      downloadModelUI(ns("modelDownload"), label = NULL),
+      hr(style = "border-top: 1px solid #000000;"),
       selectizeInput(ns("x"), "Independent (X) numeric variables", choices = NULL, multiple = TRUE, selected = NULL),
-      selectizeInput(ns("xCat"), "Independent (X) categorical variables (optional)", choices = NULL, multiple = TRUE, selected = NULL),
+      selectizeInput(ns("xCategorical"), "Independent (X) categorical variables (optional)", choices = NULL, multiple = TRUE, selected = NULL),
       pickerInput(ns("y"), "Dependent (Y) variable", choices = NULL, multiple = FALSE, selected = NULL),
       sliderInput(ns("interactionDepth"), label = "Interaction depth",
                   min = 1, max = 3, step = 1, value = 1),
@@ -26,7 +30,7 @@ modelEstimationUI <- function(id, title = "") {
       selectizeInput(ns("xUnc"), "X numerical variables uncertainty (optional)", choices = NULL, multiple = TRUE, selected = NULL),
       selectizeInput(ns("xCatUnc"), "X categorical variables misclassification rate (optional)", choices = NULL, multiple = TRUE, selected = NULL),
       pickerInput(ns("yUnc"), "Dependent variable uncertainty (optional)", choices = NULL, multiple = FALSE, selected = NULL),
-      radioButtons(ns("regType"), label = "Regression type", choices = c("linear", "logistic"), selected = "linear"),
+      radioButtons(ns("regType"), label = "Regression type", choices = c("linear", "logistic"), selected = "linear", inline = TRUE),
       sliderInput(ns("maxTerms"), label = "Max number of terms in formula",
                   min = 2, max = 200, step = 1, value = 8),
       conditionalPanel(
@@ -49,6 +53,7 @@ modelEstimationUI <- function(id, title = "") {
       actionButton(ns("modelAvg"), "Create model average")
     ),
     mainPanel(
+      width = 9,
       tabsetPanel(
         id = ns("modTabs"),
         modelEvaluationTab(ns("modelEvaluation")),
@@ -72,13 +77,14 @@ modelEstimation <- function(input, output, session, data) {
   
   observe({
     updateSelectizeInput(session, "x", choices = names(data()), selected = "")
-    updateSelectizeInput(session, "xCat", choices = names(data()), selected = "")
+    updateSelectizeInput(session, "xCategorical", choices = names(data()), selected = "")
     updatePickerInput(session, "y", choices = names(data()), selected = "")
     updateSelectizeInput(session, "xUnc", choices = names(data()), selected = "")
     updateSelectizeInput(session, "xCatUnc", choices = names(data()), selected = "")
     updatePickerInput(session, "yUnc", choices = names(data()), selected = "")
-  })
-
+  }, priority = 100) %>%
+    bindEvent(data())
+    
   callModule(modelSummary, "modelSummary", model = m, modelAVG = m_AVG)
   callModule(modelDiagnostics, "modelDiagnostics", model = m, nChains = input$nChains)
   callModule(modelEvaluation, "modelEvaluation", model = m)
@@ -93,10 +99,10 @@ modelEstimation <- function(input, output, session, data) {
   formulaParts <- reactive({
     if(!is.null(input$y) && !is.null(input$x) && input$y != "" && any(input$x != "")){
     xVars <- input$x
-    xCat <- ""
-    if(!is.null(input$xCat) && any(input$xCat != "")){
-      xVars <- c(xVars, input$xCat)
-      xCat <- input$xCat
+    xCategorical <- ""
+    if(!is.null(input$xCategorical) && any(input$xCategorical != "")){
+      xVars <- c(xVars, input$xCategorical)
+      xCategorical <- input$xCategorical
     }
 
     FORMULA <- generateFormula(input$y, xVars)
@@ -105,7 +111,7 @@ modelEstimation <- function(input, output, session, data) {
                   inverseExponent = input$inverseExp,
                   interactionDepth = input$interactionDepth,
                   intercept = input$intercept,
-                  categorical = xCat)
+                  categorical = xCategorical)
     
     ret <- gsub('[\n ]', '', strsplit(strsplit(as.character(FORMULA)[3], "~")[[1]], " \\+ ")[[1]])
     return(ret)
@@ -119,129 +125,111 @@ modelEstimation <- function(input, output, session, data) {
     updatePickerInput(session, "mustExclude", choices = formulaParts(), selected = "")
   })
 
-  m <- eventReactive(input$run, {
-    if(is.null(input$y) || input$y == ""){
-      shinyjs::alert("Please select an dependent variable")
-      return(NULL)
-    }
-    
-    if(is.null(input$x) || all(input$x == "")){
-      shinyjs::alert("Please select an independent variable(s)")
-      return(NULL)
-    }
-    xVars <- input$x
-    if(!is.null(input$xCat) && any(input$xCat != "")){
-      xVars <- c(xVars, input$xCat)
-      xCat <- input$xCat
-    } else {
-      xCat <- ""
-    }
-    FORMULA <- generateFormula(input$y, xVars)
-    dataModel <- data()
+  # MODEL DOWN- / UPLOAD ----
+  # no download of model output since it is too large to be uploadad again
+  downloadModelServer("modelDownload",
+                      dat = data,
+                      inputs = input,
+                      #model = rawModel,
+                      model = reactive(NULL),
+                      rPackageName = "BMSCApp",
+                      helpHTML = getHelp(id = ""),
+                      onlySettings = TRUE,
+                      compress = "xz")
+  
+  uploadedData <- uploadModelServer("modelUpload",
+                                    githubRepo = "bmsc-app",
+                                    rPackageName = "BMSCApp",
+                                    onlySettings = TRUE)
 
-    if(all(is.na(dataModel[, input$y]))){
-      shinyjs::alert("Dependent variable has no numeric values")
-      return(NULL)
-    }
-    
-    if(any(apply(dataModel[, input$x, drop = FALSE], 2, function(k) all(is.na(as.numeric(k)))))){
-      shinyjs::alert("At least one x variable has no numeric values")
-      return(NULL)
-    }
-    
-    dataModel[, input$x] <- as.data.frame(sapply(dataModel[, input$x], as.numeric)) 
+  observe(priority = 500, {
+    ## update data ----
+    data(uploadedData$data)
+  }) %>%
+    bindEvent(uploadedData$data)
 
-    if(!is.null(input$xUnc)){
-      xUnc <- dataModel[, input$xUnc, drop = FALSE]
-      names(xUnc) <- input$x
-      if(any(apply(dataModel[, input$xUnc, drop = FALSE], 2, function(k) all(as.numeric(is.na(k)))))){
-        shinyjs::alert("At least one x uncertainty variable has no numeric values")
-        return(NULL)
-      }
-      if(length(input$xUnc) != length(input$x)){
-        shinyjs::alert("x-uncertainty variables must have same length as x-variables")
-        return(NULL)
-      }
-    } else {
-      xUnc <- NULL
+  observe(priority = -100, {
+    ## update inputs ----
+    inputIDs <- names(uploadedData$inputs)
+    for (i in 1:length(uploadedData$inputs)) {
+      session$sendInputMessage(inputIDs[i],  list(value = uploadedData$inputs[[inputIDs[i]]]) )
     }
+  }) %>%
+    bindEvent(uploadedData$inputs)
+  
+  # # currently model upload is not possible since the model output is to large to be uploaded again
+  # # upload limit exceeded
+  #
+  # observeEvent(uploadedData$model, priority = -200, {
+  # ## update model ----
+  #   rawModel(uploadedData$model)
+  # })
+  
+  # RUN MODEL ----
+  dataModel <- reactiveVal()
+  rawModel <- reactiveVal()
+  
+  observe({
+    prepData <- data() %>%
+      prepareData(in_x = input$x,
+                  in_xUnc = input$xUnc,
+                  in_y = input$y,
+                  in_yUnc = input$yUnc,
+                  in_xCategorical = input$xCategorical,
+                  in_xCatUnc = input$xCatUnc,
+                  in_regType = input$regType) %>%
+      tryCatchWithWarningsAndErrors()
     
-    if(!is.null(input$xCatUnc)){
-      xCatUnc <- dataModel[, input$xCatUnc, drop = FALSE]
-      names(xCatUnc) <- input$xCat
-      if(any(apply(dataModel[, input$xCatUnc, drop = FALSE], 2, function(k) all(as.numeric(is.na(k)))))){
-        shinyjs::alert("At least one x categorical uncertainty variable has no numeric values")
-        return(NULL)
+    if (is.null(prepData)) {
+      dataModel(NULL)
+      rawModel(NULL)
       }
-      if(length(input$xCatUnc) != length(input$xCat)){
-        shinyjs::alert("x-missclassification variables must have same length as x-categorical variables")
-        return(NULL)
-      }
-      
-    } else {
-      xCatUnc <- NULL
-    }
-    if(xCat[1] == ""){
-      mVars <- c(input$x)
-    } else {
-      mVars <- c(input$x, xCat)
-    }
-    missingVars <- names(which(sapply(mVars, function(x) any(is.na(dataModel[, x])))))
-    if(length(missingVars) > 0){
-      dataModel2 <- dataModel
-      dataModel <- na.omit(dataModel)
-      nMissing <- nrow(dataModel2) - nrow(dataModel)
-      shinyjs::alert(paste0("Missing values found in following variables: ", paste(missingVars, collapse = ", "), "; ", nMissing, " observations deleted."))
-    }
-
-    if(!is.numeric(dataModel[, input$y])){
-      dataModel[, input$y] <- as.numeric(dataModel[, input$y])
-    }
     
-    if(!is.null(input$yUnc)){
-      yUnc <- as.numeric(as.vector(dataModel[, input$yUnc]))
-      if(all(is.na(yUnc))){
-        shinyjs::alert("Dependent variable uncertainty has no numeric values")
-        return(NULL)
-      }
-    } else {
-      yUnc <- rep(0, nrow(dataModel))
-    }
+    req(prepData)
+    FORMULA <- generateFormula(input$y, prepData$xVars)
     
-    if(input$regType == "logistic" & any(!(dataModel[, input$y] %in% c(0,1)))){
-      shinyjs::alert("Dependent variable must have only 0 and 1 values if logistic regression is selected.")
-      return(NULL)
-    }
     set.seed(1234)
-    
-    model <- withProgress({constrSelEst(
-      formula = FORMULA,
-      mustInclude = input$mustInclude, 
-      mustExclude = input$mustExclude,
-      maxExponent = input$maxExp,
-      inverseExponent = input$inverseExp,
-      interactionDepth = input$interactionDepth,
-      categorical = xCat,
-      ar1 = input$ar1,
-      intercept = input$intercept,
-      constraint_1 = input$constraint, data = dataModel,
-      xUncertainty = xUnc,
-      xCatUncertainty = xCatUnc,
-      yUncertainty = yUnc, maxNumTerms = input$maxTerms,
-      type = input$regType,
-      scale = input$scale,
-      chains = input$nChains,
-      burnin = input$burnin,
-      iterations = input$iter,
-      shiny = TRUE,
-      imputeMissings = input$imputeMissings) %>%
+    model <- withProgress({
+      constrSelEst(
+        formula = FORMULA,
+        mustInclude = input$mustInclude,
+        mustExclude = input$mustExclude,
+        maxExponent = input$maxExp,
+        inverseExponent = input$inverseExp,
+        interactionDepth = input$interactionDepth,
+        categorical = prepData$xCategorical,
+        ar1 = input$ar1,
+        intercept = input$intercept,
+        constraint_1 = input$constraint,
+        data = prepData$dataModel,
+        xUncertainty = prepData$xUnc,
+        xCatUncertainty = prepData$xCatUnc,
+        yUncertainty = prepData$yUnc,
+        maxNumTerms = input$maxTerms,
+        type = input$regType,
+        scale = input$scale,
+        chains = input$nChains,
+        burnin = input$burnin,
+        iterations = input$iter,
+        shiny = TRUE,
+        imputeMissings = input$imputeMissings
+      ) %>%
         tryCatchWithWarningsAndErrors()
-    }, 
-    value = 0, 
+    },
+    value = 0,
     message = "Calculation in progess",
     detail = 'This may take a while')
     
-    if (is.null(model)) return(NULL)
+    dataModel(prepData$dataModel)
+    rawModel(model)
+  }) %>%
+    bindEvent(input$run)
+  
+  m <- eventReactive(rawModel(), ignoreNULL = FALSE, ignoreInit = TRUE, { 
+    dataModel <- dataModel()
+    model <- rawModel()
+    
+    if (is.null(dataModel) || is.null(model)) return(NULL)
     
     names(model$models) <- prepModelNames(model$models)
     # if(any(sapply(1:length(model), function(x) is.null(model[[x]])))){

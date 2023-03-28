@@ -1,6 +1,7 @@
 # BMSC App (constraint-estimation-app)
 
 ### Access to online version:
+- MAIN version: https://isomemoapp.com/app/bmsc
 - BETA version: https://isomemoapp.com/app/bmsc-beta
 
 ### Help and installation instructions:

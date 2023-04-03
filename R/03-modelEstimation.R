@@ -10,8 +10,11 @@ modelEstimationUI <- function(id, title = "") {
     sidebarPanel(
       style = "position:fixed; width:23%; max-width:500px; overflow-y:auto; height:88%",
       width = 3,
-      uploadModelUI(ns("modelUpload"), label = NULL),
-      downloadModelUI(ns("modelDownload"), label = NULL),
+      # uploadModelUI(ns("modelUpload"), label = NULL),
+      # downloadModelUI(ns("modelDownload"), label = NULL),
+      tags$h4("Load a Model"),
+      downUploadButtonUI(ns("downUpload"), label = "Upload / Download"),
+      textAreaInput(ns("modelNotes"), label = NULL, placeholder = "Model description ..."),
       hr(style = "border-top: 1px solid #000000;"),
       selectizeInput(ns("x"), "Independent (X) numeric variables", choices = NULL, multiple = TRUE, selected = NULL),
       selectizeInput(ns("xCategorical"), "Independent (X) categorical variables (optional)", choices = NULL, multiple = TRUE, selected = NULL),
@@ -127,43 +130,60 @@ modelEstimation <- function(input, output, session, data) {
 
   # MODEL DOWN- / UPLOAD ----
   # no download of model output since it is too large to be uploadad again
-  downloadModelServer("modelDownload",
-                      dat = data,
-                      inputs = input,
-                      #model = rawModel,
-                      model = reactive(NULL),
-                      rPackageName = "BMSCApp",
-                      helpHTML = getHelp(id = ""),
-                      onlySettings = TRUE,
-                      compress = "xz")
+  # downloadModelServer("modelDownload",
+  #                     dat = data,
+  #                     inputs = input,
+  #                     #model = rawModel,
+  #                     model = reactive(NULL),
+  #                     rPackageName = "BMSCApp",
+  #                     helpHTML = getHelp(id = ""),
+  #                     onlySettings = TRUE,
+  #                     compress = "xz")
   
-  uploadedData <- uploadModelServer("modelUpload",
-                                    githubRepo = "bmsc-app",
-                                    rPackageName = "BMSCApp",
-                                    onlySettings = TRUE)
+  # uploadedData <- uploadModelServer("modelUpload",
+  #                                   githubRepo = "bmsc-app",
+  #                                   rPackageName = "BMSCApp",
+  #                                   onlySettings = TRUE)
 
-  observe(priority = 500, {
+  
+  # MODEL DOWN- / UPLOAD ----
+  uploadedData <- downUploadButtonServer(
+    "downUpload",
+    dat = data,
+    inputs = input,
+    model = rawModel,
+    rPackageName = "BMSCApp",
+    githubRepo = "bmsc-app",
+    helpHTML = getHelp(id = ""),
+    modelNotes = reactive(input$modelNotes),
+    compress = "xz",
+    compressionLevel = 9)
+  
+  observe(priority = 100, {
     ## update data ----
     data(uploadedData$data)
   }) %>%
     bindEvent(uploadedData$data)
-
-  observe(priority = -100, {
+  
+  observe(priority = 50, {
+    ## reset input of model notes
+    updateTextAreaInput(session, "modelNotes", value = "")
+    
     ## update inputs ----
     inputIDs <- names(uploadedData$inputs)
-    for (i in 1:length(uploadedData$inputs)) {
+    inputIDs <- inputIDs[inputIDs %in% names(input)]
+    for (i in 1:length(inputIDs)) {
       session$sendInputMessage(inputIDs[i],  list(value = uploadedData$inputs[[inputIDs[i]]]) )
     }
   }) %>%
     bindEvent(uploadedData$inputs)
   
-  # # currently model upload is not possible since the model output is to large to be uploaded again
-  # # upload limit exceeded
-  #
-  # observeEvent(uploadedData$model, priority = -200, {
-  # ## update model ----
-  #   rawModel(uploadedData$model)
-  # })
+  observe(priority = 10, {
+    ## update model ----
+    rawModel(uploadedData$model)
+  }) %>%
+    bindEvent(uploadedData$model)
+  
   
   # RUN MODEL ----
   dataModel <- reactiveVal()

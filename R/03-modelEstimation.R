@@ -10,8 +10,6 @@ modelEstimationUI <- function(id, title = "") {
     sidebarPanel(
       style = "position:fixed; width:23%; max-width:500px; overflow-y:auto; height:88%",
       width = 3,
-      # uploadModelUI(ns("modelUpload"), label = NULL),
-      # downloadModelUI(ns("modelDownload"), label = NULL),
       tags$h4("Load a Model"),
       downUploadButtonUI(ns("downUpload"), label = "Upload / Download"),
       textAreaInput(ns("modelNotes"), label = NULL, placeholder = "Model description ..."),
@@ -127,37 +125,22 @@ modelEstimation <- function(input, output, session, data) {
     updatePickerInput(session, "mustInclude", choices = formulaParts(), selected = "")
     updatePickerInput(session, "mustExclude", choices = formulaParts(), selected = "")
   })
-
-  # MODEL DOWN- / UPLOAD ----
-  # no download of model output since it is too large to be uploadad again
-  # downloadModelServer("modelDownload",
-  #                     dat = data,
-  #                     inputs = input,
-  #                     #model = rawModel,
-  #                     model = reactive(NULL),
-  #                     rPackageName = "BMSCApp",
-  #                     helpHTML = getHelp(id = ""),
-  #                     onlySettings = TRUE,
-  #                     compress = "xz")
   
-  # uploadedData <- uploadModelServer("modelUpload",
-  #                                   githubRepo = "bmsc-app",
-  #                                   rPackageName = "BMSCApp",
-  #                                   onlySettings = TRUE)
-
+  m <- reactiveVal()
   
   # MODEL DOWN- / UPLOAD ----
   uploadedData <- downUploadButtonServer(
     "downUpload",
     dat = data,
     inputs = input,
-    model = rawModel,
+    model = m,
     rPackageName = "BMSCApp",
     githubRepo = "bmsc-app",
     helpHTML = getHelp(id = ""),
     modelNotes = reactive(input$modelNotes),
-    compress = "xz",
-    compressionLevel = 9)
+    compress = TRUE,
+    compressionLevel = 9,
+    title = "Upload and Download of Models")
   
   observe(priority = 100, {
     ## update data ----
@@ -180,15 +163,12 @@ modelEstimation <- function(input, output, session, data) {
   
   observe(priority = 10, {
     ## update model ----
-    rawModel(uploadedData$model)
+    m(uploadedData$model)
   }) %>%
     bindEvent(uploadedData$model)
   
   
   # RUN MODEL ----
-  dataModel <- reactiveVal()
-  rawModel <- reactiveVal()
-  
   observe({
     prepData <- data() %>%
       prepareData(in_x = input$x,
@@ -199,12 +179,7 @@ modelEstimation <- function(input, output, session, data) {
                   in_xCatUnc = input$xCatUnc,
                   in_regType = input$regType) %>%
       tryCatchWithWarningsAndErrors()
-    
-    if (is.null(prepData)) {
-      dataModel(NULL)
-      rawModel(NULL)
-      }
-    
+
     req(prepData)
     FORMULA <- generateFormula(input$y, prepData$xVars)
     
@@ -240,25 +215,25 @@ modelEstimation <- function(input, output, session, data) {
     message = "Calculation in progess",
     detail = 'This may take a while')
     
-    dataModel(prepData$dataModel)
-    rawModel(model)
-  }) %>%
-    bindEvent(input$run)
-  
-  m <- eventReactive(rawModel(), ignoreNULL = FALSE, ignoreInit = TRUE, { 
-    dataModel <- dataModel()
-    model <- rawModel()
+    if (is.null(prepData$dataModel) || is.null(model)) {
+      m(NULL)
+      return()
+    } 
     
-    if (is.null(dataModel) || is.null(model)) return(NULL)
-    
+    req(model)
     names(model$models) <- prepModelNames(model$models)
     # if(any(sapply(1:length(model), function(x) is.null(model[[x]])))){
     #   browser()
     # }
-    fits <- withProgress({getModelFits(model$models, y = dataModel[, input$y], newdata = dataModel)}, value = 0.8, message = "Evaluate Models")
+    fits <- withProgress({
+      getModelFits(model$models, 
+                   y = prepData$dataModel[, input$y], 
+                   newdata = prepData$dataModel)
+    }, value = 0.8, message = "Evaluate Models")
     
-    return(list(models = model$models, fits = fits, dependent = input$y, variableData = model$variableData))
-  })
+    m(list(models = model$models, fits = fits, dependent = input$y, variableData = model$variableData))
+  }) %>%
+    bindEvent(input$run)
   
   m_AVG <- eventReactive(input$modelAvg, {
       req(m())

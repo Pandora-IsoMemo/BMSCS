@@ -1,5 +1,11 @@
 # BMSCApp app 
 
+## Version 23.04.1
+
+### New Features
+- _Upload and dowwnload of models_: option to download and upload model output also, the compression
+may take a while
+
 ## Version 23.03.2
 
 ### New Features

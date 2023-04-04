@@ -3,8 +3,10 @@
 ## Version 23.04.1
 
 ### New Features
-- _Upload and dowwnload of models_: option to download and upload model output also, the compression
-may take a while
+- _Upload and download of models_: 
+  - new version of model up- and download (contains also the option to load model output)
+  - a button opens a pop-up that contains the UI
+  - the compression of model outputs may take a while
 
 ## Version 23.03.2
 

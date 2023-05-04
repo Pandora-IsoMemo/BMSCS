@@ -11,17 +11,23 @@ modelParametersTab <- function(id) {
   )
 }
 
-modelParameters <- function(input, output, session, model) {
+modelParameters <- function(input, output, session, model, modelAVG) {
   observe({
     req(model())
     updateSelectInput(session, "modelSelection", choices = names(model()$models))
+    req(modelAVG())
+    updateSelectInput(session, "modelSelection", choices = c(names(model()$models), names(modelAVG())))
   })
 
   plotFun <- reactive({
     req(model())
-    req((input$modelSelection %in% names(model()$models)))
+    req((input$modelSelection %in% names(model()$models)) || (input$modelSelection %in% names(modelAVG())))
     function() {
-      mPar <- model()$models[[input$modelSelection]]
+      if((input$modelSelection %in% names(model()$models))){
+        mPar <- model()$models[[input$modelSelection]]
+      } else {
+        mPar <- modelAVG()[[input$modelSelection]]
+      }
       parameterValues <- extract(mPar)$betaAll
       
       if (mPar@hasIntercept) {
@@ -83,13 +89,22 @@ modelParameters <- function(input, output, session, model) {
   dataFun <- reactive({
 
      function() {
-      parameterValues <- extract(model()$models[[input$modelSelection]])$betaAll
+       if((input$modelSelection %in% names(model()$models))){
+         parameterValues <- extract(model()$models[[input$modelSelection]])$betaAll
+         if (model()$models[[input$modelSelection]]@hasIntercept) {
+           parameterNames <- c("Intercept", attr(terms(as.formula(attributes(model()$models[[input$modelSelection]])$formula)), "term.labels"))
+         } else {
+           parameterNames <- c(attr(terms(as.formula(attributes(model()$models[[input$modelSelection]])$formula)), "term.labels"))
+         }
+       } else {
+         parameterValues <- extract(modelAVG()[[input$modelSelection]])$betaAll
+         if (modelAVG()[[input$modelSelection]]@hasIntercept) {
+           parameterNames <- c("Intercept", attr(terms(as.formula(attributes(modelAVG()[[input$modelSelection]])$formula)), "term.labels"))
+         } else {
+           parameterNames <- c(attr(terms(as.formula(attributes(modelAVG()[[input$modelSelection]])$formula)), "term.labels"))
+         }
+       }
 
-      if (model()$models[[input$modelSelection]]@hasIntercept) {
-        parameterNames <- c("Intercept", attr(terms(as.formula(attributes(model()$models[[input$modelSelection]])$formula)), "term.labels"))
-      } else {
-        parameterNames <- c(attr(terms(as.formula(attributes(model()$models[[input$modelSelection]])$formula)), "term.labels"))
-      }
 
       exportData <-  as.data.frame(parameterValues)
       names(exportData) <- parameterNames

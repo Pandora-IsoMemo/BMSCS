@@ -1,6 +1,6 @@
 Package: BMSCApp
 Title: Interface for Bayesian Model Selection under Constraints
-Version: 22.10.1
+Version: 23.04.1
 Authors@R: c(
     person("Marcus", "Groß", email = "marcus.gross@inwt-statistics.de", role = c("aut", "cre")),
     person("Ricardo", "Fernandes", email = "ldv1452@gmail.com", role = c("aut")),
@@ -8,31 +8,32 @@ Authors@R: c(
     )
 Description: Shiny interface for BMSC app. 
 Depends: R (>= 3.5.0) 
+Remotes:
+  github::ben-aaron188/rgpt3
 Imports:
   car,
   coda,
-  BMSC (>= 0.7.7),
+  BMSC (>= 23.01.1),
   dplyr,
-  jsonlite,
+  futile.logger,
   ggplot2,
+  DataTools (>= 23.04.2),
+  jsonlite,
+  openxlsx,
+  pROC,
   shiny,
   shinyjs,
   shinythemes,
   shinyWidgets,
-  futile.logger,
-  openxlsx,
-  pROC,
   DT,
   Rcpp,
-  readxl,
-  readr,
   rstan (>= 2.21.2),
-  tidyr
+  tidyr,
+  zip
 License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: true
 Suggests: 
-    lintr,
-    testthat (>= 3.0.0)
-RoxygenNote: 7.1.2
-Config/testthat/edition: 3
+    lintr (>= 1.0.2),
+    testthat
+RoxygenNote: 7.2.1

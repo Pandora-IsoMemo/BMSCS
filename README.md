@@ -7,5 +7,8 @@
 ### Help and installation instructions:
 - https://github.com/Pandora-IsoMemo/bmsc-app/wiki
 
-### Folder for online models
+### Release notes:
+- see `NEWS.md`
+
+### Folder for online models:
 - [`inst/app/predefinedModels`](https://github.com/Pandora-IsoMemo/bmsc-app/tree/main/inst/app/predefinedModels)

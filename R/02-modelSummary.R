@@ -13,19 +13,23 @@ modelSummaryTab <- function(id) {
     )
 }
 
-modelSummary <- function(input, output, session, model) {
+modelSummary <- function(input, output, session, model, modelAVG) {
     observe({
         req(model())
-        
         updateSelectInput(session, "modelSelection", choices = names(model()$models))
+        req(modelAVG())
+        updateSelectInput(session, "modelSelection", choices = c(names(model()$models), names(modelAVG())))
     })
-
     printFun <- reactive({
         req(model())
-        req((input$modelSelection %in% names(model()$models)))
+        req((input$modelSelection %in% names(model()$models)) || (input$modelSelection %in% names(modelAVG())))
         
         function() {
-            print(model()$models[[input$modelSelection]], cLevel = input$quantileInt)
+            if((input$modelSelection %in% names(model()$models))){
+                print(model()$models[[input$modelSelection]], cLevel = input$quantileInt)
+            } else {
+                print(modelAVG()[[input$modelSelection]], cLevel = input$quantileInt)
+            }
         }
     })
 

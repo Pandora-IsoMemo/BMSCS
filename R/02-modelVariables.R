@@ -38,10 +38,12 @@ modelVariablesTab <- function(id) {
   )
 }
 
-modelVariables <- function(input, output, session, model, data) {
+modelVariables <- function(input, output, session, model, data, modelAVG) {
   observe({
     req(model())
     updateSelectInput(session, "modelSelection", choices = names(model()$models))
+    req(modelAVG())
+    updateSelectInput(session, "modelSelection", choices = c(names(model()$models), names(modelAVG())))
   })
   observe({
     req(data())
@@ -55,9 +57,16 @@ modelVariables <- function(input, output, session, model, data) {
     if(input$modelData == "model"){
       req(model())
     if(input$modelSelection != ""){
-    if(input$modelSelection %in% names(model()$models)){
-      updateSelectInput(session, "v1", choices = c("", model()$models[[input$modelSelection]]@varNames), selected = "")
-      updateSelectInput(session, "v2", choices = c("", model()$models[[input$modelSelection]]@varNames), selected = "")
+    if((input$modelSelection %in% names(model()$models)) || (input$modelSelection %in% names(modelAVG()))){
+      
+      if((input$modelSelection %in% names(model()$models))){
+        mPar <- model()$models[[input$modelSelection]]
+      } else {
+        mPar <- modelAVG()[[input$modelSelection]]
+      }
+      
+      updateSelectInput(session, "v1", choices = c("", mPar@varNames), selected = "")
+      updateSelectInput(session, "v2", choices = c("", mPar@varNames), selected = "")
     }
     }
     } else {
@@ -80,8 +89,14 @@ modelVariables <- function(input, output, session, model, data) {
     
     if(input$modelData == "model"){
     function() {
-      vv1 <- model()$models[[input$modelSelection]]@designMatrix[, input$v1]
-      vv2 <- model()$models[[input$modelSelection]]@designMatrix[, input$v2]
+      if((input$modelSelection %in% names(model()$models))){
+        mPar <- model()$models[[input$modelSelection]]
+      } else {
+        mPar <- modelAVG()[[input$modelSelection]]
+      }
+      
+      vv1 <- mPar@designMatrix[, input$v1]
+      vv2 <- mPar@designMatrix[, input$v2]
       if(is.numeric(vv1) && is.numeric(vv2)){
         plot(vv1 ~ vv2,  ylab = input$v1,
              xlab = input$v2, cex.axis = 1.5,
@@ -131,11 +146,17 @@ modelVariables <- function(input, output, session, model, data) {
     if(input$modelData == "model"){
     req(model())
     function(){
-      if(input$corType == "corr"){
-      if(model()$models[[input$modelSelection]]@hasIntercept){
-        return(cor(model()$models[[input$modelSelection]]@designMatrix[, -1, drop = FALSE]))
+      if((input$modelSelection %in% names(model()$models))){
+        mPar <- model()$models[[input$modelSelection]]
       } else {
-        return(cor(model()$models[[input$modelSelection]]@designMatrix))
+        mPar <- modelAVG()[[input$modelSelection]]
+      }
+      
+      if(input$corType == "corr"){
+      if(mPar@hasIntercept){
+        return(cor(mPar@designMatrix[, -1, drop = FALSE]))
+      } else {
+        return(cor(mPar@designMatrix))
       }
       }
     }
@@ -199,16 +220,22 @@ modelVariables <- function(input, output, session, model, data) {
     if(input$modelData == "model"){
     req(model())
     function() {      
-        designMatrix <- model()$models[[input$modelSelection]]@designMatrix
-        vNames <- model()$models[[input$modelSelection]]@varNames
-        if(model()$models[[input$modelSelection]]@hasIntercept){
+      if((input$modelSelection %in% names(model()$models))){
+        mPar <- model()$models[[input$modelSelection]]
+      } else {
+        mPar <- modelAVG()[[input$modelSelection]]
+      }
+      
+        designMatrix <- mPar@designMatrix
+        vNames <- mPar@varNames
+        if(mPar@hasIntercept){
           vNames <- vNames[-1]
           if(length(vNames) <= 1) return(data.frame(variable = vNames[length(vNames)], vif = 1))
         } else {
           if(length(vNames) <= 1) return(data.frame(variable = vNames[length(vNames)], vif = 1))
         }
         
-        if(model()$models[[input$modelSelection]]@hasIntercept){
+        if(mPar@hasIntercept){
           return(data.frame(variable = vNames, vif = vif(lm(paste0("y", "~ ."),
                                   data = cbind(designMatrix, y = rnorm(nrow(designMatrix)) )[, -1]))))
         } else {

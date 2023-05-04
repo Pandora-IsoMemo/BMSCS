@@ -15,26 +15,34 @@ modelVariablesImpTab <- function(id) {
   )
 }
 
-modelVariablesImp <- function(input, output, session, model) {
+modelVariablesImp <- function(input, output, session, model, modelAVG) {
   
   observe({
     req(model())
     updateSelectInput(session, "modelSelection", choices = names(model()$models))
+    req(modelAVG())
+    updateSelectInput(session, "modelSelection", choices = c(names(model()$models), names(modelAVG())))
   })
   
   dataFun <- reactive({
     req(model())
     
     function() {
+      if((input$modelSelection %in% names(model()$models))){
+        mPar <- model()$models[[input$modelSelection]]
+      } else {
+        mPar <- modelAVG()[[input$modelSelection]]
+      }
+      
       # for csv / excel - export:
       if(input$impType == "global"){
         variableImportance <- model()$variableData[, 1:2]
         names(variableImportance) <- c("Variable", "Importance")
         return(variableImportance)
       } else {
-        importance <- abs(colMeans(extract(model()$models[[input$modelSelection]])$betaAll))
-        names(importance) <- model()$models[[input$modelSelection]]@varNames
-        if(model()$models[[input$modelSelection]]@hasIntercept){
+        importance <- abs(colMeans(extract(mPar)$betaAll))
+        names(importance) <- mPar@varNames
+        if(mPar@hasIntercept){
           importance <- importance[-1]
         }
         importance <- data.frame(Importance = importance[order(importance, decreasing  = TRUE)])

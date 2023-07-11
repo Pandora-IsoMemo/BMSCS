@@ -1,6 +1,6 @@
 Package: BMSCApp
 Title: Interface for Bayesian Model Selection under Constraints
-Version: 23.04.1.2
+Version: 23.07.1.1
 Authors@R: c(
     person("Marcus", "Groß", email = "marcus.gross@inwt-statistics.de", role = c("aut", "cre")),
     person("Ricardo", "Fernandes", email = "ldv1452@gmail.com", role = c("aut")),
@@ -13,7 +13,7 @@ Remotes:
 Imports:
   car,
   coda,
-  BMSC (>= 23.01.1),
+  BMSC (>= 23.07.1),
   dplyr,
   futile.logger,
   ggplot2,

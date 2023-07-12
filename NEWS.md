@@ -1,12 +1,11 @@
 # BMSCApp app 
 
-## Version 23.07.1
+## Version 23.07.0
 
 ### New Features
-
+- New model evaluation option: Bayesian R-squared (following: https://avehtari.github.io/bayes_R2/bayes_R2.html)
 
 ## Version 23.04.1
-- New model evaluation option: Bayesian R-squared (following: https://avehtari.github.io/bayes_R2/bayes_R2.html)
 
 ### New Features
 - _Upload and download of models_: 

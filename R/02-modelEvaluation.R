@@ -47,7 +47,9 @@ modelEvaluation <- function(input, output, session, model) {
     callModule(plotExport, "exportPlot", plotFun = plotFun)
 
     output$plot <- renderPlot({
-        plotFun()()
+      validate(need(input$ic %in% names(model()$fits), message = sprintf("No data available for '%s'. Please re-run the model to get results.", input$ic)))
+      
+      plotFun()()
     })
     
     dataFun <- reactive({
@@ -73,8 +75,14 @@ modelEvaluation <- function(input, output, session, model) {
         }
     })
     
-    output$evalData <- renderTable(dataFun()(), bordered = TRUE,
-                                   rownames = FALSE, colnames = TRUE)
+    output$evalData <- renderTable({
+      validate(need(input$ic %in% names(model()$fits), message = sprintf("No data available for '%s'. Please re-run the model to get results.", input$ic)))
+      
+      dataFun()()
+      }, 
+      bordered = TRUE,
+      rownames = FALSE, 
+      colnames = TRUE)
     
     callModule(dataExport, "exportData", data = dataFun, filename = "evaluation")
 }

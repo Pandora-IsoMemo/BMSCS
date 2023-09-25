@@ -1,12 +1,12 @@
 #' @import shiny
 #' @importFrom car durbinWatsonTest vif
 #' @importFrom coda raftery.diag gelman.diag geweke.diag heidel.diag mcmc
-#' @importFrom DataTools downloadModelUI downloadModelServer downUploadButtonUI downUploadButtonServer importDataUI importDataServer
-#'  remoteModelsUI remoteModelsServer tryCatchWithWarningsAndErrors uploadModelUI uploadModelServer
+#' @importFrom DataTools downloadModelUI downloadModelServe importDataUI importDataServer
+#'  tryCatchWithWarningsAndErrors
 #' @importFrom DT datatable renderDT DTOutput
 #' @importFrom dplyr ungroup summarise group_by "%>%" summarise_ group_by_
 #' @importFrom ggplot2 aes_string element_text geom_errorbar geom_point ggplot
-#' labs scale_x_discrete theme aes aes_ geom_boxplot ylab xlab
+#'  labs scale_x_discrete theme aes aes_ geom_boxplot ylab xlab
 #' @importFrom shinyjs useShinyjs alert
 #' @importFrom shinyWidgets pickerInput updatePickerInput
 #' @importFrom openxlsx write.xlsx
@@ -14,7 +14,8 @@
 #' @importFrom pROC plot.roc
 #' @importFrom Rcpp evalCpp
 #' @importFrom rstan extract
-#' @importFrom stats lm as.formula predict rexp rnorm terms rpois median quantile sd qnorm chisq.test cor lm.fit model.matrix na.omit
+#' @importFrom stats lm as.formula predict rexp rnorm terms rpois median quantile sd qnorm 
+#'  chisq.test cor lm.fit model.matrix na.omit
 #' @importFrom jsonlite toJSON
 #' @importFrom grDevices dev.off pdf png svg tiff
 #' @importFrom utils capture.output head packageVersion read.csv write.table

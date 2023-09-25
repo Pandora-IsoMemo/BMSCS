@@ -1,7 +1,7 @@
 #' @import shiny
 #' @importFrom car durbinWatsonTest vif
 #' @importFrom coda raftery.diag gelman.diag geweke.diag heidel.diag mcmc
-#' @importFrom DataTools downUploadButtonUI downUploadButtonServer importDataUI importDataServer
+#' @importFrom DataTools downloadModelUI downloadModelServer downUploadButtonUI downUploadButtonServer importDataUI importDataServer
 #'  remoteModelsUI remoteModelsServer tryCatchWithWarningsAndErrors uploadModelUI uploadModelServer
 #' @importFrom DT datatable renderDT DTOutput
 #' @importFrom dplyr ungroup summarise group_by "%>%" summarise_ group_by_

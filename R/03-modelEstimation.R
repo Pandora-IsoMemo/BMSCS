@@ -10,9 +10,9 @@ modelEstimationUI <- function(id, title = "") {
     sidebarPanel(
       style = "position:fixed; width:23%; max-width:500px; overflow-y:auto; height:88%",
       width = 3,
-      tags$h4("Load a Model"),
-      downUploadButtonUI(ns("downUpload"), label = "Upload / Download"),
-      textAreaInput(ns("modelNotes"), label = NULL, placeholder = "Model description ..."),
+      importDataUI(ns("modelImport"), label = "Import Model"),
+      tags$br(),
+      downloadModelUI(ns("modelDownload"), label = "Download Model"),
       hr(style = "border-top: 1px solid #000000;"),
       selectizeInput(ns("x"), "Independent (X) numeric variables", choices = NULL, multiple = TRUE, selected = NULL),
       selectizeInput(ns("xCategorical"), "Independent (X) categorical variables (optional)", choices = NULL, multiple = TRUE, selected = NULL),
@@ -129,44 +129,49 @@ modelEstimation <- function(input, output, session, data) {
   m <- reactiveVal()
   
   # MODEL DOWN- / UPLOAD ----
-  uploadedData <- downUploadButtonServer(
-    "downUpload",
-    dat = data,
-    inputs = input,
-    model = m,
-    rPackageName = "BMSCApp",
-    githubRepo = "bmsc-app",
-    helpHTML = getHelp(id = ""),
-    modelNotes = reactive(input$modelNotes),
-    compress = TRUE,
-    compressionLevel = 9,
-    title = "Upload and Download of Models")
+  modelNotes <- reactiveVal(NULL)
+  downloadModelServer("modelDownload",
+                      dat = data,
+                      inputs = input,
+                      model = m,
+                      rPackageName = "BMSCApp",
+                      helpHTML = getHelp(id = ""),
+                      modelNotes = modelNotes,
+                      triggerUpdate = reactive(TRUE))
+  
+  uploadedModel <- importDataServer("modelImport",
+                                    defaultSource = "file",
+                                    ignoreWarnings = TRUE,
+                                    importType = "model",
+                                    fileExtension = "bmsc",
+                                    rPackageName = "BMSCApp")
   
   observe(priority = 100, {
+    req(length(uploadedModel()) > 0, uploadedModel()[[1]][["data"]])
+    
     ## update data ----
-    data(uploadedData$data)
+    data(uploadedModel()[[1]][["data"]])
+    ## reset and update notes
+    modelNotes("")
+    modelNotes(uploadedModel()[[1]][["notes"]])
   }) %>%
-    bindEvent(uploadedData$data)
+    bindEvent(uploadedModel())
   
   observe(priority = 50, {
-    ## reset input of model notes
-    updateTextAreaInput(session, "modelNotes", value = "")
+    req(length(uploadedModel()) > 0, uploadedModel()[[1]][["inputs"]])
     
     ## update inputs ----
-    inputIDs <- names(uploadedData$inputs)
+    uploadedInputs <- uploadedModel()[[1]][["inputs"]]
+    inputIDs <- names(uploadedInputs)
     inputIDs <- inputIDs[inputIDs %in% names(input)]
     for (i in 1:length(inputIDs)) {
-      session$sendInputMessage(inputIDs[i],  list(value = uploadedData$inputs[[inputIDs[i]]]) )
+      session$sendInputMessage(inputIDs[i],  list(value = uploadedInputs[[inputIDs[i]]]) )
     }
-  }) %>%
-    bindEvent(uploadedData$inputs)
-  
-  observe(priority = 10, {
+    
     ## update model ----
-    m(uploadedData$model)
+    m(uploadedModel()[[1]][["model"]])
   }) %>%
-    bindEvent(uploadedData$model)
-  
+    bindEvent(uploadedModel())
   
   # RUN MODEL ----
   observe({

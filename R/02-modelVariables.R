@@ -71,7 +71,7 @@ modelVariables <- function(input, output, session, model, data, modelAVG) {
     }
     } else {
       req(data())
-      if(!is.null(input$variableSelection) && input$variableSelection != ""){
+      if(!is.null(input$variableSelection) && all(input$variableSelection != "")){
           updateSelectInput(session, "v1", choices = c("", names(data())), selected = "")
           updateSelectInput(session, "v2", choices = c("", names(data())), selected = "")
       }
@@ -246,21 +246,23 @@ modelVariables <- function(input, output, session, model, data, modelAVG) {
     } else {
       req(data())
       req(!is.null(input$variableSelection))
-      function() {      
+      function() {       
         designMatrix <- model.matrix(~ . , data = data()[, input$variableSelection, drop = FALSE])
         vNames <- colnames(designMatrix)
-          if(length(vNames) <= 2) return(data.frame(variable = vNames[length(vNames)], vif = 1))
+        if(length(vNames) <= 2) return(data.frame(variable = vNames[length(vNames)], vif = 1))
         designMatrix <- as.data.frame(designMatrix)
         designMatrix$independent <- rnorm(nrow(designMatrix))
-          return(data.frame(variable = vNames[-1], vif = vif(lm(paste0("independent", "~ ."),
-                                                            data = designMatrix[, -1]) )))
+        vifValue <- vif(lm(paste0("independent", "~ ."), data = designMatrix[, -1])) %>%
+          tryCatchWithWarningsAndErrors(errorTitle = "car::vif() failed")
+        if (is.null(vifValue)) vifValue <- rep(NA, length(vNames[-1]))
+        return(data.frame(variable = vNames[-1], vif = vifValue))
       }
     }
   })
   
   
-  output$VIF <- renderTable(VIF()(), bordered = TRUE,
-                                   rownames = FALSE, colnames = TRUE)
+  output$VIF <- renderTable(VIF()(),
+                            bordered = TRUE, rownames = FALSE, colnames = TRUE)
   
   callModule(dataExport, "exportVifs", data = VIF, filename = "VIF")
   callModule(dataExport, "exportCors", data = correlationMatrix, filename = "Corr")

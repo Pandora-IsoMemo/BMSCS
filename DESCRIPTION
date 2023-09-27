@@ -17,7 +17,7 @@ Imports:
   dplyr,
   futile.logger,
   ggplot2,
-  DataTools (>= 23.09.3),
+  DataTools (>= 23.09.5),
   jsonlite,
   openxlsx,
   pROC,
@@ -29,6 +29,7 @@ Imports:
   Rcpp,
   rstan (>= 2.21.2),
   tidyr,
+  yaml,
   zip
 License: GPL (>= 3)
 Encoding: UTF-8

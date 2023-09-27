@@ -73,8 +73,9 @@ modelEstimationUI <- function(id, title = "") {
 }
 
 #' @rdname shinyModule
+#' @param config (list) list of configuration parameters
 #' @export
-modelEstimation <- function(input, output, session, data) {
+modelEstimation <- function(input, output, session, data, config) {
   
   observe({
     updateSelectizeInput(session, "x", choices = names(data()), selected = "")
@@ -91,7 +92,7 @@ modelEstimation <- function(input, output, session, data) {
   callModule(modelEvaluation, "modelEvaluation", model = m)
   callModule(modelPredictions, "modelPredictions", model = m, data = data, modelAVG = m_AVG)
   callModule(modelParameters, "modelParameters", model = m, modelAVG = m_AVG)
-  callModule(modelPredictionsCustom, "modelPredictionsCustom", model = m, modelAVG = m_AVG)
+  callModule(modelPredictionsCustom, "modelPredictionsCustom", model = m, modelAVG = m_AVG, config = config)
   callModule(modelROC, "modelROC", model = m, data = data, modelAVG = m_AVG)
   callModule(modelDW, "modelDW", model = m, data = data, modelAVG = m_AVG)
   callModule(modelVariables, "modelVariables", model = m, data = data, modelAVG = m_AVG)
@@ -134,17 +135,18 @@ modelEstimation <- function(input, output, session, data) {
                       dat = data,
                       inputs = input,
                       model = m,
-                      rPackageName = "BMSCApp",
+                      rPackageName = config$rPackageName,
+                      fileExtension = config$fileExtension,
                       helpHTML = getHelp(id = ""),
                       modelNotes = modelNotes,
                       triggerUpdate = reactive(TRUE))
   
   uploadedModel <- importDataServer("modelImport",
-                                    defaultSource = "file",
+                                    defaultSource = config$defaultSourceModel,
                                     ignoreWarnings = TRUE,
                                     importType = "model",
-                                    fileExtension = "bmsc",
-                                    rPackageName = "BMSCApp")
+                                    fileExtension = config$fileExtension,
+                                    rPackageName = config$rPackageName)
   
   observe(priority = 100, {
     req(length(uploadedModel()) > 0, uploadedModel()[[1]][["data"]])

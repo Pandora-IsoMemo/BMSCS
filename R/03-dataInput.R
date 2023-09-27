@@ -23,13 +23,15 @@ dataInputUI <- function(id, title = "") {
 }
 
 #' @rdname shinyModule
+#' @param config (list) list of configuration parameters
 #' @export
-dataInput <- function(input, output, session) {
+dataInput <- function(input, output, session, config) {
   data <- reactiveVal(NULL)
 
   importedData <- importDataServer(
     "data",
-    defaultSource = "file"
+    defaultSource = config$defaultSourceData,
+    rPackageName = config$rPackageName
   )
 
   observeEvent(importedData(), {

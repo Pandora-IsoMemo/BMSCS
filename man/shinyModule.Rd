@@ -11,11 +11,11 @@
 \usage{
 dataInputUI(id, title = "")
 
-dataInput(input, output, session)
+dataInput(input, output, session, config)
 
 modelEstimationUI(id, title = "")
 
-modelEstimation(input, output, session, data)
+modelEstimation(input, output, session, data, config)
 }
 \arguments{
 \item{id}{namespace id}
@@ -27,6 +27,8 @@ modelEstimation(input, output, session, data)
 \item{output}{shiny output object}
 
 \item{session}{shiny session}
+
+\item{config}{(list) list of configuration parameters}
 
 \item{data}{data reactive}
 }

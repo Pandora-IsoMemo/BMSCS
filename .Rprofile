@@ -5,7 +5,7 @@
 
 .First <- function() {
   options(repos = c(
-    CRAN = "https://mran.microsoft.com/snapshot/2021-01-01",
+    CRAN = "https://packagemanager.posit.co/cran/2020-12-31",
     INWT = "https://inwt-vmeh2.inwt.de/r-repo",
     PANDORA = "https://Pandora-IsoMemo.github.io/drat/"
   ))

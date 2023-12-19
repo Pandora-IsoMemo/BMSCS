@@ -73,9 +73,8 @@ modelEstimationUI <- function(id, title = "") {
 }
 
 #' @rdname shinyModule
-#' @param config (list) list of configuration parameters
 #' @export
-modelEstimation <- function(input, output, session, data, config) {
+modelEstimation <- function(input, output, session, data) {
   
   observe({
     updateSelectizeInput(session, "x", choices = names(data()), selected = "")
@@ -92,7 +91,7 @@ modelEstimation <- function(input, output, session, data, config) {
   callModule(modelEvaluation, "modelEvaluation", model = m)
   callModule(modelPredictions, "modelPredictions", model = m, data = data, modelAVG = m_AVG)
   callModule(modelParameters, "modelParameters", model = m, modelAVG = m_AVG)
-  callModule(modelPredictionsCustom, "modelPredictionsCustom", model = m, modelAVG = m_AVG, config = config)
+  callModule(modelPredictionsCustom, "modelPredictionsCustom", model = m, modelAVG = m_AVG)
   callModule(modelROC, "modelROC", model = m, data = data, modelAVG = m_AVG)
   callModule(modelDW, "modelDW", model = m, data = data, modelAVG = m_AVG)
   callModule(modelVariables, "modelVariables", model = m, data = data, modelAVG = m_AVG)
@@ -135,18 +134,20 @@ modelEstimation <- function(input, output, session, data, config) {
                       dat = data,
                       inputs = input,
                       model = m,
-                      rPackageName = config$rPackageName,
-                      fileExtension = config$fileExtension,
+                      rPackageName = config()[["rPackageName"]],
+                      fileExtension = config()[["fileExtension"]],
                       helpHTML = getHelp(id = ""),
                       modelNotes = modelNotes,
                       triggerUpdate = reactive(TRUE))
   
   uploadedModel <- importDataServer("modelImport",
-                                    defaultSource = config$defaultSourceModel,
-                                    ignoreWarnings = TRUE,
                                     importType = "model",
-                                    fileExtension = config$fileExtension,
-                                    rPackageName = config$rPackageName)
+                                    ckanFileTypes = config()[["ckanModelTypes"]],
+                                    ignoreWarnings = TRUE,
+                                    defaultSource = config()[["defaultSourceModel"]],
+                                    mainFolder = config()[["mainFolder"]],
+                                    fileExtension = config()[["fileExtension"]],
+                                    rPackageName = config()[["rPackageName"]])
   
   observe(priority = 100, {
     req(length(uploadedModel()) > 0, uploadedModel()[[1]][["data"]])

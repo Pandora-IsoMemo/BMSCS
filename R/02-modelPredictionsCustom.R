@@ -43,7 +43,7 @@ modelPredictionsCustomTab <- function(id) {
   )
 }
 
-modelPredictionsCustom <- function(input, output, session, model, modelAVG, config) {
+modelPredictionsCustom <- function(input, output, session, model, modelAVG) {
   datCustom <- reactiveVal(NULL)
   
   observe({
@@ -63,8 +63,9 @@ modelPredictionsCustom <- function(input, output, session, model, modelAVG, conf
 
   importedDataCustom <- importDataServer(
     "dataCustom",
-    defaultSource = config$defaultSourceData,
-    rPackageName = config$rPackageName
+    defaultSource = config()[["defaultSourceData"]],
+    ckanFileTypes = config()[["ckanFileTypes"]],
+    rPackageName = config()[["rPackageName"]]
   )
   
   observeEvent(importedDataCustom(), {

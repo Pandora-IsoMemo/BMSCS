@@ -1,21 +1,19 @@
-# BMSCApp app 
+# BMSCApp app 23.0.7.0
 
-## Version 23.07.0
-
-### New Features
+## New Features
 - New model evaluation option: Bayesian R-squared (following: https://avehtari.github.io/bayes_R2/bayes_R2.html)
 
-## Version 23.04.1
+# BMSCApp app 23.04.1
 
-### New Features
+## New Features
 - _Upload and download of models_: 
   - new version of model up- and download (contains also the option to load model output)
   - a button opens a pop-up that contains the UI
   - the compression of model outputs may take a while
 
-## Version 23.03.2
+# BMSCApp app 23.03.2
 
-### New Features
+## New Features
 - option to load remote models from the github folder `inst/app/predefinedModels` of the respective 
 repository
 - if there is no internet connection remote models are taken from the models that were saved with
@@ -24,19 +22,19 @@ repository
 - option to upload user inputs and data. Upload of model output is not supported since the model
 output of BMSC is too large for the upload
 
-## Version 23.03.1
+# BMSCApp app 23.03.1
 
-### Bug fixes
+## Bug fixes
 - add remote package to enable gpt3 in the _Import Data_ module
 
-## Version 23.02.2
+# BMSCApp app 23.02.2
 
-### Bug Fixes
+## Bug Fixes
 - add tryCatch to modeling with forwarding of warnings and error messages to the UI (#18)
 
-## Version 23.02.1
+# BMSCApp app 23.02.1
 
-### New Features
+## New Features
 - in the tab _Model Input_
   - new slider _Max inverse exponent_: Now one can add x^-1, x^-2,.. as potential modelling 
   features
@@ -45,9 +43,9 @@ output of BMSC is too large for the upload
   - new UI _Create model average_: Model averaging added. Now models can be averaged by a 
   criterion (AIC, AICc, WAIC, logLik, BIC and Loo)
 
-## Version 23.01.1
+# BMSCApp app 23.01.1
 
-### New Features
+## New Features
 - the _Import Data_ module is now imported from the new package DataTools (#16, PR #17)
   - additionally to file import, now import from _URL_ or from _Pandora Platform_ is possible
   - all redundant code was removed

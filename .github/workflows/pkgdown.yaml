@@ -13,7 +13,8 @@ name: pkgdown
 
 jobs:
   pkgdown:
-    runs-on: ghcr.io/pandora-isomemo/base-image:latest
+    runs-on: ubuntu-latest
+    container: ghcr.io/pandora-isomemo/base-image:latest
     # Only restrict concurrency for non-PR jobs
     concurrency:
       group: pkgdown-${{ github.event_name != 'pull_request' || github.run_id }}

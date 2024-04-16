@@ -8,8 +8,6 @@ Authors@R: c(
     )
 Description: Shiny interface for BMSC app. 
 Depends: R (>= 3.5.0) 
-Remotes:
-  github::ben-aaron188/rgpt3
 Imports:
   car,
   coda,
@@ -17,7 +15,7 @@ Imports:
   dplyr,
   futile.logger,
   ggplot2,
-  DataTools (>= 23.06.0.1),
+  DataTools (>= 24.04.2),
   jsonlite,
   openxlsx,
   pROC,

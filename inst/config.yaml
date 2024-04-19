@@ -11,6 +11,5 @@ ckanModelTypes:
   - "zip"
   - "bmsc"
 githubRepo: "bmsc-app"        # for import of models
-mainFolder: "predefinedModels"  # for import of models
 fileExtension: "bmsc"      # for download of models
 rPackageName: "BMSCApp"       # for download and import of models

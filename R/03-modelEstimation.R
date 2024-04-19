@@ -55,6 +55,12 @@ modelEstimationUI <- function(id, title = "") {
     ),
     mainPanel(
       width = 9,
+      tagList(fluidRow(column(
+        width = 12,
+        dataExportButton(ns("exportAllModelOutput"),
+                         title = "Export output of all models"),
+        tags$hr()
+      ))),
       tabsetPanel(
         id = ns("modTabs"),
         modelEvaluationTab(ns("modelEvaluation")),
@@ -145,7 +151,6 @@ modelEstimation <- function(input, output, session, data) {
                                     ckanFileTypes = config()[["ckanModelTypes"]],
                                     ignoreWarnings = TRUE,
                                     defaultSource = config()[["defaultSourceModel"]],
-                                    mainFolder = config()[["mainFolder"]],
                                     fileExtension = config()[["fileExtension"]],
                                     rPackageName = config()[["rPackageName"]])
   

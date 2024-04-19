@@ -17,6 +17,7 @@
 #' @importFrom pROC plot.roc
 #' @importFrom rstan extract
 #' @importFrom shinyjs useShinyjs alert
+#' @importFrom shinyTools dataExportButton dataExportServer
 #' @importFrom shinyWidgets pickerInput updatePickerInput
 #' @importFrom stats lm as.formula predict rexp rnorm terms rpois median quantile sd qnorm 
 #'  chisq.test cor lm.fit model.matrix na.omit

@@ -57,21 +57,7 @@ modelEvaluation <- function(input, output, session, model) {
 
         function() {
             # for csv / excel - export:
-            fits <- model()$fits[[input$ic]]
-            if (input$ic == "Loo") {
-              fits <- sapply(fits, function(x) x$estimates["elpd_loo","Estimate"])
-            }
-            if (input$ic == "WAIC") {
-              fits <- sapply(fits, function(x) x$estimates["elpd_waic", "Estimate"])
-            }
-            fits <- data.frame(fits)
-            names(fits) <- input$ic
-            if(input$ic %in% c("AUC", "Rsq", "RsqAdj", "Bayes_Rsq", "df", "logLik", "nagelkerke", "Loo", "WAIC")){
-                ranks <- as.integer(round(rank(-fits[,1]), 0))
-            } else {
-                ranks <- as.integer(round(rank(fits[,1]), 0))
-            }
-            data.frame(model = names(model()$models), fits, rank = ranks)
+          getICData(allFits = model()$fits, modelNames = names(model()$models), ic = input$ic)
         }
     })
     
@@ -85,4 +71,25 @@ modelEvaluation <- function(input, output, session, model) {
       colnames = TRUE)
     
     callModule(dataExport, "exportData", data = dataFun, filename = "evaluation")
+}
+
+#' Get Data of IC
+#' 
+#' @param ic (character) name of information criterion, e.g. \code{"AUC", "Rsq", "RsqAdj", "Bayes_Rsq", "df", "logLik", "nagelkerke", "Loo", "WAIC"}
+getICData <- function(allFits, modelNames, ic) {
+  fits <- allFits[[ic]]
+  if (ic == "Loo") {
+    fits <- sapply(fits, function(x) x$estimates["elpd_loo","Estimate"])
+  }
+  if (ic == "WAIC") {
+    fits <- sapply(fits, function(x) x$estimates["elpd_waic", "Estimate"])
+  }
+  fits <- data.frame(fits)
+  names(fits) <- ic
+  if(ic %in% c("AUC", "Rsq", "RsqAdj", "Bayes_Rsq", "df", "logLik", "nagelkerke", "Loo", "WAIC")){
+    ranks <- as.integer(round(rank(-fits[,1]), 0))
+  } else {
+    ranks <- as.integer(round(rank(fits[,1]), 0))
+  }
+  data.frame(model = modelNames, fits, rank = ranks)
 }

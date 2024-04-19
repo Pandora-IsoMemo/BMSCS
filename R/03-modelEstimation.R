@@ -55,26 +55,27 @@ modelEstimationUI <- function(id, title = "") {
     ),
     mainPanel(
       width = 9,
-      tagList(fluidRow(column(
-        width = 12,
-        dataExportButton(ns("exportAllModelOutput"),
-                         title = "Export output of all models"),
-        tags$hr()
-      ))),
-      tabsetPanel(
-        id = ns("modTabs"),
-        modelEvaluationTab(ns("modelEvaluation")),
-        modelSummaryTab(ns("modelSummary")),
-        modelDiagnosticsTab(ns("modelDiagnostics")),
-        modelPredictionsTab(ns("modelPredictions")),
-        modelParametersTab(ns("modelParameters")),
-        modelROCTab(ns("modelROC")),
-        modelDWTab(ns("modelDW")),
-        modelPredictionsCustomTab(ns("modelPredictionsCustom")),
-        modelVariablesTab(ns("modelVariables")),
-        modelVariablesImpTab(ns("modelVariablesImp"))
-      )
-    )
+      tagList(
+        fluidRow(column(
+          width = 12,
+          shinyTools::dataExportButton(ns("exportAllModelOutput"),
+                                       label = "Export summaries of all models"),
+          tags$hr()
+        )),
+        tabsetPanel(
+          id = ns("modTabs"),
+          modelEvaluationTab(ns("modelEvaluation")),
+          modelSummaryTab(ns("modelSummary")),
+          modelDiagnosticsTab(ns("modelDiagnostics")),
+          modelPredictionsTab(ns("modelPredictions")),
+          modelParametersTab(ns("modelParameters")),
+          modelROCTab(ns("modelROC")),
+          modelDWTab(ns("modelDW")),
+          modelPredictionsCustomTab(ns("modelPredictionsCustom")),
+          modelVariablesTab(ns("modelVariables")),
+          modelVariablesImpTab(ns("modelVariablesImp"))
+        )
+      ))
   )
 }
 

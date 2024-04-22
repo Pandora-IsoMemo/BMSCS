@@ -39,12 +39,12 @@ modelEvaluation <- function(input, output, session, model) {
   observe({
     req(model())
     
-    ICList <- c("AUC", "Rsq", "RsqAdj", "Bayes_Rsq", "df", "logLik", "nagelkerke", "Loo", "WAIC")
+    ICList <- names(model()$fits)
     thisICData <- lapply(ICList,
                        function(x)
                          getICData(ic = x,
-                                   allFits = testModels$fits,
-                                   modelNames = c("x1", "x1 + x4", "x1 + x4 + x3", "x1 + x4 + x3 + x2"),
+                                   allFits = model()$fits,
+                                   modelNames = names(model()$models),
                                    withColumnICName = TRUE)
     ) %>% 
       bindAllResults(addEmptyRow = TRUE)
@@ -145,19 +145,6 @@ getICData <- function(allFits, modelNames, ic, withColumnICName = FALSE) {
     res <- res %>%
       addColumnICName(ic = ic)
   }
-  
-  res
-}
-
-bindAllResults <- function(listOfDataframes, addEmptyRow = TRUE) {
-  if (addEmptyRow) {
-    listOfDataframes <- lapply(listOfDataframes, function(x) x %>% add_na_row())
-  }
-  
-  res <- listOfDataframes %>% 
-    dplyr::bind_rows()
-  
-  rownames(res) <- NULL
   
   res
 }

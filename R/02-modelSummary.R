@@ -21,7 +21,7 @@ modelSummary <- function(input, output, session, model, modelAVG) {
         updateSelectInput(session, "modelSelection", choices = c(names(model()$models), names(modelAVG())))
     })
     printFun <- reactive({
-        req(model())
+      req(model())
         req((input$modelSelection %in% names(model()$models)) || (input$modelSelection %in% names(modelAVG())))
         
         function() {
@@ -39,4 +39,54 @@ modelSummary <- function(input, output, session, model, modelAVG) {
     })
 
     callModule(textExport, "exportText", printFun = printFun, filename = "summary")
+}
+
+extractAllSummaries <- function(allModels, modelNames, cLevel, asDataFrame = TRUE) {
+  names(modelNames) <- modelNames
+  
+  lapply(modelNames, function(x) {
+    res <- capture.output({print(allModels[[x]], cLevel = cLevel)})
+    if (asDataFrame) res <- res %>%
+        as.data.frame()
+    
+    res
+  })
+}
+
+extractCoefTable <- function(capturedOutput) {
+  summary_rows <- strsplit(capturedOutput, "\\s+")
+  
+  coefTable <- summary_rows[c(3:(length(capturedOutput)-4))]
+  # create and update column names
+  coefTable[[1]][coefTable[[1]] == "Cred_Interval_"] <- "Cred_Interval_Min"
+  coefTable[[1]] <- c(coefTable[[1]], "Cred_Interval_Max")
+  
+  coefTable_columns <- t(sapply(coefTable, function(row) row)) %>%
+    as.data.frame(stringsAsFactors = FALSE) %>%
+    setNames(.[1, ])
+  coefTable_columns <- coefTable_columns[2:nrow(coefTable_columns),] 
+  
+  # clean up columns
+  coefTable_columns$Estimate <- as.numeric(coefTable_columns$Estimate)
+  coefTable_columns$Median <- as.numeric(coefTable_columns$Median)
+  coefTable_columns$SD <- as.numeric(coefTable_columns$SD)
+  coefTable_columns$Cred_Interval_Min <- coefTable_columns$Cred_Interval_Min %>%
+    gsub(pattern = "\\[|\\]|\\,", replacement = "")
+  coefTable_columns$Cred_Interval_Max <- coefTable_columns$Cred_Interval_Max %>%
+    gsub(pattern = "\\[|\\]|\\,", replacement = "")
+  
+  coefTable_columns
+}
+
+#' Add NA Row
+#' 
+#' Function to add a row with NA values at the end of a data.frame
+#' 
+#' @param df (data.frame) data.frame
+add_na_row <- function(df) {
+  na_row <-  matrix(rep(NA, ncol(df)), 
+                    nrow = 1, 
+                    dimnames = list("", colnames(df))) %>% 
+    as.data.frame()
+  bind_rows(df, na_row)
 }

@@ -24,7 +24,7 @@ Imports:
   shiny,
   shinyjs,
   shinythemes,
-  shinyTools (>= 24.03.3),
+  shinyTools (>= 24.04.2),
   shinyWidgets,
   DT,
   Rcpp,

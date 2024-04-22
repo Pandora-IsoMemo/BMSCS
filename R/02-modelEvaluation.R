@@ -76,8 +76,35 @@ modelEvaluation <- function(input, output, session, model) {
 #' Get Data of IC
 #' 
 #' @param ic (character) name of information criterion, e.g. \code{"AUC", "Rsq", "RsqAdj", "Bayes_Rsq", "df", "logLik", "nagelkerke", "Loo", "WAIC"}
-getICData <- function(allFits, modelNames, ic) {
+getICData <- function(allFits, modelNames, ic, withColumnICName = FALSE) {
+  addColumnICName <- function(df, ic) {
+    df$IC_name <- ic
+    df[, c(ncol(df), 1:(ncol(df)-1))]
+  }
+  
   fits <- allFits[[ic]]
+  
+  # set colname of IC column
+  if (withColumnICName) {
+    colnameIC <- "IC_value"
+  } else{
+    colnameIC <- ic
+  }
+  
+  # return empty data.frame
+  if (is.null(fits)) {
+    emptyRes <- data.frame(model = modelNames, fits = NA, rank = NA)
+    colnames(emptyRes)[2] <- colnameIC
+    
+    if (withColumnICName) {
+      emptyRes <- emptyRes %>%
+        addColumnICName(ic = ic)
+    }
+    
+    return(emptyRes)
+  }
+  
+  # return IC values
   if (ic == "Loo") {
     fits <- sapply(fits, function(x) x$estimates["elpd_loo","Estimate"])
   }
@@ -85,11 +112,32 @@ getICData <- function(allFits, modelNames, ic) {
     fits <- sapply(fits, function(x) x$estimates["elpd_waic", "Estimate"])
   }
   fits <- data.frame(fits)
-  names(fits) <- ic
+  names(fits) <- colnameIC
+  
   if(ic %in% c("AUC", "Rsq", "RsqAdj", "Bayes_Rsq", "df", "logLik", "nagelkerke", "Loo", "WAIC")){
     ranks <- as.integer(round(rank(-fits[,1]), 0))
   } else {
     ranks <- as.integer(round(rank(fits[,1]), 0))
   }
-  data.frame(model = modelNames, fits, rank = ranks)
+  res <- data.frame(model = modelNames, fits, rank = ranks)
+  
+  if (withColumnICName) {
+    res <- res %>%
+      addColumnICName(ic = ic)
+  }
+  
+  res
+}
+
+bindAllResults <- function(listOfDataframes, addEmptyRow = TRUE) {
+  if (addEmptyRow) {
+    listOfDataframes <- lapply(listOfDataframes, function(x) x %>% add_na_row())
+  }
+  
+  res <- listOfDataframes %>% 
+    dplyr::bind_rows()
+  
+  rownames(res) <- NULL
+  
+  res
 }

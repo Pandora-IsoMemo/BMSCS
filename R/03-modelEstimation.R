@@ -57,11 +57,15 @@ modelEstimationUI <- function(id, title = "") {
       width = 9,
       tagList(
         fluidRow(column(
-          width = 12,
+          width = 3,
           shinyTools::dataExportButton(ns("exportAllModelOutput"),
-                                       label = "Export summaries of all models"),
-          tags$hr()
+                                       label = "Export summaries of all models")
+        ),
+        column(
+          width = 9,
+          helpText("Note: The export contains output of tabs 'Model Evaluation', 'Model Summary'")
         )),
+        tags$hr(),
         tabsetPanel(
           id = ns("modTabs"),
           modelEvaluationTab(ns("modelEvaluation")),
@@ -93,9 +97,9 @@ modelEstimation <- function(input, output, session, data) {
   }, priority = 100) %>%
     bindEvent(data())
     
-  callModule(modelSummary, "modelSummary", model = m, modelAVG = m_AVG)
+  allSummaries <- callModule(modelSummary, "modelSummary", model = m, modelAVG = m_AVG)
   callModule(modelDiagnostics, "modelDiagnostics", model = m, nChains = input$nChains)
-  callModule(modelEvaluation, "modelEvaluation", model = m)
+  allICData <- callModule(modelEvaluation, "modelEvaluation", model = m)
   callModule(modelPredictions, "modelPredictions", model = m, data = data, modelAVG = m_AVG)
   callModule(modelParameters, "modelParameters", model = m, modelAVG = m_AVG)
   callModule(modelPredictionsCustom, "modelPredictionsCustom", model = m, modelAVG = m_AVG)
@@ -103,6 +107,17 @@ modelEstimation <- function(input, output, session, data) {
   callModule(modelDW, "modelDW", model = m, data = data, modelAVG = m_AVG)
   callModule(modelVariables, "modelVariables", model = m, data = data, modelAVG = m_AVG)
   callModule(modelVariablesImp, "modelVariablesImp", model = m, modelAVG = m_AVG)
+  
+  shinyTools::dataExportServer("exportAllModelOutput",
+                               dataFun = reactive(function() {
+                                 if (is.null(m())) return(NULL)
+                                 # export list of dataframes:
+                                 list(
+                                   `Model Evaluation` = allICData(),
+                                   `Model Summary` = allSummaries()
+                                 )
+                               }),
+                               filename = "all_model_output")
   
   formulaParts <- reactive({
     if(!is.null(input$y) && !is.null(input$x) && input$y != "" && any(input$x != "")){

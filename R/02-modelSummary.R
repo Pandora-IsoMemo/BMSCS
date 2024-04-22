@@ -20,6 +20,21 @@ modelSummary <- function(input, output, session, model, modelAVG) {
         req(modelAVG())
         updateSelectInput(session, "modelSelection", choices = c(names(model()$models), names(modelAVG())))
     })
+    
+  allSummaries <- reactiveVal()
+  observe({
+    req(model())
+    
+    thisSummaries <- extractAllSummaries(
+      allModels = model()$models,
+      modelNames = names(model()$models),
+      cLevel = input$quantileInt
+    ) %>% 
+      bindAllResults(addEmptyRow = TRUE)
+    
+    allSummaries(thisSummaries)
+  })
+    
     printFun <- reactive({
       req(model())
         req((input$modelSelection %in% names(model()$models)) || (input$modelSelection %in% names(modelAVG())))
@@ -39,6 +54,8 @@ modelSummary <- function(input, output, session, model, modelAVG) {
     })
 
     callModule(textExport, "exportText", printFun = printFun, filename = "summary")
+    
+    return(allSummaries)
 }
 
 extractAllSummaries <- function(allModels, modelNames, cLevel, asDataFrame = TRUE) {

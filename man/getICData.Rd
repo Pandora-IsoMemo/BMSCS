@@ -4,7 +4,7 @@
 \alias{getICData}
 \title{Get Data of IC}
 \usage{
-getICData(allFits, modelNames, ic, fixedColnameIC = FALSE)
+getICData(allFits, modelNames, ic, withColumnICName = FALSE)
 }
 \arguments{
 \item{ic}{(character) name of information criterion, e.g. \code{"AUC", "Rsq", "RsqAdj", "Bayes_Rsq", "df", "logLik", "nagelkerke", "Loo", "WAIC"}}

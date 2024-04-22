@@ -35,6 +35,24 @@ modelEvaluation <- function(input, output, session, model) {
         }
     })
 
+  allICData <- reactiveVal()
+  observe({
+    req(model())
+    
+    ICList <- c("AUC", "Rsq", "RsqAdj", "Bayes_Rsq", "df", "logLik", "nagelkerke", "Loo", "WAIC")
+    thisICData <- lapply(ICList,
+                       function(x)
+                         getICData(ic = x,
+                                   allFits = testModels$fits,
+                                   modelNames = c("x1", "x1 + x4", "x1 + x4 + x3", "x1 + x4 + x3 + x2"),
+                                   withColumnICName = TRUE)
+    ) %>% 
+      bindAllResults(addEmptyRow = TRUE)
+    
+    allICData(thisICData)
+  })
+  
+  
     plotFun <- reactive({
         req(model())
 
@@ -71,6 +89,8 @@ modelEvaluation <- function(input, output, session, model) {
       colnames = TRUE)
     
     callModule(dataExport, "exportData", data = dataFun, filename = "evaluation")
+    
+    return(allICData)
 }
 
 #' Get Data of IC

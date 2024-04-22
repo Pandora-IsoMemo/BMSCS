@@ -63,8 +63,11 @@ extractAllSummaries <- function(allModels, modelNames, cLevel, asDataFrame = TRU
   
   lapply(modelNames, function(x) {
     res <- capture.output({print(allModels[[x]], cLevel = cLevel)})
-    if (asDataFrame) res <- res %>%
+    if (asDataFrame) {
+      res <- res %>%
         as.data.frame()
+      colnames(res) <- "Model Summary"
+    }
     
     res
   })

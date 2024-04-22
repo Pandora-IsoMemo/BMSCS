@@ -24,11 +24,25 @@ modelDW <- function(input, output, session, model, data, modelAVG) {
     updateSelectInput(session, "modelSelection", choices = c(names(model()$models), names(modelAVG())))
   })
 
+  allDW <- reactiveVal()
+  observe({
+    req(model())
+    
+    thisDW <- extractAllDW(allModels = model()$models,
+                           maxLag = input$lagDW,
+                           dependent = model()$dependent,
+                           inDat = data(), 
+                           asDataFrame = TRUE) %>% 
+      bindAllResults(addEmptyRow = TRUE)
+    
+    allDW(thisDW)
+  })
+  
   tVar <- reactive({
     if (!is.null(input$t) & input$t != "") {
       return(data()[, input$t])
     } else {
-      return(NULL)
+      return(I(1:length(data()[, model()$dependent])))
     }
   })
 
@@ -43,15 +57,11 @@ modelDW <- function(input, output, session, model, data, modelAVG) {
         mPar <- modelAVG()[[input$modelSelection]]
       }
       
-      if (!is.null(tVar())) {
-        print(durbinWatsonTest(lm(I(data()[, model()$dependent] -
-          BMSC::predict(mPar, newdata = data())) ~
-        tVar()), max.lag = input$lagDW))
-      } else {
-        print(durbinWatsonTest(lm(I(data()[, model()$dependent] -
-          BMSC::predict(mPar, newdata = data())) ~
-        I(1:length(data()[, model()$dependent]))), max.lag = input$lagDW))
-      }
+      printDWTest(inDat = data(),
+                  dependent = model()$dependent,
+                  mPar = mPar,
+                  tVar = tVar(),
+                  maxLag = input$lagDW)
     }
   })
 
@@ -62,4 +72,41 @@ modelDW <- function(input, output, session, model, data, modelAVG) {
   })
 
   callModule(textExport, "exportText", printFun = printFun, filename = "summary")
+  
+  return(allDW)
+}
+
+extractAllDW <- function(allModels, maxLag, dependent, inDat, asDataFrame = TRUE) {
+  modelNames <- names(allModels)
+  names(modelNames) <- modelNames
+  
+  lapply(modelNames, function(x) {
+    res <- capture.output({
+      printDWTest(inDat = inDat, 
+                  dependent = dependent,
+                  mPar = allModels[[x]], 
+                  tVar = I(1:length(inDat[, dependent])), 
+                  maxLag = maxLag)
+    })
+    
+    if (asDataFrame) {
+      res <- res %>%
+        as.data.frame()
+      colnames(res) <- "Durbin-Watson Test"
+      
+      res <- res %>%
+        prefixNameAsColumn(name = "model", value = x)
+    }
+    
+    res
+  })
+}
+
+printDWTest <- function(inDat, dependent, mPar, tVar, maxLag) {
+  print(
+    durbinWatsonTest(lm(I(inDat[, dependent] -
+                            BMSC::predict(mPar, newdata = inDat)) ~
+                          tVar), 
+                     max.lag = maxLag)
+  )
 }

@@ -104,7 +104,7 @@ modelEstimation <- function(input, output, session, data) {
   callModule(modelParameters, "modelParameters", model = m, modelAVG = m_AVG)
   callModule(modelPredictionsCustom, "modelPredictionsCustom", model = m, modelAVG = m_AVG)
   callModule(modelROC, "modelROC", model = m, data = data, modelAVG = m_AVG)
-  callModule(modelDW, "modelDW", model = m, data = data, modelAVG = m_AVG)
+  allDW <- callModule(modelDW, "modelDW", model = m, data = data, modelAVG = m_AVG)
   callModule(modelVariables, "modelVariables", model = m, data = data, modelAVG = m_AVG)
   callModule(modelVariablesImp, "modelVariablesImp", model = m, modelAVG = m_AVG)
   
@@ -114,7 +114,8 @@ modelEstimation <- function(input, output, session, data) {
                                  # export list of dataframes:
                                  list(
                                    `Model Evaluation` = allICData(),
-                                   `Model Summary` = allSummaries()
+                                   `Model Summary` = allSummaries(),
+                                   `Durbin-Watson Test` = allDW()
                                  )
                                }),
                                filename = "all_model_output")

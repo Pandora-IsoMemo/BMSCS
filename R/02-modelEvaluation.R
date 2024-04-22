@@ -97,11 +97,6 @@ modelEvaluation <- function(input, output, session, model) {
 #' 
 #' @param ic (character) name of information criterion, e.g. \code{"AUC", "Rsq", "RsqAdj", "Bayes_Rsq", "df", "logLik", "nagelkerke", "Loo", "WAIC"}
 getICData <- function(allFits, modelNames, ic, withColumnICName = FALSE) {
-  addColumnICName <- function(df, ic) {
-    df$IC_name <- ic
-    df[, c(ncol(df), 1:(ncol(df)-1))]
-  }
-  
   fits <- allFits[[ic]]
   
   # set colname of IC column
@@ -118,7 +113,7 @@ getICData <- function(allFits, modelNames, ic, withColumnICName = FALSE) {
     
     if (withColumnICName) {
       emptyRes <- emptyRes %>%
-        addColumnICName(ic = ic)
+        prefixNameAsColumn(name = "IC_name", value = ic)
     }
     
     return(emptyRes)
@@ -143,8 +138,14 @@ getICData <- function(allFits, modelNames, ic, withColumnICName = FALSE) {
   
   if (withColumnICName) {
     res <- res %>%
-      addColumnICName(ic = ic)
+      prefixNameAsColumn(name = "IC_name", value = ic)
   }
   
   res
+}
+
+
+prefixNameAsColumn <- function(df, name, value) {
+  df[[name]] <- value
+  df[, c(ncol(df), 1:(ncol(df)-1))]
 }

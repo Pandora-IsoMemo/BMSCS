@@ -5,7 +5,6 @@ testthat::test_that("Test extractAllSummaries", {
   expect_equal(
     extractAllSummaries(
       allModels = testModels$models,
-      modelNames = c("x1", "x1 + x4", "x1 + x4 + x3", "x1 + x4 + x3 + x2"),
       cLevel = 0.8
     ),
     list(
@@ -85,7 +84,6 @@ testthat::test_that("Test extractAllSummaries", {
   expect_equal(
     extractAllSummaries(
       allModels = testModels$models,
-      modelNames = c("x1", "x1 + x4", "x1 + x4 + x3", "x1 + x4 + x3 + x2"),
       cLevel = 0.8
     ) %>% 
       bindAllResults(addEmptyRow = TRUE),
@@ -118,7 +116,6 @@ testthat::test_that("Test extractAllSummaries", {
   #   shinyTools::exportXLSX(file = file.path(tempdir(), "testSummary.xlsx"),
   #                          dat = extractAllSummaries(
   #                            allModels = testModels$models,
-  #                            modelNames = c("x1", "x1 + x4", "x1 + x4 + x3", "x1 + x4 + x3 + x2"),
   #                            cLevel = 0.8
   #                          ))
   # )

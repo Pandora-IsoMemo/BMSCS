@@ -27,7 +27,6 @@ modelSummary <- function(input, output, session, model, modelAVG) {
     
     thisSummaries <- extractAllSummaries(
       allModels = model()$models,
-      modelNames = names(model()$models),
       cLevel = input$quantileInt
     ) %>% 
       bindAllResults(addEmptyRow = TRUE)
@@ -58,7 +57,8 @@ modelSummary <- function(input, output, session, model, modelAVG) {
     return(allSummaries)
 }
 
-extractAllSummaries <- function(allModels, modelNames, cLevel, asDataFrame = TRUE) {
+extractAllSummaries <- function(allModels, cLevel, asDataFrame = TRUE) {
+  modelNames <- names(allModels)
   names(modelNames) <- modelNames
   
   lapply(modelNames, function(x) {

@@ -67,6 +67,9 @@ extractAllSummaries <- function(allModels, cLevel, asDataFrame = TRUE) {
       res <- res %>%
         as.data.frame()
       colnames(res) <- "Model Summary"
+      
+      res <- res %>%
+        prefixNameAsColumn(name = "model", value = x)
     }
     
     res

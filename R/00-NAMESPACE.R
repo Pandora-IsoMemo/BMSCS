@@ -5,7 +5,7 @@
 #' @importFrom coda raftery.diag gelman.diag geweke.diag heidel.diag mcmc
 #' @importFrom DataTools downloadModelUI downloadModelServer importDataUI importDataServer
 #'  tryCatchWithWarningsAndErrors
-#' @importFrom dplyr bind_rows ungroup summarise group_by "%>%" summarise_ group_by_
+#' @importFrom dplyr bind_cols bind_rows ungroup summarise group_by "%>%" summarise_ group_by_
 #' @importFrom DT datatable renderDT DTOutput
 #' @importFrom ggplot2 aes_string element_text geom_errorbar geom_point ggplot
 #'  labs scale_x_discrete theme aes aes_ geom_boxplot ylab xlab

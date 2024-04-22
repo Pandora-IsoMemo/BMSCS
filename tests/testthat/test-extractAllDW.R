@@ -1,4 +1,4 @@
-testthat::test_that("Test extractAllSummaries", {
+testthat::test_that("Test extractAllDW", {
   testData <-
     readRDS(testthat::test_path("testdata/test_inData.rds"))
   

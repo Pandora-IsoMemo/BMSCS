@@ -63,7 +63,7 @@ modelEstimationUI <- function(id, title = "") {
         ),
         column(
           width = 9,
-          helpText("Note: The export contains output of tabs 'Model Evaluation', 'Model Summary'")
+          helpText("Note: The export contains output of tabs 'Model Evaluation', 'Model Summary', 'Model Diagnostics', 'Durbin-Watson Test'")
         )),
         tags$hr(),
         tabsetPanel(
@@ -98,7 +98,7 @@ modelEstimation <- function(input, output, session, data) {
     bindEvent(data())
     
   allSummaries <- callModule(modelSummary, "modelSummary", model = m, modelAVG = m_AVG)
-  callModule(modelDiagnostics, "modelDiagnostics", model = m, nChains = input$nChains)
+  allDiagnostics <- callModule(modelDiagnostics, "modelDiagnostics", model = m, nChains = input$nChains)
   allICData <- callModule(modelEvaluation, "modelEvaluation", model = m)
   callModule(modelPredictions, "modelPredictions", model = m, data = data, modelAVG = m_AVG)
   callModule(modelParameters, "modelParameters", model = m, modelAVG = m_AVG)
@@ -115,6 +115,7 @@ modelEstimation <- function(input, output, session, data) {
                                  list(
                                    `Model Evaluation` = allICData(),
                                    `Model Summary` = allSummaries(),
+                                   `Model Diagnostics` = allDiagnostics(),
                                    `Durbin-Watson Test` = allDW()
                                  )
                                }),

@@ -10,7 +10,7 @@ bindAllResults <- function(listOfDataframes, addEmptyRow = TRUE) {
   }
   
   res <- listOfDataframes %>% 
-    dplyr::bind_rows()
+    bind_rows()
   
   rownames(res) <- NULL
   

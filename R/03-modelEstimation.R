@@ -63,7 +63,7 @@ modelEstimationUI <- function(id, title = "") {
         ),
         column(
           width = 9,
-          helpText("Note: The export contains output of tabs 'Model Evaluation', 'Model Summary', 'Model Diagnostics', 'Durbin-Watson Test'")
+          helpText("Note: The export contains output of tabs 'Model Evaluation', 'Model Summary', 'Model Diagnostics', 'Durbin-Watson Test', 'Variable Importance'")
         )),
         tags$hr(),
         tabsetPanel(
@@ -106,7 +106,7 @@ modelEstimation <- function(input, output, session, data) {
   callModule(modelROC, "modelROC", model = m, data = data, modelAVG = m_AVG)
   allDW <- callModule(modelDW, "modelDW", model = m, data = data, modelAVG = m_AVG)
   callModule(modelVariables, "modelVariables", model = m, data = data, modelAVG = m_AVG)
-  callModule(modelVariablesImp, "modelVariablesImp", model = m, modelAVG = m_AVG)
+  allVariableImportance <- callModule(modelVariablesImp, "modelVariablesImp", model = m, modelAVG = m_AVG)
   
   shinyTools::dataExportServer("exportAllModelOutput",
                                dataFun = reactive(function() {
@@ -116,7 +116,8 @@ modelEstimation <- function(input, output, session, data) {
                                    `Model Evaluation` = allICData(),
                                    `Model Summary` = allSummaries(),
                                    `Model Diagnostics` = allDiagnostics(),
-                                   `Durbin-Watson Test` = allDW()
+                                   `Durbin-Watson Test` = allDW(),
+                                   `Variable Importance` = allVariableImportance()
                                  )
                                }),
                                filename = "all_model_output")

@@ -10,7 +10,9 @@ modelVariablesImpTab <- function(id) {
       ns = ns,
     selectInput(ns("modelSelection"), "Select model", choices = "")
     ),
-    tableOutput(ns("variableImp")),
+    tags$br(),
+    DTOutput(ns("variableImp")),
+    tags$br(),
     dataExportButton(ns("exportData"))
   )
 }
@@ -24,6 +26,17 @@ modelVariablesImp <- function(input, output, session, model, modelAVG) {
     updateSelectInput(session, "modelSelection", choices = c(names(model()$models), names(modelAVG())))
   })
   
+  allVariableImportance <- reactiveVal()
+  observe({
+    req(model())
+    thisVarImp <- extractAllVariableImportance(models = model()$models,
+                                               variableData = model()$variableData) %>%
+      bindAllResults(addEmptyRow = TRUE) %>%
+      dplyr::select("Model", "Variable", "Importance", "Estimate", "Sign")
+    
+    allVariableImportance(thisVarImp)
+  })
+  
   dataFun <- reactive({
     req(model())
     
@@ -35,54 +48,33 @@ modelVariablesImp <- function(input, output, session, model, modelAVG) {
       }
       
       # for csv / excel - export:
-      extractVariableImportance(model = mPar[[input$modelSelection]], 
-                                variableData = model()$variableData,
-                                importanceType = input$impType)
+      if(input$impType == "global"){
+        extractAllVariableImportance(models = mPar, variableData = model()$variableData) %>%
+          bind_rows() %>%
+          dplyr::select("Model", "Variable", "Importance", "Estimate", "Sign")
+      } else {
+        extractModelBasedVariableImportance(model = mPar[[input$modelSelection]]) %>%
+          joinRegressionSign(signData = extractSummary(model = mPar[[input$modelSelection]]) %>%
+                               extractCoefTable() %>%
+                               extractRegressionSign())
+      }
     }
   })
   
-  output$variableImp <- renderTable(dataFun()(), bordered = TRUE,
-                                 rownames = FALSE, colnames = TRUE)
+  output$variableImp <- renderDT(dataFun()(), rownames = FALSE)
 
   callModule(dataExport, "exportData", data = dataFun, filename = "evaluation")
   
+  return(allVariableImportance)
 }
 
 # extract importance ----
 
-extractAllVariableImportance <- function(models) {
-  globalImportance <- extractGlobalVariableImportance(variableData = models$variableData)
-  globalImportance$Model <- "global"
-  globalImportance$Estimate <- NA
-  globalImportance$Sign <- NA
-  
-  modelBasedImportance <- lapply(models$models, function(model) {
-    extractModelBasedVariableImportance(model = model) %>%
-      joinRegressionSign(signData = extractSummary(model = model) %>%
-                           extractCoefTable() %>%
-                           extractRegressionSign())
-  }) %>%
-    bind_rows(.id = "Model")
-  
-  list(globalImportance, modelBasedImportance) %>%
-    bind_rows() %>%
-    dplyr::select("Model", "Variable", "Importance", "Estimate", "Sign")
-}
-
-extractVariableImportance <- function(model, variableData, importanceType) {
-  if(importanceType == "global"){
-    extractGlobalVariableImportance(variableData = variableData)
-  } else {
-    extractModelBasedVariableImportance(model = model) %>%
-      joinRegressionSign(signData = extractSummary(model = model) %>%
-                           extractCoefTable() %>%
-                           extractRegressionSign())
-  }
-}
-
 extractGlobalVariableImportance <- function(variableData) {
   variableImportance <- variableData[, 1:2]
   names(variableImportance) <- c("Variable", "Importance")
+  variableImportance$Importance <- variableImportance$Importance %>% 
+    round(digits = 2)
   return(variableImportance)
 }
 
@@ -90,7 +82,8 @@ extractModelBasedVariableImportance <- function(model) {
   importance <- abs(colMeans(extract(model)$betaAll))
   names(importance) <- model@varNames
   if(model@hasIntercept){
-    importance <- importance[-1]
+    importance <- importance[-1] %>% 
+      round(digits = 2)
   }
   importance <- data.frame(Importance = importance[order(importance, decreasing  = TRUE)])
   variableImportance <- data.frame(Variable = rownames(importance), importance)
@@ -138,8 +131,26 @@ getSign <- function(values) {
 
 # combine importance and sign ----
 
+extractAllVariableImportance <- function(models, variableData) {
+  globalImportance <- extractGlobalVariableImportance(variableData = variableData)
+  globalImportance$Model <- "global"
+  globalImportance$Estimate <- NA
+  globalImportance$Sign <- NA
+  
+  modelNames <- names(models)
+  names(modelNames) <- modelNames
+  modelBasedImportance <- lapply(modelNames, function(name) {
+    extractModelBasedVariableImportance(model = models[[name]]) %>%
+      joinRegressionSign(signData = extractSummary(model = models[[name]]) %>%
+                           extractCoefTable() %>%
+                           extractRegressionSign()) %>%
+      prefixNameAsColumn(name = "Model", value = name)
+  })
+  
+  c(list(global = globalImportance), modelBasedImportance)
+}
+
 joinRegressionSign <- function(importance, signData) {
   importance %>%
     dplyr::left_join(signData, by = "Variable")
 }
-

@@ -3,10 +3,18 @@
 ## New Features
 
 - option to save all model results in a single Excel in separate sheets:
-  - **Model Evaluation**: for the different models across different rows values for all “Information / Cross-Validation Error criterion”
-  - **Model Summary**: across different rows for each model
-  - **Model Diagnostics**: for different models across different rows and in separate columns
-  - **Durbin-Watson Test**: for different models across different rows
+  - *Model Evaluation*: for the different models across different rows values for all “Information / Cross-Validation Error criterion”
+  - *Model Summary*: across different rows for each model
+  - *Model Diagnostics*: for different models across different rows and in separate columns
+  - *Durbin-Watson Test*: for different models across different rows
+  - *Variable importance*: across different rows the results for option global and for each model for option “model based”
+
+## Updates
+
+- UI in *Variable importance* for the global option “Variable importance type”:
+  - added the regression sign of the coefficients associated to each variable (to be displayed in separate columns as “1” or “-1”)
+  - one sign column for each model
+  - the name of each column is the full regression model (as available under Model summary)
 
 # BMSCApp 23.12.1
 

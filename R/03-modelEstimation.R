@@ -110,7 +110,7 @@ modelEstimation <- function(input, output, session, data) {
   
   shinyTools::dataExportServer("exportAllModelOutput",
                                dataFun = reactive(function() {
-                                 if (is.null(m())) return(NULL)
+                                 if (length(m()) == 0) return(NULL)
                                  # export list of dataframes:
                                  list(
                                    `Model Evaluation` = allICData(),

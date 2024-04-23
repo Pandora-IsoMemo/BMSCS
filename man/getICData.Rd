@@ -7,7 +7,14 @@
 getICData(allFits, modelNames, ic, withColumnICName = FALSE)
 }
 \arguments{
+\item{allFits}{(list) list of model$fits objects}
+
+\item{modelNames}{(character) name of all models}
+
 \item{ic}{(character) name of information criterion, e.g. \code{"AUC", "Rsq", "RsqAdj", "Bayes_Rsq", "df", "logLik", "nagelkerke", "Loo", "WAIC"}}
+
+\item{withColumnICName}{(logical) if TRUE, add a separate first column "IC_name" containing the
+name of ic. Useful, for \code{bind_rows} over several ic values}
 }
 \description{
 Get Data of IC

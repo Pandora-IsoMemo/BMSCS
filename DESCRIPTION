@@ -18,8 +18,6 @@ Imports:
   futile.logger,
   ggplot2,
   DataTools (>= 23.12.2),
-  jsonlite,
-  openxlsx,
   pROC,
   shiny,
   shinyjs,

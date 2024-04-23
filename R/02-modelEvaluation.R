@@ -95,7 +95,11 @@ modelEvaluation <- function(input, output, session, model) {
 
 #' Get Data of IC
 #' 
+#' @param allFits (list) list of model$fits objects
+#' @param modelNames (character) name of all models
 #' @param ic (character) name of information criterion, e.g. \code{"AUC", "Rsq", "RsqAdj", "Bayes_Rsq", "df", "logLik", "nagelkerke", "Loo", "WAIC"}
+#' @param withColumnICName (logical) if TRUE, add a separate first column "IC_name" containing the
+#'  name of ic. Useful, for \code{bind_rows} over several ic values
 getICData <- function(allFits, modelNames, ic, withColumnICName = FALSE) {
   fits <- allFits[[ic]]
   

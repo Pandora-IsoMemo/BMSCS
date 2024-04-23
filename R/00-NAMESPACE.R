@@ -12,18 +12,16 @@
 #'  labs scale_x_discrete theme aes aes_ geom_boxplot ylab xlab
 #' @importFrom graphics plot boxplot
 #' @importFrom grDevices dev.off pdf png svg tiff
-#' @importFrom jsonlite toJSON
-#' @importFrom openxlsx write.xlsx
 #' @importFrom Rcpp evalCpp
 #' @importFrom pROC plot.roc
 #' @importFrom rstan extract
 #' @importFrom shinyjs useShinyjs alert
 #' @importFrom shinyTools dataExportButton dataExportServer
 #' @importFrom shinyWidgets pickerInput updatePickerInput
-#' @importFrom stats lm as.formula predict rexp rnorm terms rpois median quantile sd qnorm 
-#'  chisq.test cor lm.fit model.matrix na.omit
+#' @importFrom stats as.formula chisq.test cor lm lm.fit median model.matrix na.omit 
+#'  predict qnorm quantile rexp rnorm rpois sd setNames terms
 #' @importFrom tidyr gather
-#' @importFrom utils capture.output head packageVersion read.csv write.table
+#' @importFrom utils capture.output head packageVersion
 #' @importFrom yaml read_yaml
 NULL
 

@@ -41,6 +41,8 @@ modelVariablesImp <- function(input, output, session, model, modelAVG) {
     req(model())
     
     function() {
+      if (length(model()) == 0) return(NULL)
+      
       if((input$modelSelection %in% names(model()$models))){
         mPar <- model()$models
       } else {
@@ -63,7 +65,7 @@ modelVariablesImp <- function(input, output, session, model, modelAVG) {
   
   output$variableImp <- renderDT(dataFun()(), rownames = FALSE)
 
-  callModule(dataExport, "exportData", data = dataFun, filename = "evaluation")
+  shinyTools::dataExportServer("exportData", dataFun = dataFun, filename = "variableImportance")
   
   return(allVariableImportance)
 }

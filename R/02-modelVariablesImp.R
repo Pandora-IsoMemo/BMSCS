@@ -29,26 +29,15 @@ modelVariablesImp <- function(input, output, session, model, modelAVG) {
     
     function() {
       if((input$modelSelection %in% names(model()$models))){
-        mPar <- model()$models[[input$modelSelection]]
+        mPar <- model()$models
       } else {
-        mPar <- modelAVG()[[input$modelSelection]]
+        mPar <- modelAVG()
       }
       
       # for csv / excel - export:
-      if(input$impType == "global"){
-        variableImportance <- model()$variableData[, 1:2]
-        names(variableImportance) <- c("Variable", "Importance")
-        return(variableImportance)
-      } else {
-        importance <- abs(colMeans(extract(mPar)$betaAll))
-        names(importance) <- mPar@varNames
-        if(mPar@hasIntercept){
-          importance <- importance[-1]
-        }
-        importance <- data.frame(Importance = importance[order(importance, decreasing  = TRUE)])
-        variableImportance <- data.frame(Variable = rownames(importance), importance)
-        return(variableImportance)
-      }
+      extractVariableImportance(model = mPar[[input$modelSelection]], 
+                                variableData = model()$variableData,
+                                importanceType = input$impType)
     }
   })
   
@@ -58,3 +47,99 @@ modelVariablesImp <- function(input, output, session, model, modelAVG) {
   callModule(dataExport, "exportData", data = dataFun, filename = "evaluation")
   
 }
+
+# extract importance ----
+
+extractAllVariableImportance <- function(models) {
+  globalImportance <- extractGlobalVariableImportance(variableData = models$variableData)
+  globalImportance$Model <- "global"
+  globalImportance$Estimate <- NA
+  globalImportance$Sign <- NA
+  
+  modelBasedImportance <- lapply(models$models, function(model) {
+    extractModelBasedVariableImportance(model = model) %>%
+      joinRegressionSign(signData = extractSummary(model = model) %>%
+                           extractCoefTable() %>%
+                           extractRegressionSign())
+  }) %>%
+    bind_rows(.id = "Model")
+  
+  list(globalImportance, modelBasedImportance) %>%
+    bind_rows() %>%
+    dplyr::select("Model", "Variable", "Importance", "Estimate", "Sign")
+}
+
+extractVariableImportance <- function(model, variableData, importanceType) {
+  if(importanceType == "global"){
+    extractGlobalVariableImportance(variableData = variableData)
+  } else {
+    extractModelBasedVariableImportance(model = model) %>%
+      joinRegressionSign(signData = extractSummary(model = model) %>%
+                           extractCoefTable() %>%
+                           extractRegressionSign())
+  }
+}
+
+extractGlobalVariableImportance <- function(variableData) {
+  variableImportance <- variableData[, 1:2]
+  names(variableImportance) <- c("Variable", "Importance")
+  return(variableImportance)
+}
+
+extractModelBasedVariableImportance <- function(model) {
+  importance <- abs(colMeans(extract(model)$betaAll))
+  names(importance) <- model@varNames
+  if(model@hasIntercept){
+    importance <- importance[-1]
+  }
+  importance <- data.frame(Importance = importance[order(importance, decreasing  = TRUE)])
+  variableImportance <- data.frame(Variable = rownames(importance), importance)
+  return(variableImportance)
+}
+
+# extract sign ----
+
+extractCoefTable <- function(capturedOutput) {
+  summary_rows <- strsplit(capturedOutput, "\\s+")
+  
+  coefTable <- summary_rows[c(3:(length(capturedOutput)-4))]
+  # create and update column names
+  coefTable[[1]][coefTable[[1]] == "Cred_Interval_"] <- "Cred_Interval_Min"
+  coefTable[[1]] <- c(coefTable[[1]], "Cred_Interval_Max")
+  
+  coefTable_columns <- t(sapply(coefTable, function(row) row)) %>%
+    as.data.frame(stringsAsFactors = FALSE) %>%
+    setNames(.[1, ])
+  coefTable_columns <- coefTable_columns[2:nrow(coefTable_columns),] 
+  
+  # clean up columns
+  coefTable_columns$Estimate <- as.numeric(coefTable_columns$Estimate)
+  coefTable_columns$Median <- as.numeric(coefTable_columns$Median)
+  coefTable_columns$SD <- as.numeric(coefTable_columns$SD)
+  coefTable_columns$Cred_Interval_Min <- coefTable_columns$Cred_Interval_Min %>%
+    gsub(pattern = "\\[|\\]|\\,", replacement = "")
+  coefTable_columns$Cred_Interval_Max <- coefTable_columns$Cred_Interval_Max %>%
+    gsub(pattern = "\\[|\\]|\\,", replacement = "")
+  
+  coefTable_columns
+}
+
+extractRegressionSign <- function(coefTable) {
+  estimate <- coefTable[2:nrow(coefTable), 1:2]
+  colnames(estimate)[1] <- "Variable"
+  estimate$Sign <- getSign(estimate$Estimate)
+  
+  estimate
+}
+
+getSign <- function(values) {
+  -1*(values < 0) + 1*(values > 0)
+}
+
+# combine importance and sign ----
+
+joinRegressionSign <- function(importance, signData) {
+  importance %>%
+    dplyr::left_join(signData, by = "Variable")
+}
+

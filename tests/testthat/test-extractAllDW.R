@@ -13,6 +13,6 @@ testthat::test_that("Test extractAllDW", {
                  asDataFrame = TRUE) %>% 
       bindAllResults(addEmptyRow = TRUE) %>%
       colnames(),
-    c("model", "Durbin-Watson Test")
+    c("Model", "Durbin-Watson Test")
   )
 })

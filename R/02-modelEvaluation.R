@@ -112,7 +112,7 @@ getICData <- function(allFits, modelNames, ic, withColumnICName = FALSE) {
   
   # return empty data.frame
   if (is.null(fits)) {
-    emptyRes <- data.frame(model = modelNames, fits = NA, rank = NA)
+    emptyRes <- data.frame(Model = modelNames, Fits = NA, Rank = NA)
     colnames(emptyRes)[2] <- colnameIC
     
     if (withColumnICName) {
@@ -138,7 +138,7 @@ getICData <- function(allFits, modelNames, ic, withColumnICName = FALSE) {
   } else {
     ranks <- as.integer(round(rank(fits[,1]), 0))
   }
-  res <- data.frame(model = modelNames, fits, rank = ranks)
+  res <- data.frame(Model = modelNames, fits, Rank = ranks)
   
   if (withColumnICName) {
     res <- res %>%

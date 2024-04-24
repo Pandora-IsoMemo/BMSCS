@@ -10,14 +10,14 @@ testthat::test_that("Test getICData", {
     ),
     structure(
       list(
-        model = c("x1", "x1 + x4", "x1 + x4 + x3", "x1 + x4 + x3 + x2"),
+        Model = c("x1", "x1 + x4", "x1 + x4 + x3", "x1 + x4 + x3 + x2"),
         Loo = c(
           -11.4598064197826,
           -16.2727908673405,
           -18.9843684391482,
           -19.2971285901485
         ),
-        rank = 1:4
+        Rank = 1:4
       ),
       class = "data.frame",
       row.names = c("x1",
@@ -43,7 +43,7 @@ testthat::test_that("Test getICData", {
                              NA, "nagelkerke", "nagelkerke", "nagelkerke", "nagelkerke", NA, 
                              "Loo", "Loo", "Loo", "Loo", NA, "WAIC", "WAIC", "WAIC", "WAIC", 
                              NA),
-                 model = c("x1", "x1 + x4", "x1 + x4 + x3", "x1 + x4 + x3 + x2", 
+                 Model = c("x1", "x1 + x4", "x1 + x4 + x3", "x1 + x4 + x3 + x2", 
                            NA, "x1", "x1 + x4", "x1 + x4 + x3", "x1 + x4 + x3 + x2", NA, 
                            "x1", "x1 + x4", "x1 + x4 + x3", "x1 + x4 + x3 + x2", NA, "x1", 
                            "x1 + x4", "x1 + x4 + x3", "x1 + x4 + x3 + x2", NA, "x1", "x1 + x4", 
@@ -61,7 +61,7 @@ testthat::test_that("Test getICData", {
                               0.598045330919951, NA, -11.4598064197826, -16.2727908673405, 
                               -18.9843684391482, -19.2971285901485, NA, -11.3830747202506, 
                               -15.1187771450832, -17.1693691600503, -17.6905535609402, NA), 
-                 rank = c(4L, 1L, 4L, 2L, NA, 4L, 3L, 1L, 2L, NA, 3L, 4L, 
+                 Rank = c(4L, 1L, 4L, 2L, NA, 4L, 3L, 1L, 2L, NA, 3L, 4L, 
                           1L, 2L, NA, NA, NA, NA, NA, NA, 1L, 2L, 3L, 4L, NA, 1L, 2L, 
                           4L, 3L, NA, 4L, 3L, 2L, 1L, NA, 1L, 2L, 3L, 4L, NA, 1L, 2L, 
                           3L, 4L, NA)),

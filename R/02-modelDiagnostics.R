@@ -108,7 +108,7 @@ extractAllDiagnostics <- function(allModels, nChains, asDataFrame = TRUE) {
       # bind columns of diagnostics
       resRow <- resRow %>%
         bind_cols() %>%
-        prefixNameAsColumn(name = "model", value = x)
+        prefixNameAsColumn(name = "Model", value = x)
     }
     
     resRow

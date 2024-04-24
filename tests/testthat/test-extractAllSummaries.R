@@ -8,7 +8,7 @@ testthat::test_that("Test extractAllSummaries", {
     list(
       x1 = structure(
         list(
-          model = c("x1", "x1", "x1", "x1", "x1",
+          Model = c("x1", "x1", "x1", "x1", "x1",
                     "x1", "x1", "x1", "x1"),
           `Model Summary` = c(
             "Model formula: y ~ x1 ",
@@ -28,7 +28,7 @@ testthat::test_that("Test extractAllSummaries", {
       ),
       `x1 + x4` = structure(
         list(
-          model = c(
+          Model = c(
             "x1 + x4",
             "x1 + x4",
             "x1 + x4",
@@ -67,7 +67,7 @@ testthat::test_that("Test extractAllSummaries", {
       ),
       `x1 + x4 + x3` = structure(
         list(
-          model = c(
+          Model = c(
             "x1 + x4 + x3",
             "x1 + x4 + x3",
             "x1 + x4 + x3",
@@ -108,7 +108,7 @@ testthat::test_that("Test extractAllSummaries", {
       ),
       `x1 + x4 + x3 + x2` = structure(
         list(
-          model = c(
+          Model = c(
             "x1 + x4 + x3 + x2",
             "x1 + x4 + x3 + x2",
             "x1 + x4 + x3 + x2",
@@ -158,7 +158,7 @@ testthat::test_that("Test extractAllSummaries", {
       bindAllResults(addEmptyRow = TRUE),
     structure(
       list(
-        model = c(
+        Model = c(
           "x1",
           "x1",
           "x1",

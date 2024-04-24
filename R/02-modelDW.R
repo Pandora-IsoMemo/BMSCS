@@ -95,7 +95,7 @@ extractAllDW <- function(allModels, maxLag, dependent, inDat, asDataFrame = TRUE
       colnames(res) <- "Durbin-Watson Test"
       
       res <- res %>%
-        prefixNameAsColumn(name = "model", value = x)
+        prefixNameAsColumn(name = "Model", value = x)
     }
     
     res

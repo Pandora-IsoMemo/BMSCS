@@ -69,7 +69,7 @@ extractAllSummaries <- function(allModels, cLevel, asDataFrame = TRUE) {
       colnames(res) <- "Model Summary"
       
       res <- res %>%
-        prefixNameAsColumn(name = "model", value = x)
+        prefixNameAsColumn(name = "Model", value = x)
     }
     
     res

@@ -103,8 +103,10 @@ extractCoefTable <- function(capturedOutput) {
   coefTable[[1]] <- c(coefTable[[1]], "Cred_Interval_Max")
   
   coefTable_columns <- t(sapply(coefTable, function(row) row)) %>%
-    as.data.frame(stringsAsFactors = FALSE) %>%
-    setNames(.[1, ])
+    as.data.frame(stringsAsFactors = FALSE)
+  
+  coefTable_columns <- coefTable_columns %>%
+    setNames(coefTable_columns[1, ])
   coefTable_columns <- coefTable_columns[2:nrow(coefTable_columns),] 
   
   # clean up columns

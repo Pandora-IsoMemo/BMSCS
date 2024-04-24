@@ -1,4 +1,5 @@
 library("BMSCApp")
+library(yaml)
 
 options(shiny.maxRequestSize = 100*1024^2)
 

@@ -1,5 +1,3 @@
-# BMSCApp app 
-
 # BMSCApp 24.04.0
 
 ## Bug Fixes

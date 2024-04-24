@@ -86,6 +86,7 @@ modelEstimationUI <- function(id, title = "") {
 #' @rdname shinyModule
 #' @export
 modelEstimation <- function(input, output, session, data) {
+  ns <- session$ns
   
   observe({
     updateSelectizeInput(session, "x", choices = names(data()), selected = "")
@@ -153,12 +154,33 @@ modelEstimation <- function(input, output, session, data) {
   
   m <- reactiveVal()
   
+  observe({
+    if (length(m()) == 0) {
+      shinyjs::disable(ns("modelAvg"), asis = TRUE)
+    } else {
+      shinyjs::enable(ns("modelAvg"), asis = TRUE)
+    }
+  }) %>%
+    bindEvent(m(), ignoreNULL = FALSE)
+  
   # MODEL DOWN- / UPLOAD ----
+  modelsForDownload <- reactive({
+    if (length(m()) == 0) return(NULL)
+    
+    allModels <- m()
+    if (length(m_AVG()) != 0) {
+      # add average model if exists
+      allModels$models <- c(allModels$models, m_AVG())
+    } 
+    
+    allModels
+  })
+  
   modelNotes <- reactiveVal(NULL)
   downloadModelServer("modelDownload",
                       dat = data,
                       inputs = input,
-                      model = m,
+                      model = modelsForDownload,
                       rPackageName = config()[["rPackageName"]],
                       fileExtension = config()[["fileExtension"]],
                       helpHTML = getHelp(id = ""),
@@ -196,7 +218,24 @@ modelEstimation <- function(input, output, session, data) {
     }
     
     ## update model ----
-    m(uploadedModel()[[1]][["model"]])
+    modelNames <- names(uploadedModel()[[1]][["model"]][["models"]])
+    # extract average model if exists
+    indexAvgModel <- grepl(pattern = "model_average", modelNames)
+    if (any(indexAvgModel)) {
+      # extract avg model
+      modelObject <- uploadedModel()[[1]][["model"]]
+      avgModel <- modelObject$models[modelNames[indexAvgModel]]
+      
+      # remove avg model from list of models
+      modelObject$models[[modelNames[indexAvgModel]]] <- NULL
+      
+      # load single models
+      m(modelObject)
+      # load average model
+      m_AVG(avgModel)
+    } else {
+      m(uploadedModel()[[1]][["model"]])
+    }
   }) %>%
     bindEvent(uploadedModel())
   
@@ -267,18 +306,22 @@ modelEstimation <- function(input, output, session, data) {
   }) %>%
     bindEvent(input$run)
   
-  m_AVG <- eventReactive(input$modelAvg, {
-      req(m())
-      weights <- get_model_weights(m()$fits, measure = input$wMeasure) %>%
+  # RUN AVG MODEL ----
+  m_AVG <- reactiveVal()
+  observe({
+    req(m())
+    weights <- get_model_weights(m()$fits, measure = input$wMeasure) %>%
+      tryCatchWithWarningsAndErrors()
+    req(!is.null(weights))
+    model_avg <- withProgress({list(
+      get_avg_model(m()$models, weights) %>%
         tryCatchWithWarningsAndErrors()
-      req(!is.null(weights))
-      model_avg <- withProgress({list(
-        get_avg_model(m()$models, weights) %>%
-          tryCatchWithWarningsAndErrors()
-      )}, value = 0, message = "Calculate model average")
-      names(model_avg) <- paste0("model_average_", input$wMeasure)
-      return(model_avg)
-  })
+    )}, value = 0, message = "Calculate model average")
+    names(model_avg) <- paste0("model_average_", input$wMeasure)
+    
+    m_AVG(model_avg)
+  }) %>%
+    bindEvent(input$modelAvg)
   
   observe({
     req(m())

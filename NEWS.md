@@ -1,4 +1,4 @@
-# BMSCApp 24.04.0
+# BMSCApp 24.04.1
 
 ## New Features
 
@@ -13,6 +13,11 @@
 
 - UI in *Variable importance* for the global option “Variable importance type” (#10):
   - added the regression sign of the coefficients associated to each variable (as “1” or “-1”)
+
+# BMSCApp 24.04.0
+
+## Bug Fixes
+- _Import of models_: added average model to the down- and upload of models
 
 # BMSCApp 23.12.1
 

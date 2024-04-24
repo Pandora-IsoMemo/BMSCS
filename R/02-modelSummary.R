@@ -20,6 +20,20 @@ modelSummary <- function(input, output, session, model, modelAVG) {
         req(modelAVG())
         updateSelectInput(session, "modelSelection", choices = c(names(model()$models), names(modelAVG())))
     })
+    
+  allSummaries <- reactiveVal()
+  observe({
+    req(model())
+    
+    thisSummaries <- extractAllSummaries(
+      allModels = model()$models,
+      cLevel = input$quantileInt
+    ) %>% 
+      bindAllResults(addEmptyRow = TRUE)
+    
+    allSummaries(thisSummaries)
+  })
+    
     printFun <- reactive({
         req(model())
         req((input$modelSelection %in% names(model()$models)) || (input$modelSelection %in% names(modelAVG())))
@@ -39,4 +53,31 @@ modelSummary <- function(input, output, session, model, modelAVG) {
     })
 
     callModule(textExport, "exportText", printFun = printFun, filename = "summary")
+    
+    return(allSummaries)
+}
+
+extractAllSummaries <- function(allModels, cLevel, asDataFrame = TRUE) {
+  modelNames <- names(allModels)
+  names(modelNames) <- modelNames
+  
+  lapply(modelNames, function(x) {
+    res <- extractSummary(model = allModels[[x]], cLevel = cLevel)
+    if (asDataFrame) {
+      res <- res %>%
+        as.data.frame()
+      colnames(res) <- "Model Summary"
+      
+      res <- res %>%
+        prefixNameAsColumn(name = "Model", value = x)
+    }
+    
+    res
+  })
+}
+
+extractSummary <- function(model, cLevel = 0.95) {
+  capture.output({
+    print(model, cLevel = cLevel)
+  })
 }

@@ -264,7 +264,19 @@ modelVariables <- function(input, output, session, model, data, modelAVG) {
   output$VIF <- renderTable(VIF()(),
                             bordered = TRUE, rownames = FALSE, colnames = TRUE)
   
-  callModule(dataExport, "exportVifs", data = VIF, filename = "VIF")
-  callModule(dataExport, "exportCors", data = correlationMatrix, filename = "Corr")
+  shinyTools::dataExportServer("exportVifs",
+                               dataFun = reactive(function() {
+                                 if (length(model()) == 0 || input$modelSelection == "") return(NULL)
+                                 VIF()()
+                               }),
+                               filename = "VIF")
+  
+  shinyTools::dataExportServer("exportCors",
+                               dataFun = reactive(function() {
+                                 if (length(model()) == 0 || input$modelSelection == "") return(NULL)
+                                 correlationMatrix()() %>%
+                                   as.data.frame()
+                               }),
+                               filename = "Corr")
   
 }

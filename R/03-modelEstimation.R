@@ -55,20 +55,31 @@ modelEstimationUI <- function(id, title = "") {
     ),
     mainPanel(
       width = 9,
-      tabsetPanel(
-        id = ns("modTabs"),
-        modelEvaluationTab(ns("modelEvaluation")),
-        modelSummaryTab(ns("modelSummary")),
-        modelDiagnosticsTab(ns("modelDiagnostics")),
-        modelPredictionsTab(ns("modelPredictions")),
-        modelParametersTab(ns("modelParameters")),
-        modelROCTab(ns("modelROC")),
-        modelDWTab(ns("modelDW")),
-        modelPredictionsCustomTab(ns("modelPredictionsCustom")),
-        modelVariablesTab(ns("modelVariables")),
-        modelVariablesImpTab(ns("modelVariablesImp"))
-      )
-    )
+      tagList(
+        fluidRow(column(
+          width = 3,
+          shinyTools::dataExportButton(ns("exportAllModelOutput"),
+                                       label = "Export summaries of all models")
+        ),
+        column(
+          width = 9,
+          helpText("Note: The export contains output of tabs 'Model Evaluation', 'Model Summary', 'Model Diagnostics', 'Durbin-Watson Test', 'Variable Importance'")
+        )),
+        tags$hr(),
+        tabsetPanel(
+          id = ns("modTabs"),
+          modelEvaluationTab(ns("modelEvaluation")),
+          modelSummaryTab(ns("modelSummary")),
+          modelDiagnosticsTab(ns("modelDiagnostics")),
+          modelPredictionsTab(ns("modelPredictions")),
+          modelParametersTab(ns("modelParameters")),
+          modelROCTab(ns("modelROC")),
+          modelDWTab(ns("modelDW")),
+          modelPredictionsCustomTab(ns("modelPredictionsCustom")),
+          modelVariablesTab(ns("modelVariables")),
+          modelVariablesImpTab(ns("modelVariablesImp"))
+        )
+      ))
   )
 }
 
@@ -87,16 +98,30 @@ modelEstimation <- function(input, output, session, data) {
   }, priority = 100) %>%
     bindEvent(data())
     
-  callModule(modelSummary, "modelSummary", model = m, modelAVG = m_AVG)
-  callModule(modelDiagnostics, "modelDiagnostics", model = m, nChains = input$nChains)
-  callModule(modelEvaluation, "modelEvaluation", model = m)
+  allSummaries <- callModule(modelSummary, "modelSummary", model = m, modelAVG = m_AVG)
+  allDiagnostics <- callModule(modelDiagnostics, "modelDiagnostics", model = m, nChains = input$nChains)
+  allICData <- callModule(modelEvaluation, "modelEvaluation", model = m)
   callModule(modelPredictions, "modelPredictions", model = m, data = data, modelAVG = m_AVG)
   callModule(modelParameters, "modelParameters", model = m, modelAVG = m_AVG)
   callModule(modelPredictionsCustom, "modelPredictionsCustom", model = m, modelAVG = m_AVG)
   callModule(modelROC, "modelROC", model = m, data = data, modelAVG = m_AVG)
-  callModule(modelDW, "modelDW", model = m, data = data, modelAVG = m_AVG)
+  allDW <- callModule(modelDW, "modelDW", model = m, data = data, modelAVG = m_AVG)
   callModule(modelVariables, "modelVariables", model = m, data = data, modelAVG = m_AVG)
-  callModule(modelVariablesImp, "modelVariablesImp", model = m, modelAVG = m_AVG)
+  allVariableImportance <- callModule(modelVariablesImp, "modelVariablesImp", model = m, modelAVG = m_AVG)
+  
+  shinyTools::dataExportServer("exportAllModelOutput",
+                               dataFun = reactive(function() {
+                                 if (length(m()) == 0) return(NULL)
+                                 # export list of dataframes:
+                                 list(
+                                   `Model Evaluation` = allICData(),
+                                   `Model Summary` = allSummaries(),
+                                   `Model Diagnostics` = allDiagnostics(),
+                                   `Durbin-Watson Test` = allDW(),
+                                   `Variable Importance` = allVariableImportance()
+                                 )
+                               }),
+                               filename = "all_model_output")
   
   formulaParts <- reactive({
     if(!is.null(input$y) && !is.null(input$x) && input$y != "" && any(input$x != "")){
@@ -167,7 +192,6 @@ modelEstimation <- function(input, output, session, data) {
                                     ckanFileTypes = config()[["ckanModelTypes"]],
                                     ignoreWarnings = TRUE,
                                     defaultSource = config()[["defaultSourceModel"]],
-                                    mainFolder = config()[["mainFolder"]],
                                     fileExtension = config()[["fileExtension"]],
                                     rPackageName = config()[["rPackageName"]])
   

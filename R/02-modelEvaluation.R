@@ -14,7 +14,7 @@ modelEvaluationTab <- function(id) {
         plotExportButton(ns("exportPlot")),
         h5("Table of evaluation measure"),
         tableOutput(ns("evalData")),
-        dataExportButton(ns("exportData"))
+        shinyTools::dataExportButton(ns("exportData"))
     )
 }
 
@@ -35,6 +35,24 @@ modelEvaluation <- function(input, output, session, model) {
         }
     })
 
+  allICData <- reactiveVal()
+  observe({
+    req(model())
+    
+    ICList <- names(model()$fits)
+    thisICData <- lapply(ICList,
+                       function(x)
+                         getICData(ic = x,
+                                   allFits = model()$fits,
+                                   modelNames = names(model()$models),
+                                   withColumnICName = TRUE)
+    ) %>% 
+      bindAllResults(addEmptyRow = TRUE)
+    
+    allICData(thisICData)
+  })
+  
+  
     plotFun <- reactive({
         req(model())
 
@@ -56,22 +74,8 @@ modelEvaluation <- function(input, output, session, model) {
         req(model())
 
         function() {
-            # for csv / excel - export:
-            fits <- model()$fits[[input$ic]]
-            if (input$ic == "Loo") {
-              fits <- sapply(fits, function(x) x$estimates["elpd_loo","Estimate"])
-            }
-            if (input$ic == "WAIC") {
-              fits <- sapply(fits, function(x) x$estimates["elpd_waic", "Estimate"])
-            }
-            fits <- data.frame(fits)
-            names(fits) <- input$ic
-            if(input$ic %in% c("AUC", "Rsq", "RsqAdj", "Bayes_Rsq", "df", "logLik", "nagelkerke", "Loo", "WAIC")){
-                ranks <- as.integer(round(rank(-fits[,1]), 0))
-            } else {
-                ranks <- as.integer(round(rank(fits[,1]), 0))
-            }
-            data.frame(model = names(model()$models), fits, rank = ranks)
+          # for csv / excel - export:
+          getICData(allFits = model()$fits, modelNames = names(model()$models), ic = input$ic)
         }
     })
     
@@ -84,5 +88,68 @@ modelEvaluation <- function(input, output, session, model) {
       rownames = FALSE, 
       colnames = TRUE)
     
-    callModule(dataExport, "exportData", data = dataFun, filename = "evaluation")
+    shinyTools::dataExportServer("exportData", dataFun = dataFun, filename = "evaluation")
+    
+    return(allICData)
+}
+
+#' Get Data of IC
+#' 
+#' @param allFits (list) list of model$fits objects
+#' @param modelNames (character) name of all models
+#' @param ic (character) name of information criterion, e.g. \code{"AUC", "Rsq", "RsqAdj", "Bayes_Rsq", "df", "logLik", "nagelkerke", "Loo", "WAIC"}
+#' @param withColumnICName (logical) if TRUE, add a separate first column "IC_name" containing the
+#'  name of ic. Useful, for \code{bind_rows} over several ic values
+getICData <- function(allFits, modelNames, ic, withColumnICName = FALSE) {
+  fits <- allFits[[ic]]
+  
+  # set colname of IC column
+  if (withColumnICName) {
+    colnameIC <- "IC_value"
+  } else{
+    colnameIC <- ic
+  }
+  
+  # return empty data.frame
+  if (is.null(fits)) {
+    emptyRes <- data.frame(Model = modelNames, Fits = NA, Rank = NA)
+    colnames(emptyRes)[2] <- colnameIC
+    
+    if (withColumnICName) {
+      emptyRes <- emptyRes %>%
+        prefixNameAsColumn(name = "IC_name", value = ic)
+    }
+    
+    return(emptyRes)
+  }
+  
+  # return IC values
+  if (ic == "Loo") {
+    fits <- sapply(fits, function(x) x$estimates["elpd_loo","Estimate"])
+  }
+  if (ic == "WAIC") {
+    fits <- sapply(fits, function(x) x$estimates["elpd_waic", "Estimate"])
+  }
+  fits <- data.frame(fits)
+  names(fits) <- colnameIC
+  
+  if(ic %in% c("AUC", "Rsq", "RsqAdj", "Bayes_Rsq", "df", "logLik", "nagelkerke", "Loo", "WAIC")){
+    ranks <- as.integer(round(rank(-fits[,1]), 0))
+  } else {
+    ranks <- as.integer(round(rank(fits[,1]), 0))
+  }
+  res <- data.frame(Model = modelNames, fits, Rank = ranks)
+  
+  if (withColumnICName) {
+    res <- res %>%
+      prefixNameAsColumn(name = "IC_name", value = ic)
+  }
+  
+  res
+}
+
+
+prefixNameAsColumn <- function(df, name, value) {
+  df[[name]] <- value
+  df[, c(ncol(df), 1:(ncol(df)-1))]
 }

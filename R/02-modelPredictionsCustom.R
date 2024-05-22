@@ -63,7 +63,9 @@ modelPredictionsCustom <- function(input, output, session, model, modelAVG) {
 
   importedDataCustom <- importDataServer(
     "dataCustom",
-    defaultSource = "file"
+    defaultSource = config()[["defaultSourceData"]],
+    ckanFileTypes = config()[["ckanFileTypes"]],
+    rPackageName = config()[["rPackageName"]]
   )
   
   observeEvent(importedDataCustom(), {

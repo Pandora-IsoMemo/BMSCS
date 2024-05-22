@@ -29,7 +29,9 @@ dataInput <- function(input, output, session) {
 
   importedData <- importDataServer(
     "data",
-    defaultSource = "file"
+    defaultSource = config()[["defaultSourceData"]],
+    ckanFileTypes = config()[["ckanFileTypes"]],
+    rPackageName = config()[["rPackageName"]]
   )
 
   observeEvent(importedData(), {

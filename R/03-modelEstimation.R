@@ -10,9 +10,9 @@ modelEstimationUI <- function(id, title = "") {
     sidebarPanel(
       style = "position:fixed; width:23%; max-width:500px; overflow-y:auto; height:88%",
       width = 3,
-      tags$h4("Load a Model"),
-      downUploadButtonUI(ns("downUpload"), label = "Upload / Download"),
-      textAreaInput(ns("modelNotes"), label = NULL, placeholder = "Model description ..."),
+      importDataUI(ns("modelImport"), label = "Import Model"),
+      tags$br(),
+      downloadModelUI(ns("modelDownload"), label = "Download Model"),
       hr(style = "border-top: 1px solid #000000;"),
       selectizeInput(ns("x"), "Independent (X) numeric variables", choices = NULL, multiple = TRUE, selected = NULL),
       selectizeInput(ns("xCategorical"), "Independent (X) categorical variables (optional)", choices = NULL, multiple = TRUE, selected = NULL),
@@ -75,6 +75,7 @@ modelEstimationUI <- function(id, title = "") {
 #' @rdname shinyModule
 #' @export
 modelEstimation <- function(input, output, session, data) {
+  ns <- session$ns
   
   observe({
     updateSelectizeInput(session, "x", choices = names(data()), selected = "")
@@ -128,45 +129,91 @@ modelEstimation <- function(input, output, session, data) {
   
   m <- reactiveVal()
   
-  # MODEL DOWN- / UPLOAD ----
-  uploadedData <- downUploadButtonServer(
-    "downUpload",
-    dat = data,
-    inputs = input,
-    model = m,
-    rPackageName = "BMSCApp",
-    githubRepo = "bmsc-app",
-    helpHTML = getHelp(id = ""),
-    modelNotes = reactive(input$modelNotes),
-    compress = TRUE,
-    compressionLevel = 9,
-    title = "Upload and Download of Models")
-  
-  observe(priority = 100, {
-    ## update data ----
-    data(uploadedData$data)
-  }) %>%
-    bindEvent(uploadedData$data)
-  
-  observe(priority = 50, {
-    ## reset input of model notes
-    updateTextAreaInput(session, "modelNotes", value = "")
-    
-    ## update inputs ----
-    inputIDs <- names(uploadedData$inputs)
-    inputIDs <- inputIDs[inputIDs %in% names(input)]
-    for (i in 1:length(inputIDs)) {
-      session$sendInputMessage(inputIDs[i],  list(value = uploadedData$inputs[[inputIDs[i]]]) )
+  observe({
+    if (length(m()) == 0) {
+      shinyjs::disable(ns("modelAvg"), asis = TRUE)
+    } else {
+      shinyjs::enable(ns("modelAvg"), asis = TRUE)
     }
   }) %>%
-    bindEvent(uploadedData$inputs)
+    bindEvent(m(), ignoreNULL = FALSE)
   
-  observe(priority = 10, {
-    ## update model ----
-    m(uploadedData$model)
+  # MODEL DOWN- / UPLOAD ----
+  modelsForDownload <- reactive({
+    if (length(m()) == 0) return(NULL)
+    
+    allModels <- m()
+    if (length(m_AVG()) != 0) {
+      # add average model if exists
+      allModels$models <- c(allModels$models, m_AVG())
+    } 
+    
+    allModels
+  })
+  
+  modelNotes <- reactiveVal(NULL)
+  downloadModelServer("modelDownload",
+                      dat = data,
+                      inputs = input,
+                      model = modelsForDownload,
+                      rPackageName = config()[["rPackageName"]],
+                      fileExtension = config()[["fileExtension"]],
+                      helpHTML = getHelp(id = ""),
+                      modelNotes = modelNotes,
+                      triggerUpdate = reactive(TRUE))
+  
+  uploadedModel <- importDataServer("modelImport",
+                                    importType = "model",
+                                    ckanFileTypes = config()[["ckanModelTypes"]],
+                                    ignoreWarnings = TRUE,
+                                    defaultSource = config()[["defaultSourceModel"]],
+                                    mainFolder = config()[["mainFolder"]],
+                                    fileExtension = config()[["fileExtension"]],
+                                    rPackageName = config()[["rPackageName"]])
+  
+  observe(priority = 100, {
+    req(length(uploadedModel()) > 0, uploadedModel()[[1]][["data"]])
+    
+    ## update data ----
+    data(uploadedModel()[[1]][["data"]])
+    ## reset and update notes
+    modelNotes("")
+    modelNotes(uploadedModel()[[1]][["notes"]])
   }) %>%
-    bindEvent(uploadedData$model)
+    bindEvent(uploadedModel())
   
+  observe(priority = 50, {
+    req(length(uploadedModel()) > 0, uploadedModel()[[1]][["inputs"]])
+    
+    ## update inputs ----
+    uploadedInputs <- uploadedModel()[[1]][["inputs"]]
+    inputIDs <- names(uploadedInputs)
+    inputIDs <- inputIDs[inputIDs %in% names(input)]
+    for (i in 1:length(inputIDs)) {
+      session$sendInputMessage(inputIDs[i],  list(value = uploadedInputs[[inputIDs[i]]]) )
+    }
+    
+    ## update model ----
+    modelNames <- names(uploadedModel()[[1]][["model"]][["models"]])
+    # extract average model if exists
+    indexAvgModel <- grepl(pattern = "model_average", modelNames)
+    if (any(indexAvgModel)) {
+      # extract avg model
+      modelObject <- uploadedModel()[[1]][["model"]]
+      avgModel <- modelObject$models[modelNames[indexAvgModel]]
+      
+      # remove avg model from list of models
+      modelObject$models[[modelNames[indexAvgModel]]] <- NULL
+      
+      # load single models
+      m(modelObject)
+      # load average model
+      m_AVG(avgModel)
+    } else {
+      m(uploadedModel()[[1]][["model"]])
+    }
+  }) %>%
+    bindEvent(uploadedModel())
   
   # RUN MODEL ----
   observe({
@@ -235,18 +282,22 @@ modelEstimation <- function(input, output, session, data) {
   }) %>%
     bindEvent(input$run)
   
-  m_AVG <- eventReactive(input$modelAvg, {
-      req(m())
-      weights <- get_model_weights(m()$fits, measure = input$wMeasure) %>%
+  # RUN AVG MODEL ----
+  m_AVG <- reactiveVal()
+  observe({
+    req(m())
+    weights <- get_model_weights(m()$fits, measure = input$wMeasure) %>%
+      tryCatchWithWarningsAndErrors()
+    req(!is.null(weights))
+    model_avg <- withProgress({list(
+      get_avg_model(m()$models, weights) %>%
         tryCatchWithWarningsAndErrors()
-      req(!is.null(weights))
-      model_avg <- withProgress({list(
-        get_avg_model(m()$models, weights) %>%
-          tryCatchWithWarningsAndErrors()
-      )}, value = 0, message = "Calculate model average")
-      names(model_avg) <- paste0("model_average_", input$wMeasure)
-      return(model_avg)
-  })
+    )}, value = 0, message = "Calculate model average")
+    names(model_avg) <- paste0("model_average_", input$wMeasure)
+    
+    m_AVG(model_avg)
+  }) %>%
+    bindEvent(input$modelAvg)
   
   observe({
     req(m())

@@ -1,9 +1,33 @@
-# BMSCApp app 23.0.7.0
+# BMSCApp 24.04.0
+
+## Bug Fixes
+- _Import of models_: added average model to the down- and upload of models
+
+# BMSCApp 23.12.1
+
+## Bug Fixes
+- _Import of models from Pandora_: 
+  - an error message occurred when trying to load a model from pandora.
+  - fix: adding the missing download of the zip file from the url before unpacking the zip
+
+# BMSCApp 23.12.0
+
+## New Features
+- _Import of models_: display of "About" information that is associated to a selected Pandora 
+  Repository
+
+# BMSCApp 23.09.0
+
+## New Features
+- _Import of models_:
+  - option to import models from Pandora platform
+
+# BMSCApp 23.07.0
 
 ## New Features
 - New model evaluation option: Bayesian R-squared (following: https://avehtari.github.io/bayes_R2/bayes_R2.html)
 
-# BMSCApp app 23.04.1
+# BMSCApp 23.04.1
 
 ## New Features
 - _Upload and download of models_: 
@@ -11,7 +35,7 @@
   - a button opens a pop-up that contains the UI
   - the compression of model outputs may take a while
 
-# BMSCApp app 23.03.2
+# BMSCApp 23.03.2
 
 ## New Features
 - option to load remote models from the github folder `inst/app/predefinedModels` of the respective 
@@ -22,17 +46,18 @@ repository
 - option to upload user inputs and data. Upload of model output is not supported since the model
 output of BMSC is too large for the upload
 
-# BMSCApp app 23.03.1
+# BMSCApp 23.03.1
 
 ## Bug fixes
 - add remote package to enable gpt3 in the _Import Data_ module
 
-# BMSCApp app 23.02.2
+# BMSCApp 23.02.2
 
 ## Bug Fixes
 - add tryCatch to modeling with forwarding of warnings and error messages to the UI (#18)
 
-# BMSCApp app 23.02.1
+
+# BMSCApp 23.02.1
 
 ## New Features
 - in the tab _Model Input_
@@ -43,7 +68,7 @@ output of BMSC is too large for the upload
   - new UI _Create model average_: Model averaging added. Now models can be averaged by a 
   criterion (AIC, AICc, WAIC, logLik, BIC and Loo)
 
-# BMSCApp app 23.01.1
+# BMSCApp 23.01.1
 
 ## New Features
 - the _Import Data_ module is now imported from the new package DataTools (#16, PR #17)

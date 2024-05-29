@@ -1,3 +1,11 @@
+# BMSC-S 24.05.0
+
+## New Features
+
+- Renaming of the Package
+- R-CMD check workflow
+- pkgdown Documentation
+
 # BMSCApp 24.04.0
 
 ## Bug Fixes

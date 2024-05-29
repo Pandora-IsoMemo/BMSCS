@@ -1,4 +1,4 @@
-Package: BMSC-S
+Package: BMSCApp
 Title: Interface for Bayesian Model Selection under Constraints
 Version: 24.05.0
 Authors@R: c(

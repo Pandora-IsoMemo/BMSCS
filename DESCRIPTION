@@ -1,6 +1,6 @@
-Package: BMSCApp
+Package: BMSCS
 Title: Interface for Bayesian Model Selection under Constraints
-Version: 24.05.0
+Version: 24.06.0
 Authors@R: c(
     person("Marcus", "Groß", email = "marcus.gross@inwt-statistics.de", role = c("aut", "cre")),
     person("Ricardo", "Fernandes", email = "ldv1452@gmail.com", role = c("aut")),
@@ -35,5 +35,5 @@ Suggests:
     lintr (>= 1.0.2),
     testthat
 RoxygenNote: 7.3.1
-URL: https://pandora-isomemo.github.io/BMSC-S/
+URL: https://pandora-isomemo.github.io/BMSCS/
 

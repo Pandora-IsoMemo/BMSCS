@@ -1,12 +1,12 @@
-# BMSC-S (constraint-estimation-app)
+# BMSCS (constraint-estimation-app)
 
 ### Access to online version:
-- MAIN version: https://isomemoapp.com/app/bmsc-s
-- BETA version: https://isomemoapp.com/app/bmsc-s-beta
+- MAIN version: https://isomemoapp.com/app/bmscs
+- BETA version: https://isomemoapp.com/app/bmscs-beta
 
 ### Documentation and installation instructions:
-- https://pandora-isomemo.github.io/BMSC-S/
-- https://github.com/Pandora-IsoMemo/bmsc-s/wiki
+- https://pandora-isomemo.github.io/BMSCS/
+- https://github.com/Pandora-IsoMemo/bmscs/wiki
 
 ### Release notes:
 - see `NEWS.md`

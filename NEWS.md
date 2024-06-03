@@ -1,4 +1,4 @@
-# BMSC-S 24.05.0
+# BMSCS 24.06.0
 
 ## New Features
 

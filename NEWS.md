@@ -1,3 +1,11 @@
+# BMSCS 24.06.0
+
+## New Features
+
+- Renaming of the Package
+- R-CMD check workflow
+- pkgdown Documentation
+
 # BMSCApp 24.04.0
 
 ## Bug Fixes
@@ -55,6 +63,7 @@ output of BMSC is too large for the upload
 
 ## Bug Fixes
 - add tryCatch to modeling with forwarding of warnings and error messages to the UI (#18)
+
 
 # BMSCApp 23.02.1
 

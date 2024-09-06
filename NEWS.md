@@ -1,4 +1,4 @@
-# BMSCApp 24.06.1
+# BMSCS 24.06.1
 
 ## New Features
 - option to save all model results in a single Excel in separate sheets (#10):

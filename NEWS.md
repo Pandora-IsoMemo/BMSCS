@@ -11,6 +11,9 @@
 ## Updates
 - UI in *Variable importance* for the global option “Variable importance type” (#10):
   - added the regression sign of the coefficients associated to each variable (as “1” or “-1”)
+  
+## Bug Fixes
+- solves issue with older `DataTools` version when loading models
 
 # BMSCS 24.06.0
 

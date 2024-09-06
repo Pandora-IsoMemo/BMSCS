@@ -1,7 +1,6 @@
-# BMSCApp 24.04.1
+# BMSCApp 24.06.1
 
 ## New Features
-
 - option to save all model results in a single Excel in separate sheets (#10):
   - *Model Evaluation*: for the different models across different rows values for all “Information / Cross-Validation Error criterion”
   - *Model Summary*: across different rows for each model
@@ -10,9 +9,15 @@
   - *Variable importance*: across different rows the results for option global and for each model for option “model based”
 
 ## Updates
-
 - UI in *Variable importance* for the global option “Variable importance type” (#10):
   - added the regression sign of the coefficients associated to each variable (as “1” or “-1”)
+
+# BMSCS 24.06.0
+
+## New Features
+- Renaming of the Package
+- R-CMD check workflow
+- pkgdown Documentation
 
 # BMSCApp 24.04.0
 

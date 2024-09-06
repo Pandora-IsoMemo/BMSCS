@@ -1,4 +1,4 @@
 library(testthat)
-library(BMSCApp)
+library(BMSCS)
 
-test_check("BMSCApp")
+test_check("BMSCS")

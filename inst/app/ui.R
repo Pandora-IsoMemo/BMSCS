@@ -1,10 +1,10 @@
-library("BMSCApp")
+library("BMSCS")
 
 shiny::tagList(
   shinyjs::useShinyjs(),
   shiny::navbarPage(
     includeCSS("www/custom.css"),
-    title = paste("BMSC App", utils::packageVersion("BMSCApp")),
+    title = paste("BMSC App", utils::packageVersion("BMSCS")),
     theme = shinythemes::shinytheme("flatly"),
     id = "tabs",
     dataInputUI("data", "Data Input"),

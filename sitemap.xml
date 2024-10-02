@@ -16,22 +16,19 @@
     <loc>https://pandora-isomemo.github.io/BMSC-S/news/index.html</loc>
   </url>
   <url>
+    <loc>https://pandora-isomemo.github.io/BMSC-S/reference/add_na_row.html</loc>
+  </url>
+  <url>
+    <loc>https://pandora-isomemo.github.io/BMSC-S/reference/bindAllResults.html</loc>
+  </url>
+  <url>
     <loc>https://pandora-isomemo.github.io/BMSC-S/reference/config.html</loc>
   </url>
   <url>
-    <loc>https://pandora-isomemo.github.io/BMSC-S/reference/exportCSV.html</loc>
-  </url>
-  <url>
-    <loc>https://pandora-isomemo.github.io/BMSC-S/reference/exportFilename.html</loc>
-  </url>
-  <url>
-    <loc>https://pandora-isomemo.github.io/BMSC-S/reference/exportJSON.html</loc>
-  </url>
-  <url>
-    <loc>https://pandora-isomemo.github.io/BMSC-S/reference/exportXLSX.html</loc>
-  </url>
-  <url>
     <loc>https://pandora-isomemo.github.io/BMSC-S/reference/getHelp.html</loc>
+  </url>
+  <url>
+    <loc>https://pandora-isomemo.github.io/BMSC-S/reference/getICData.html</loc>
   </url>
   <url>
     <loc>https://pandora-isomemo.github.io/BMSC-S/reference/index.html</loc>

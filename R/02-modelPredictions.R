@@ -45,9 +45,10 @@ modelPredictions <- function(input, output, session, model, data, modelAVG) {
 
     dataFun <- reactive({
         req(model())
-        req((input$modelSelection %in% names(model()$models)) || (input$modelSelection %in% names(modelAVG())))
         
-        function() {            
+        function() {
+          if (length(model()) == 0 || input$modelSelection == "") return(NULL)
+          
             if((input$modelSelection %in% names(model()$models))){
                 predictions <- BMSC::predict(model()$models[[input$modelSelection]], data())
             } else {
@@ -60,5 +61,5 @@ modelPredictions <- function(input, output, session, model, data, modelAVG) {
         }
     })
 
-    callModule(dataExport, "exportData", data = dataFun, filename = "predictions")
+    shinyTools::dataExportServer("exportData", dataFun = dataFun, filename = "predictions")
 }

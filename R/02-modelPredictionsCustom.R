@@ -78,6 +78,8 @@ modelPredictionsCustom <- function(input, output, session, model, modelAVG) {
     req(datCustom())
     
     function() { 
+      if (length(model()) == 0 || length(datCustom()) == 0 || input$modelSelection == "") return(NULL)
+      
       if((input$modelSelection %in% names(model()$models))){
         mPar <- model()$models[[input$modelSelection]]
       } else {
@@ -137,7 +139,7 @@ modelPredictionsCustom <- function(input, output, session, model, modelAVG) {
   })
   
   output$predCustom <- renderTable(dataFun()(), bordered = TRUE,
-                                 rownames = FALSE, colnames = TRUE)
+                                   rownames = FALSE, colnames = TRUE)
   
-  callModule(dataExport, "exportEstimates", data = dataFun, filename = "predictionsCustom")
+  shinyTools::dataExportServer("exportEstimates", dataFun = dataFun, filename = "predictionCustom")
 }

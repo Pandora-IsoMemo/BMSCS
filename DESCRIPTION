@@ -1,6 +1,6 @@
 Package: BMSCS
 Title: Interface for Bayesian Model Selection under Constraints
-Version: 24.06.0
+Version: 24.06.1
 Authors@R: c(
     person("Marcus", "Groß", email = "marcus.gross@inwt-statistics.de", role = c("aut", "cre")),
     person("Ricardo", "Fernandes", email = "ldv1452@gmail.com", role = c("aut")),
@@ -16,12 +16,11 @@ Imports:
   futile.logger,
   ggplot2,
   DataTools (>= 24.04.2),
-  jsonlite,
-  openxlsx,
   pROC,
   shiny,
   shinyjs,
   shinythemes,
+  shinyTools (>= 24.04.2),
   shinyWidgets,
   DT,
   Rcpp,

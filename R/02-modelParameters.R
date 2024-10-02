@@ -7,7 +7,7 @@ modelParametersTab <- function(id) {
     selectInput(ns("modelSelection"), "Select Model", choices = ""),
     plotOutput(ns("plot")),
     plotExportButton(ns("exportPlot")),
-    dataExportButton(ns("exportData"))
+    shinyTools::dataExportButton(ns("exportData"))
   )
 }
 
@@ -87,8 +87,9 @@ modelParameters <- function(input, output, session, model, modelAVG) {
   })
 
   dataFun <- reactive({
-
      function() {
+       if (length(model()) == 0 || input$modelSelection == "") return(NULL)
+       
        if((input$modelSelection %in% names(model()$models))){
          parameterValues <- extract(model()$models[[input$modelSelection]])$betaAll
          if (model()$models[[input$modelSelection]]@hasIntercept) {
@@ -112,5 +113,5 @@ modelParameters <- function(input, output, session, model, modelAVG) {
      }
   })
 
-  callModule(dataExport, "exportData", data = dataFun, filename = "predictions")
+  shinyTools::dataExportServer("exportData", dataFun = dataFun, filename = "predictions")
 }

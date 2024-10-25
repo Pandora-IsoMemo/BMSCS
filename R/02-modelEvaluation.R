@@ -14,7 +14,7 @@ modelEvaluationTab <- function(id) {
         plotExportButton(ns("exportPlot")),
         h5("Table of evaluation measure"),
         tableOutput(ns("evalData")),
-        shinyTools::dataExportButton(ns("exportData"))
+        shinyTools::dataExportButton(ns("exportModelEvaluationData"))
     )
 }
 
@@ -71,9 +71,8 @@ modelEvaluation <- function(input, output, session, model) {
     })
     
     dataFun <- reactive({
-        req(model())
-
         function() {
+          if (length(model()) == 0 || !(input$ic %in% names(model()$fits))) return(NULL)
           # for csv / excel - export:
           getICData(allFits = model()$fits, modelNames = names(model()$models), ic = input$ic)
         }
@@ -88,7 +87,7 @@ modelEvaluation <- function(input, output, session, model) {
       rownames = FALSE, 
       colnames = TRUE)
     
-    shinyTools::dataExportServer("exportData", dataFun = dataFun, filename = "evaluation")
+    shinyTools::dataExportServer("exportModelEvaluationData", dataFun = dataFun, filename = "evaluation")
     
     return(allICData)
 }

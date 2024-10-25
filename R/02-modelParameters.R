@@ -7,7 +7,7 @@ modelParametersTab <- function(id) {
     selectInput(ns("modelSelection"), "Select Model", choices = ""),
     plotOutput(ns("plot")),
     plotExportButton(ns("exportPlot")),
-    shinyTools::dataExportButton(ns("exportData"))
+    shinyTools::dataExportButton(ns("exportModelParameterData"))
   )
 }
 
@@ -88,7 +88,7 @@ modelParameters <- function(input, output, session, model, modelAVG) {
 
   dataFun <- reactive({
      function() {
-       if (length(model()) == 0 || input$modelSelection == "") return(NULL)
+       if (length(model()) == 0 || any(input$modelSelection == "")) return(NULL)
        
        if((input$modelSelection %in% names(model()$models))){
          parameterValues <- extract(model()$models[[input$modelSelection]])$betaAll
@@ -98,6 +98,8 @@ modelParameters <- function(input, output, session, model, modelAVG) {
            parameterNames <- c(attr(terms(as.formula(attributes(model()$models[[input$modelSelection]])$formula)), "term.labels"))
          }
        } else {
+         if (length(modelAVG()) == 0) return(NULL)
+         
          parameterValues <- extract(modelAVG()[[input$modelSelection]])$betaAll
          if (modelAVG()[[input$modelSelection]]@hasIntercept) {
            parameterNames <- c("Intercept", attr(terms(as.formula(attributes(modelAVG()[[input$modelSelection]])$formula)), "term.labels"))
@@ -113,5 +115,5 @@ modelParameters <- function(input, output, session, model, modelAVG) {
      }
   })
 
-  shinyTools::dataExportServer("exportData", dataFun = dataFun, filename = "predictions")
+  shinyTools::dataExportServer("exportModelParameterData", dataFun = dataFun, filename = "predictions")
 }

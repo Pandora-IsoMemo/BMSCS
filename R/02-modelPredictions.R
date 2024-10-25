@@ -7,7 +7,7 @@ modelPredictionsTab <- function(id) {
         selectInput(ns("modelSelection"), "Select Model", choices = ""),
         plotOutput(ns("plot")),
         plotExportButton(ns("exportPlot")),
-        dataExportButton(ns("exportData"))
+        dataExportButton(ns("exportModelPredictionsData"))
     )
 }
 
@@ -44,22 +44,23 @@ modelPredictions <- function(input, output, session, model, data, modelAVG) {
     })
 
     dataFun <- reactive({
-        req(model())
+      function() {
+        if (length(model()) == 0 || input$modelSelection == "")
+          return(NULL)
         
-        function() {
-          if (length(model()) == 0 || input$modelSelection == "") return(NULL)
-          
-            if((input$modelSelection %in% names(model()$models))){
-                predictions <- BMSC::predict(model()$models[[input$modelSelection]], data())
-            } else {
-                predictions <- BMSC::predict(modelAVG()[[input$modelSelection]], data())
-            }
-            
-            dependent <- data()[, model()$dependent]
-            
-            data.frame(y = dependent, prediction = predictions)
+        if ((input$modelSelection %in% names(model()$models))) {
+          predictions <- BMSC::predict(model()$models[[input$modelSelection]], data())
+        } else {
+          if (length(modelAVG()) == 0)
+            return(NULL)
+          predictions <- BMSC::predict(modelAVG()[[input$modelSelection]], data())
         }
+        
+        dependent <- data()[, model()$dependent]
+        
+        data.frame(y = dependent, prediction = predictions)
+      }
     })
 
-    shinyTools::dataExportServer("exportData", dataFun = dataFun, filename = "predictions")
+    shinyTools::dataExportServer("exportModelPredictionsData", dataFun = dataFun, filename = "predictions")
 }

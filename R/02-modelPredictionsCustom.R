@@ -74,21 +74,19 @@ modelPredictionsCustom <- function(input, output, session, model, modelAVG) {
   })
 
   dataFun <- reactive({
-    req(model())
-    req(datCustom())
-    
     function() { 
-      if (length(model()) == 0 || length(datCustom()) == 0 || input$modelSelection == "") return(NULL)
+      if (length(model()) == 0 || length(datCustom()) == 0 || any(input$modelSelection == "")) return(NULL)
       
-      if((input$modelSelection %in% names(model()$models))){
+      if ((input$modelSelection %in% names(model()$models))) {
         mPar <- model()$models[[input$modelSelection]]
       } else {
+        if (length(modelAVG()) == 0) return(NULL)
         mPar <- modelAVG()[[input$modelSelection]]
       }
       
       modelVars <- all.vars(mPar@formula)[-1]
       
-      if(!all(modelVars %in% colnames(datCustom()))){
+      if (!all(modelVars %in% colnames(datCustom()))) {
         shinyjs::alert("Not all model variables supplied in uploaded data")
         return(NULL)
       }

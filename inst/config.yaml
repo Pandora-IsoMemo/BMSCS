@@ -11,5 +11,5 @@ ckanModelTypes:
   - "zip"
   - "bmsc"
 githubRepo: "BMSCS"        # for import of models
-fileExtension: "bmscs"      # for download of models
+fileExtension: "bmsc"      # for download of models
 rPackageName: "BMSCS"       # for download and import of models

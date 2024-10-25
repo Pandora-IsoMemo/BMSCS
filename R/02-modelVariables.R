@@ -266,14 +266,26 @@ modelVariables <- function(input, output, session, model, data, modelAVG) {
   
   shinyTools::dataExportServer("exportVifs",
                                dataFun = reactive(function() {
-                                 if (length(model()) == 0 || input$modelSelection == "") return(NULL)
+                                 if (length(model()) == 0 || length(data()) == 0)
+                                   return(NULL)
+                                 if (input$modelData == "data" &&
+                                     (is.null(input$variableSelection) ||
+                                      any(input$variableSelection == "")))
+                                   return(NULL)
+                                 
                                  VIF()()
                                }),
                                filename = "VIF")
   
   shinyTools::dataExportServer("exportCors",
                                dataFun = reactive(function() {
-                                 if (length(model()) == 0 || input$modelSelection == "") return(NULL)
+                                 if (length(model()) == 0 || length(data()) == 0)
+                                   return(NULL)
+                                 if (input$modelData == "data" &&
+                                     (is.null(input$variableSelection) ||
+                                      any(input$variableSelection == "")))
+                                   return(NULL)
+                                 
                                  correlationMatrix()() %>%
                                    as.data.frame()
                                }),

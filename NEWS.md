@@ -1,3 +1,9 @@
+# BMSCS 24.10.0
+
+## Bug Fixes
+- fix issues with model download and upload (#38)
+- exchange current example model file with a new but smaller model file to decrease package size
+
 # BMSCS 24.06.1
 
 ## New Features

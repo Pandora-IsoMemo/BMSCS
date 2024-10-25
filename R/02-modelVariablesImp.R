@@ -13,7 +13,7 @@ modelVariablesImpTab <- function(id) {
     tags$br(),
     DTOutput(ns("variableImp")),
     tags$br(),
-    dataExportButton(ns("exportData"))
+    dataExportButton(ns("exportVariableImportanceData"))
   )
 }
 
@@ -38,14 +38,13 @@ modelVariablesImp <- function(input, output, session, model, modelAVG) {
   })
   
   dataFun <- reactive({
-    req(model())
-    
     function() {
       if (length(model()) == 0) return(NULL)
       
       if((input$modelSelection %in% names(model()$models))){
         mPar <- model()$models
       } else {
+        if (length(modelAVG()) == 0) return(NULL)
         mPar <- modelAVG()
       }
       
@@ -65,7 +64,7 @@ modelVariablesImp <- function(input, output, session, model, modelAVG) {
   
   output$variableImp <- renderDT(dataFun()(), rownames = FALSE)
 
-  shinyTools::dataExportServer("exportData", dataFun = dataFun, filename = "variableImportance")
+  shinyTools::dataExportServer("exportVariableImportanceData", dataFun = dataFun, filename = "variableImportance")
   
   return(allVariableImportance)
 }

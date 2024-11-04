@@ -34,25 +34,27 @@ modelSummary <- function(input, output, session, model, modelAVG) {
     allSummaries(thisSummaries)
   })
     
-    printFun <- reactive({
-        req(model())
-        req((input$modelSelection %in% names(model()$models)) || (input$modelSelection %in% names(modelAVG())))
-        
-        function() {
-            if((input$modelSelection %in% names(model()$models))){
-                print(model()$models[[input$modelSelection]], cLevel = input$quantileInt)
-            } else {
-                print(modelAVG()[[input$modelSelection]], cLevel = input$quantileInt)
-            }
-        }
-    })
+  printFun <- reactive({
+    function() {
+      if (length(model()) == 0 ||
+          !((input$modelSelection %in% names(model()$models)) ||
+            (input$modelSelection %in% names(modelAVG()))))
+        return(NULL)
+      
+      if ((input$modelSelection %in% names(model()$models))) {
+        print(model()$models[[input$modelSelection]], cLevel = input$quantileInt)
+      } else {
+        print(modelAVG()[[input$modelSelection]], cLevel = input$quantileInt)
+      }
+    }
+  })
 
     output$summary <- renderPrint({
         req(model())
         printFun()()
     })
 
-    callModule(textExport, "exportText", printFun = printFun, filename = "summary")
+    textExportServer("exportText", outFun = printFun, filename = "summary")
     
     return(allSummaries)
 }

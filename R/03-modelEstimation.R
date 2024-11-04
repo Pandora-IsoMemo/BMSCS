@@ -10,7 +10,7 @@ modelEstimationUI <- function(id, title = "") {
     sidebarPanel(
       style = "position:fixed; width:23%; max-width:500px; overflow-y:auto; height:88%",
       width = 3,
-      importDataUI(ns("modelImport"), label = "Import Model"),
+      importUI(ns("modelImport"), label = "Import Model"),
       tags$br(),
       downloadModelUI(ns("modelDownload"), label = "Download Model"),
       hr(style = "border-top: 1px solid #000000;"),
@@ -187,13 +187,15 @@ modelEstimation <- function(input, output, session, data) {
                       modelNotes = modelNotes,
                       triggerUpdate = reactive(TRUE))
   
-  uploadedModel <- importDataServer("modelImport",
-                                    importType = "model",
-                                    ckanFileTypes = config()[["ckanModelTypes"]],
-                                    ignoreWarnings = TRUE,
-                                    defaultSource = config()[["defaultSourceModel"]],
-                                    fileExtension = config()[["fileExtension"]],
-                                    rPackageName = config()[["rPackageName"]])
+  uploadedModel <- importServer(
+    "modelImport",
+    importType = "model",
+    ckanFileTypes = config()[["ckanModelTypes"]],
+    ignoreWarnings = TRUE,
+    defaultSource = config()[["defaultSourceModel"]],
+    fileExtension = config()[["fileExtension"]],
+    options = importOptions(rPackageName = config()[["rPackageName"]])
+  )
   
   observe(priority = 100, {
     req(length(uploadedModel()) > 0, uploadedModel()[[1]][["data"]])
@@ -249,7 +251,7 @@ modelEstimation <- function(input, output, session, data) {
                   in_xCategorical = input$xCategorical,
                   in_xCatUnc = input$xCatUnc,
                   in_regType = input$regType) %>%
-      tryCatchWithWarningsAndErrors()
+      shinyTryCatch()
 
     req(prepData)
     FORMULA <- generateFormula(input$y, prepData$xVars)
@@ -280,7 +282,7 @@ modelEstimation <- function(input, output, session, data) {
         shiny = TRUE,
         imputeMissings = input$imputeMissings
       ) %>%
-        tryCatchWithWarningsAndErrors()
+        shinyTryCatch()
     },
     value = 0,
     message = "Calculation in progess",
@@ -311,11 +313,11 @@ modelEstimation <- function(input, output, session, data) {
   observe({
     req(m())
     weights <- get_model_weights(m()$fits, measure = input$wMeasure) %>%
-      tryCatchWithWarningsAndErrors()
+      shinyTryCatch()
     req(!is.null(weights))
     model_avg <- withProgress({list(
       get_avg_model(m()$models, weights) %>%
-        tryCatchWithWarningsAndErrors()
+        shinyTryCatch()
     )}, value = 0, message = "Calculate model average")
     names(model_avg) <- paste0("model_average_", input$wMeasure)
     

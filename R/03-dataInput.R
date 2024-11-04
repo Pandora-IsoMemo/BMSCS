@@ -31,7 +31,7 @@ dataInput <- function(input, output, session) {
     "data",
     defaultSource = config()[["defaultSourceData"]],
     ckanFileTypes = config()[["ckanFileTypes"]],
-    rPackageName = config()[["rPackageName"]]
+    options = importOptions(rPackageName = config()[["rPackageName"]])
   )
 
   observeEvent(importedData(), {

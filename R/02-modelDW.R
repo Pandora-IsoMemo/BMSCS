@@ -47,21 +47,25 @@ modelDW <- function(input, output, session, model, data, modelAVG) {
   })
 
   printFun <- reactive({
-    req(model())
-    req((input$modelSelection %in% names(model()$models)) || (input$modelSelection %in% names(modelAVG())))
-    
     function() {
-      if((input$modelSelection %in% names(model()$models))){
+      if (length(model()) == 0 ||
+          !((input$modelSelection %in% names(model()$models)) ||
+            (input$modelSelection %in% names(modelAVG()))))
+        return(NULL)
+      
+      if ((input$modelSelection %in% names(model()$models))) {
         mPar <- model()$models[[input$modelSelection]]
       } else {
         mPar <- modelAVG()[[input$modelSelection]]
       }
       
-      printDWTest(inDat = data(),
-                  dependent = model()$dependent,
-                  mPar = mPar,
-                  tVar = tVar(),
-                  maxLag = input$lagDW)
+      printDWTest(
+        inDat = data(),
+        dependent = model()$dependent,
+        mPar = mPar,
+        tVar = tVar(),
+        maxLag = input$lagDW
+      )
     }
   })
 
@@ -71,7 +75,7 @@ modelDW <- function(input, output, session, model, data, modelAVG) {
     printFun()()
   })
 
-  callModule(textExport, "exportText", printFun = printFun, filename = "summary")
+  textExportServer("exportText", outFun = printFun, filename = "summary")
   
   return(allDW)
 }

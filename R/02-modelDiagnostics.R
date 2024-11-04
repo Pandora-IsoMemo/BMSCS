@@ -36,14 +36,17 @@ modelDiagnostics <- function(input, output, session, model, nChains) {
   })
   
   printFun <- reactive({
-    req(model())
-    req((input$modelSelection %in% names(model()$models)))
-    
     function() {
-      printDiagnostics(allModels = model()$models,
-                       modelName = input$modelSelection,
-                       nChains = nChains,
-                       diagType = input$diagType)
+      if (length(model()) == 0 ||
+          !((input$modelSelection %in% names(model()$models))))
+        return(NULL)
+      
+      printDiagnostics(
+        allModels = model()$models,
+        modelName = input$modelSelection,
+        nChains = nChains,
+        diagType = input$diagType
+      )
     }
   })
   
@@ -52,7 +55,7 @@ modelDiagnostics <- function(input, output, session, model, nChains) {
     printFun()()
   })
   
-  callModule(textExport, "exportText", printFun = printFun, filename = "diagnostics")
+  textExportServer("exportText", outFun = printFun, filename = "diagnostics")
   
   return(allDiagnostics)
 }

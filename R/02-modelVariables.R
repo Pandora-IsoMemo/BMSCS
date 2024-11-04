@@ -80,63 +80,88 @@ modelVariables <- function(input, output, session, model, data, modelAVG) {
   
   
   plotFun <- reactive({
-    if(input$modelData == "model"){
-        req(model())
-      } else {
-        req(data())
-    }
-    req(!is.null(input$v1) & !is.null(input$v2) & input$v1 != "" & input$v2 != "")
-    
-    if(input$modelData == "model"){
     function() {
-      if((input$modelSelection %in% names(model()$models))){
-        mPar <- model()$models[[input$modelSelection]]
+      if (input$modelData == "model") {
+        if (length(model()) == 0 ||
+            is.null(input$v1) ||
+            is.null(input$v2) || input$v1 == "" || input$v2 == "")
+          return(NULL)
+        
+        if ((input$modelSelection %in% names(model()$models))) {
+          mPar <- model()$models[[input$modelSelection]]
+        } else {
+          mPar <- modelAVG()[[input$modelSelection]]
+        }
+        
+        vv1 <- mPar@designMatrix[, input$v1]
+        vv2 <- mPar@designMatrix[, input$v2]
+        if (is.numeric(vv1) && is.numeric(vv2)) {
+          plot(
+            vv1 ~ vv2,
+            ylab = input$v1,
+            xlab = input$v2,
+            cex.axis = 1.5,
+            cex.lab = 1.5
+          )
+        }
+        if (is.character(vv1) && is.numeric(vv2)) {
+          boxplot(
+            vv2 ~ vv1,
+            ylab = input$v1,
+            xlab = input$v2,
+            cex.axis = 1.5,
+            cex.lab = 1.5
+          )
+        }
+        if (is.character(vv2) && is.numeric(vv1)) {
+          boxplot(
+            vv1 ~ vv2,
+            ylab = input$v1,
+            xlab = input$v2,
+            cex.axis = 1.5,
+            cex.lab = 1.5
+          )
+        }
       } else {
-        mPar <- modelAVG()[[input$modelSelection]]
-      }
-      
-      vv1 <- mPar@designMatrix[, input$v1]
-      vv2 <- mPar@designMatrix[, input$v2]
-      if(is.numeric(vv1) && is.numeric(vv2)){
-        plot(vv1 ~ vv2,  ylab = input$v1,
-             xlab = input$v2, cex.axis = 1.5,
-             cex.lab = 1.5)
-      }
-      if(is.character(vv1) && is.numeric(vv2)){
-        boxplot(vv2 ~ vv1,  ylab = input$v1,
-                xlab = input$v2, cex.axis = 1.5,
-                cex.lab = 1.5)
-      }
-      if(is.character(vv2) && is.numeric(vv1)){
-        boxplot(vv1 ~ vv2,  ylab = input$v1,
-                xlab = input$v2, cex.axis = 1.5,
-                cex.lab = 1.5)
-      }
-      }
-    } else {
-      function() {
+        if (length(data()) == 0 ||
+            is.null(input$v1) ||
+            is.null(input$v2) || input$v1 == "" || input$v2 == "")
+          return(NULL)
+        
         vv1 <- data()[, input$v1]
         vv2 <- data()[, input$v2]
-        if(is.numeric(vv1) && is.numeric(vv2)){
-          plot(vv1 ~ vv2,  ylab = input$v1,
-               xlab = input$v2, cex.axis = 1.5,
-               cex.lab = 1.5)
+        if (is.numeric(vv1) && is.numeric(vv2)) {
+          plot(
+            vv1 ~ vv2,
+            ylab = input$v1,
+            xlab = input$v2,
+            cex.axis = 1.5,
+            cex.lab = 1.5
+          )
         }
-        if(is.character(vv1) && is.numeric(vv2)){
-          boxplot(vv2 ~ vv1,  ylab = input$v1,
-               xlab = input$v2, cex.axis = 1.5,
-               cex.lab = 1.5)
+        if (is.character(vv1) && is.numeric(vv2)) {
+          boxplot(
+            vv2 ~ vv1,
+            ylab = input$v1,
+            xlab = input$v2,
+            cex.axis = 1.5,
+            cex.lab = 1.5
+          )
         }
-        if(is.character(vv2) && is.numeric(vv1)){
-          boxplot(vv1 ~ vv2,  ylab = input$v1,
-                  xlab = input$v2, cex.axis = 1.5,
-                  cex.lab = 1.5)
+        if (is.character(vv2) && is.numeric(vv1)) {
+          boxplot(
+            vv1 ~ vv2,
+            ylab = input$v1,
+            xlab = input$v2,
+            cex.axis = 1.5,
+            cex.lab = 1.5
+          )
         }
       }
     }
   })
   
-  callModule(plotExport, "exportPlot", plotFun = plotFun)
+  plotExportServer("exportPlot", plotFun = plotFun)
   
   output$plot <- renderPlot({
     plotFun()()
@@ -253,7 +278,7 @@ modelVariables <- function(input, output, session, model, data, modelAVG) {
         designMatrix <- as.data.frame(designMatrix)
         designMatrix$independent <- rnorm(nrow(designMatrix))
         vifValue <- vif(lm(paste0("independent", "~ ."), data = designMatrix[, -1])) %>%
-          tryCatchWithWarningsAndErrors(errorTitle = "car::vif() failed")
+          shinyTryCatch(errorTitle = "car::vif() failed")
         if (is.null(vifValue)) vifValue <- rep(NA, length(vNames[-1]))
         return(data.frame(variable = vNames[-1], vif = vifValue))
       }

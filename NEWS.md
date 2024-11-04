@@ -1,3 +1,9 @@
+# BMSCS 24.11.0
+
+## Updates
+- apply modules from _shinyTools_ package for plot and text export
+- remove old code for export of plots and text
+
 # BMSCS 24.10.0
 
 ## Bug Fixes

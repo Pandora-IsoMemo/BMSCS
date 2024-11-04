@@ -53,16 +53,25 @@ modelEvaluation <- function(input, output, session, model) {
   })
   
   
-    plotFun <- reactive({
-        req(model())
+  plotFun <- reactive({
+    function() {
+      if (length(model()) == 0)
+        return(NULL)
+      plot(
+        plotModelFit(
+          model()$models,
+          fits = model()$fits,
+          thresholdSE = input$thresholdSE,
+          markBestModel = TRUE,
+          ic = input$ic,
+          tAngle = input$eAngle,
+          aSize = input$eAxis
+        )
+      )
+    }
+  })
 
-        function() {
-            plot(plotModelFit(model()$models, fits = model()$fits, thresholdSE = input$thresholdSE, markBestModel = TRUE, ic = input$ic,
-                              tAngle = input$eAngle, aSize = input$eAxis))
-        }
-    })
-
-    callModule(plotExport, "exportPlot", plotFun = plotFun)
+  plotExportServer("exportPlot", plotFun = plotFun)
 
     output$plot <- renderPlot({
       validate(need(input$ic %in% names(model()$fits), message = sprintf("No data available for '%s'. Please re-run the model to get results.", input$ic)))

@@ -2,7 +2,7 @@
 
 ## Updates
 - update links in ReadMe and in app header
-- reduce package size by including test-model files into the `.Rbuildignore`
+- reduce package size by including example files into the `.Rbuildignore`
 
 # BMSCS 24.11.0
 

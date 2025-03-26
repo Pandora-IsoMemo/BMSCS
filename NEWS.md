@@ -1,3 +1,9 @@
+# BMSCS 25.03.0
+
+## Updates
+- update links in ReadMe and in app header
+- reduce package size by optimizing test data and including test-model files into the `.Rbuildignore`
+
 # BMSCS 24.11.0
 
 ## Updates

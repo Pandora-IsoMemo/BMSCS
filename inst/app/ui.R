@@ -3,7 +3,7 @@ library("BMSCS")
 shiny::tagList(
   shinyjs::useShinyjs(),
   shiny::navbarPage(
-    includeCSS("www/custom.css"),
+    header = includeCSS("www/custom.css"),
     title = paste("BMSC App", utils::packageVersion("BMSCS")),
     theme = shinythemes::shinytheme("flatly"),
     id = "tabs",

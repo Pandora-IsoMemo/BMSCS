@@ -15,3 +15,5 @@
 ^docs$
 ^pkgdown$
 ^\.github$
+^inst/app/predefinedModels/
+^inst/app/dataQueries/

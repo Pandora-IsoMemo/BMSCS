@@ -1,3 +1,20 @@
+# BMSCS 25.03.1
+
+## Updates
+- skip large data tests in CI and add large test data to the `.Rbuildignore`
+
+# BMSCS 25.03.0
+
+## Updates
+- update links in ReadMe and in app header
+- reduce package size by including example files into the `.Rbuildignore`
+
+# BMSCS 24.11.0
+
+## Updates
+- apply modules from _shinyTools_ package for plot and text export
+- remove old code for export of plots and text
+
 # BMSCS 24.10.0
 
 ## Bug Fixes

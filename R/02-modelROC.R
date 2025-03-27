@@ -28,26 +28,36 @@ modelROC <- function(input, output, session, model, data, modelAVG) {
         updateSelectInput(session, "modelSelection", choices = c(names(model()$models), names(modelAVG())))
     })
 
-    plotFun <- reactive({
-        req(model())
-        req((input$modelSelection %in% names(model()$models)) || (input$modelSelection %in% names(modelAVG())))
-        
-        function() {
-            if((input$modelSelection %in% names(model()$models))){
-                mPar <- model()$models[[input$modelSelection]]
-            } else {
-                mPar <- modelAVG()[[input$modelSelection]]
-            }
-            
-            if(model()$models[[input$modelSelection]]@type == "logistic"){
-                plot.roc(data()[, model()$dependent], BMSC::predict(mPar, newdata = data()),
-                        percent=TRUE,
-                        ci=input$AUCI, print.auc=input$AUC, cex.axis = input$rocAxis, cex.lab = input$rocAxisT, main = input$roctitle, cex.main = input$rocT)
-            }
-        }
-    })
+  plotFun <- reactive({
+    function() {
+      if (length(model()) == 0 ||
+          !((input$modelSelection %in% names(model()$models)) ||
+            (input$modelSelection %in% names(modelAVG()))))
+        return(NULL)
+      
+      if ((input$modelSelection %in% names(model()$models))) {
+        mPar <- model()$models[[input$modelSelection]]
+      } else {
+        mPar <- modelAVG()[[input$modelSelection]]
+      }
+      
+      if (model()$models[[input$modelSelection]]@type == "logistic") {
+        plot.roc(
+          data()[, model()$dependent],
+          BMSC::predict(mPar, newdata = data()),
+          percent = TRUE,
+          ci = input$AUCI,
+          print.auc = input$AUC,
+          cex.axis = input$rocAxis,
+          cex.lab = input$rocAxisT,
+          main = input$roctitle,
+          cex.main = input$rocT
+        )
+      }
+    }
+  })
 
-    callModule(plotExport, "exportPlot", plotFun = plotFun)
+  plotExportServer("exportPlot", plotFun = plotFun)
 
     output$plot <- renderPlot({
         plotFun()()

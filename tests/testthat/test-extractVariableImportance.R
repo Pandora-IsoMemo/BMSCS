@@ -1,6 +1,8 @@
 testthat::test_that("Test extractRegressionSign", {
-  testModels <-
-    readRDS(testthat::test_path("testdata/test_models.rds"))
+  data_path <- testthat::test_path("testdata_large/test_models.rds")
+  skip_if_not(file.exists(data_path), "Skipping large data test on CI or for devtools:check()")
+  
+  testModels <- readRDS(data_path)
   
   expect_equal(
     extractSummary(model = testModels$models[[3]], cLevel = 0.8) %>%
@@ -15,8 +17,10 @@ testthat::test_that("Test extractRegressionSign", {
 })
 
 testthat::test_that("Test extractVariableImportance", {
-  testModels <-
-    readRDS(testthat::test_path("testdata/test_models.rds"))
+  data_path <- testthat::test_path("testdata_large/test_models.rds")
+  skip_if_not(file.exists(data_path), "Skipping large data test on CI or for devtools:check()")
+  
+  testModels <- readRDS(data_path)
   
   expect_equal(
     extractGlobalVariableImportance(variableData = testModels$variableData),

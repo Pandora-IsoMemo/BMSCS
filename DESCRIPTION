@@ -1,9 +1,10 @@
 Package: BMSCS
 Title: Interface for Bayesian Model Selection under Constraints
-Version: 24.10.0
+Version: 25.03.1
 Authors@R: c(
     person("Marcus", "Groß", email = "marcus.gross@inwt-statistics.de", role = c("aut", "cre")),
     person("Ricardo", "Fernandes", email = "ldv1452@gmail.com", role = c("aut")),
+    person("Antonia", "Runge", email = "antonia.runge@inwt-statistics.de", role = c("ctb")),
     person("Andreas", "Neudecker", email = "andreas.neudecker@inwt-statistics.de", role = c("ctb"))
     )
 Description: Shiny interface for BMSC app. 
@@ -12,19 +13,20 @@ Imports:
   car,
   coda,
   BMSC (>= 23.07.1.1),
+  DataTools (>= 24.10.0),
   dplyr,
+  DT,
   futile.logger,
   ggplot2,
-  DataTools (>= 24.04.2),
   pROC,
+  Rcpp,
+  rlang,
+  rstan (>= 2.21.2),
   shiny,
   shinyjs,
   shinythemes,
-  shinyTools (>= 24.04.2),
+  shinyTools (>= 24.11.0),
   shinyWidgets,
-  DT,
-  Rcpp,
-  rstan (>= 2.21.2),
   tidyr,
   yaml
 License: GPL (>= 3)
@@ -35,4 +37,3 @@ Suggests:
     testthat
 RoxygenNote: 7.3.1
 URL: https://pandora-isomemo.github.io/BMSCS/
-

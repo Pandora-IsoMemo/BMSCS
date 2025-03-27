@@ -19,25 +19,26 @@ modelPredictions <- function(input, output, session, model, data, modelAVG) {
         updateSelectInput(session, "modelSelection", choices = c(names(model()$models), names(modelAVG())))
     })
 
-    plotFun <- reactive({
-        req(model())
-        req((input$modelSelection %in% names(model()$models)) || (input$modelSelection %in% names(modelAVG())))
-        
-        function() {
-            if((input$modelSelection %in% names(model()$models))){
-                predictions <- BMSC::predict(model()$models[[input$modelSelection]], data())
-            } else {
-                predictions <- BMSC::predict(modelAVG()[[input$modelSelection]], data())
-            }
-            dependent <- data()[, model()$dependent]
-            plot(dependent ~ predictions, ylab = model()$dependent, xlab = "predictions")
-            
-            # for export
-            # 
-        }
-    })
+  plotFun <- reactive({
+    function() {
+      if (length(model()) == 0 ||
+          !((input$modelSelection %in% names(model()$models)) ||
+            (input$modelSelection %in% names(modelAVG()))))
+        return(NULL)
+      
+      if ((input$modelSelection %in% names(model()$models))) {
+        predictions <- BMSC::predict(model()$models[[input$modelSelection]], data())
+      } else {
+        predictions <- BMSC::predict(modelAVG()[[input$modelSelection]], data())
+      }
+      dependent <- data()[, model()$dependent]
+      plot(dependent ~ predictions,
+           ylab = model()$dependent,
+           xlab = "predictions")
+    }
+  })
 
-    callModule(plotExport, "exportPlot", plotFun = plotFun)
+  plotExportServer("exportPlot", plotFun = plotFun)
 
     output$plot <- renderPlot({
         plotFun()()

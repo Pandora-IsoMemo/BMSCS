@@ -1,6 +1,8 @@
 testthat::test_that("Test extractAllSummaries", {
-  testModels <-
-    readRDS(testthat::test_path("testdata/test_models.rds"))
+  data_path <- testthat::test_path("testdata_large/test_models.rds")
+  skip_if_not(file.exists(data_path), "Skipping large data test on CI or for devtools:check()")
+  
+  testModels <- readRDS(data_path)
   
   expect_equal(
     extractAllSummaries(allModels = testModels$models,

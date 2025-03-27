@@ -1,3 +1,8 @@
+# BMSCS 25.03.1
+
+## Updates
+- skip large data tests in CI and add large test data to the `.Rbuildignore`
+
 # BMSCS 25.03.0
 
 ## Updates

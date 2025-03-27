@@ -1,9 +1,11 @@
 testthat::test_that("Test extractAllDW", {
-  testData <-
-    readRDS(testthat::test_path("testdata/test_inData.rds"))
+  data_path <- testthat::test_path("testdata_large/test_models.rds")
+  skip_if_not(file.exists(data_path), "Skipping large data test on CI or for devtools:check()")
   
-  testModels <-
-    readRDS(testthat::test_path("testdata/test_models.rds"))
+  testModels <- readRDS(data_path)
+  
+  testData <-
+    readRDS(testthat::test_path("testdata_large/test_inData.rds"))
   
   expect_equal(
     extractAllDW(allModels = testModels$models,

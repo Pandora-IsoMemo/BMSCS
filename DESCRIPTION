@@ -1,9 +1,10 @@
 Package: BMSCS
 Title: Interface for Bayesian Model Selection under Constraints
-Version: 25.03.0
+Version: 25.03.1
 Authors@R: c(
     person("Marcus", "Groß", email = "marcus.gross@inwt-statistics.de", role = c("aut", "cre")),
     person("Ricardo", "Fernandes", email = "ldv1452@gmail.com", role = c("aut")),
+    person("Antonia", "Runge", email = "antonia.runge@inwt-statistics.de", role = c("ctb")),
     person("Andreas", "Neudecker", email = "andreas.neudecker@inwt-statistics.de", role = c("ctb"))
     )
 Description: Shiny interface for BMSC app. 

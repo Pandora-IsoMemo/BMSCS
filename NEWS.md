@@ -1,3 +1,8 @@
+# BMSCS 25.06.0 
+
+## Bug Fixes
+- fixed broken model export due to passing a deprecated argument that was removed in the meanwhile (#44)
+
 # BMSCS 25.03.1
 
 ## Updates

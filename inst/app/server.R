@@ -8,12 +8,4 @@ function(input, output, session) {
   options("scipen"=100, "digits"=4)
   data <- shiny::callModule(dataInput, "data")
   shiny::callModule(modelEstimation, "model", data)
-  
-  observeEvent(input$getHelp, {
-    showModal(modalDialog(
-      title = "Help",
-      easyClose = TRUE,
-      getHelp(input$tab)
-    ))
-  })
 }

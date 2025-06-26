@@ -32,6 +32,7 @@ modelPredictions <- function(input, output, session, model, data, modelAVG) {
         predictions <- BMSC::predict(modelAVG()[[input$modelSelection]], data())
       }
       dependent <- data()[, model()$dependent]
+      # could we simply use ggplot here??? <-- ----
       plot(dependent ~ predictions,
            ylab = model()$dependent,
            xlab = "predictions")

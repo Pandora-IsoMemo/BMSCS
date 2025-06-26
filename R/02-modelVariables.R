@@ -95,6 +95,7 @@ modelVariables <- function(input, output, session, model, data, modelAVG) {
         
         vv1 <- mPar@designMatrix[, input$v1]
         vv2 <- mPar@designMatrix[, input$v2]
+        # could we simply use ggplot here??? <-- ----
         if (is.numeric(vv1) && is.numeric(vv2)) {
           plot(
             vv1 ~ vv2,
@@ -130,6 +131,7 @@ modelVariables <- function(input, output, session, model, data, modelAVG) {
         
         vv1 <- data()[, input$v1]
         vv2 <- data()[, input$v2]
+        # could we simply use ggplot here??? <-- ----
         if (is.numeric(vv1) && is.numeric(vv2)) {
           plot(
             vv1 ~ vv2,

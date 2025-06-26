@@ -6,8 +6,15 @@ modelParametersTab <- function(id) {
     value = "parameterTab",
     selectInput(ns("modelSelection"), "Select Model", choices = ""),
     plotOutput(ns("plot")),
-    plotExportButton(ns("exportPlot")),
-    shinyTools::dataExportButton(ns("exportModelParameterData"))
+    fluidRow(
+      column(6, shinyTools::customPointsUI(
+        id = ns("modelParamPlotCustomPoints"),
+        plot_type = "ggplot"
+      )),
+      column(6, plotExportButton(ns("exportPlot")), shinyTools::dataExportButton(ns(
+        "exportModelParameterData"
+      )))
+    )
   )
 }
 

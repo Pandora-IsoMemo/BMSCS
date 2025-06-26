@@ -183,7 +183,6 @@ modelEstimation <- function(input, output, session, data) {
                       model = modelsForDownload,
                       rPackageName = config()[["rPackageName"]],
                       fileExtension = config()[["fileExtension"]],
-                      helpHTML = getHelp(id = ""),
                       modelNotes = modelNotes,
                       triggerUpdate = reactive(TRUE))
   

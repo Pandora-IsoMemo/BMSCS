@@ -1,7 +1,7 @@
 # BMSCS 25.06.1
 
 ## Bug Fixes
-- Fixed an issue during the model import:
+- Fixed an issue during the model import (#44):
   - Before, all inputs were updated simultaneously during model import. Inputs that depended on 
     others (e.g., for dynamic choices) could not be updated correctly.
   - Now, a staged update mechanism is implemented: secondary inputs are updated only after all

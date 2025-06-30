@@ -4,7 +4,7 @@ modelROCTab <- function(id) {
     tabPanel(
         "ROC Curve",
         value = "ROC",
-        selectInput(ns("modelSelection"), "Select Model", choices = ""),
+        selectInput(ns("modelSelection"), "Select model", choices = ""),
         textInput(ns("roctitle"), "Plot title"),
         sliderInput(ns("rocAxis"), label = "Axis label font size", min = 0.1, max = 5, value = 1.5),
         sliderInput(ns("rocAxisT"), label = "Axis title font size", min = 0.1, max = 5, value = 1.5),

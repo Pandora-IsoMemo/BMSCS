@@ -5,7 +5,7 @@ modelDWTab <- function(id) {
     "Durbin-Watson Test",
     value = "DW",
     selectInput(ns("t"), "Time variable (optional)", choices = NULL, multiple = FALSE, selected = NULL),
-    selectInput(ns("modelSelection"), "Select Model", choices = ""),
+    selectInput(ns("modelSelection"), "Select model", choices = ""),
     verbatimTextOutput(ns("DWsummary")),
     textExportButton(ns("exportText")),
     sliderInput(ns("lagDW"), "Maximum lag", min = 1, max = 12, step = 1, value = 1)

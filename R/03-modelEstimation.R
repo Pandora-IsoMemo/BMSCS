@@ -88,6 +88,9 @@ modelEstimationUI <- function(id, title = "") {
 modelEstimation <- function(input, output, session, data) {
   ns <- session$ns
   
+  m <- reactiveVal()
+  m_AVG <- reactiveVal()
+  
   observe({
     updateSelectizeInput(session, "x", choices = names(data()), selected = "")
     updateSelectizeInput(session, "xCategorical", choices = names(data()), selected = "")
@@ -147,12 +150,10 @@ modelEstimation <- function(input, output, session, data) {
     }
   })
   
-  observe({
+  observe(priority = 40, {
     updatePickerInput(session, "mustInclude", choices = formulaParts(), selected = "")
     updatePickerInput(session, "mustExclude", choices = formulaParts(), selected = "")
   })
-  
-  m <- reactiveVal()
   
   observe({
     if (length(m()) == 0) {
@@ -196,49 +197,54 @@ modelEstimation <- function(input, output, session, data) {
     options = importOptions(rPackageName = config()[["rPackageName"]])
   )
   
+  modelState <- reactiveVal(list())
+  observe(priority = 200, {
+    req(length(uploadedModel()) > 0)
+    model <- uploadedModel()[[1]]
+    state <- new_ShinyModelState(
+      data = model$data,
+      inputs = model$inputs,
+      model = model$model,
+      notes = model$notes
+    )
+    modelState(state)
+  }) |>
+    bindEvent(uploadedModel())
+  
   observe(priority = 100, {
-    req(length(uploadedModel()) > 0, uploadedModel()[[1]][["data"]])
-    
+    req(length(uploadedModel()) > 0, inherits(modelState(), "ShinyModelState"))
     ## update data ----
-    data(uploadedModel()[[1]][["data"]])
-    ## reset and update notes
-    modelNotes("")
-    modelNotes(uploadedModel()[[1]][["notes"]])
+    restoreData(modelState(), session, data, modelNotes)
+  }) %>%
+    bindEvent(uploadedModel())
+
+  observe(priority = 70, {
+    req(length(uploadedModel()) > 0, inherits(modelState(), "ShinyModelState"))
+    ## update PRIMARY inputs ----
+    # update will fail for those where e.g. choices are not yet ready
+    restoreInputs(modelState(), session, validInputs = names(input))
+  }) %>%
+    bindEvent(uploadedModel())
+
+  observe({
+    req(length(uploadedModel()) > 0, inherits(modelState(), "ShinyModelState"))
+    ## update model ----
+    restoreModel(modelState(), session, m, m_AVG)
   }) %>%
     bindEvent(uploadedModel())
   
-  observe(priority = 50, {
-    req(length(uploadedModel()) > 0, uploadedModel()[[1]][["inputs"]])
+  observe({
+    req(formulaParts())
+    req(length(uploadedModel()) > 0, inherits(modelState(), "ShinyModelState"))
+    ## update SECONDARY inputs ----
+    # wait with update until e.g. choices are ready
+    invalidateLater(250)  # allow for reactivity settling
+    restoreInputs(modelState(), session, validInputs = get_secondary_input_names(modelState()))
     
-    ## update inputs ----
-    uploadedInputs <- uploadedModel()[[1]][["inputs"]]
-    inputIDs <- names(uploadedInputs)
-    inputIDs <- inputIDs[inputIDs %in% names(input)]
-    for (i in 1:length(inputIDs)) {
-      session$sendInputMessage(inputIDs[i],  list(value = uploadedInputs[[inputIDs[i]]]) )
-    }
-    
-    ## update model ----
-    modelNames <- names(uploadedModel()[[1]][["model"]][["models"]])
-    # extract average model if exists
-    indexAvgModel <- grepl(pattern = "model_average", modelNames)
-    if (any(indexAvgModel)) {
-      # extract avg model
-      modelObject <- uploadedModel()[[1]][["model"]]
-      avgModel <- modelObject$models[modelNames[indexAvgModel]]
-      
-      # remove avg model from list of models
-      modelObject$models[[modelNames[indexAvgModel]]] <- NULL
-      
-      # load single models
-      m(modelObject)
-      # load average model
-      m_AVG(avgModel)
-    } else {
-      m(uploadedModel()[[1]][["model"]])
-    }
-  }) %>%
-    bindEvent(uploadedModel())
+    # clean up to free space
+    modelState(list())
+    uploadedModel(NULL)
+  })
   
   # RUN MODEL ----
   observe({
@@ -308,7 +314,6 @@ modelEstimation <- function(input, output, session, data) {
     bindEvent(input$run)
   
   # RUN AVG MODEL ----
-  m_AVG <- reactiveVal()
   observe({
     req(m())
     weights <- get_model_weights(m()$fits, measure = input$wMeasure) %>%

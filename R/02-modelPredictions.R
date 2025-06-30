@@ -4,7 +4,7 @@ modelPredictionsTab <- function(id) {
     tabPanel(
         "Model Predictions",
         value = "predictionTab",
-        selectInput(ns("modelSelection"), "Select Model", choices = ""),
+        selectInput(ns("modelSelection"), "Select model", choices = ""),
         plotOutput(ns("plot")),
         plotExportButton(ns("exportPlot")),
         dataExportButton(ns("exportModelPredictionsData"))

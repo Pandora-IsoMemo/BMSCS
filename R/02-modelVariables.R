@@ -9,7 +9,7 @@ modelVariablesTab <- function(id) {
     conditionalPanel(
       condition = "input.modelData == 'model'",
       ns = ns,
-      selectInput(ns("modelSelection"), "Select Model", choices = "")),
+      selectInput(ns("modelSelection"), "Select model", choices = "")),
     conditionalPanel(
       condition = "input.modelData == 'data'",
       ns = ns,

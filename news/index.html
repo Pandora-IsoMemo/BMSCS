@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">BMSCS</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">25.06.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">25.06.1</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -38,6 +38,16 @@
       
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="25.06.1" id="bmscs-25061">BMSCS 25.06.1<a class="anchor" aria-label="anchor" href="#bmscs-25061"></a></h2>
+<div class="section level3">
+<h3 id="bug-fixes-25-06-1">Bug Fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-25-06-1"></a></h3>
+<ul><li>Fixed an issue during the model import (#44):
+<ul><li>Before, all inputs were updated simultaneously during model import. Inputs that depended on others (e.g., for dynamic choices) could not be updated correctly.</li>
+<li>Now, a staged update mechanism is implemented: secondary inputs are updated only after all primary inputs have been set, ensuring that dependent inputs are populated reliably.</li>
+</ul></li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="25.06.0" id="bmscs-25060">BMSCS 25.06.0<a class="anchor" aria-label="anchor" href="#bmscs-25060"></a></h2>
 <div class="section level3">

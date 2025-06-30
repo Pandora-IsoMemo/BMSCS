@@ -4,7 +4,7 @@ modelParametersTab <- function(id) {
   tabPanel(
     "Model Parameters",
     value = "parameterTab",
-    selectInput(ns("modelSelection"), "Select Model", choices = ""),
+    selectInput(ns("modelSelection"), "Select model", choices = ""),
     plotOutput(ns("plot")),
     plotExportButton(ns("exportPlot")),
     shinyTools::dataExportButton(ns("exportModelParameterData"))

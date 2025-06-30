@@ -16,7 +16,8 @@
 #' @importFrom rlang .data
 #' @importFrom rstan extract
 #' @importFrom shinyjs useShinyjs alert
-#' @importFrom shinyTools customPointsServer customPointsUI dataExportButton dataExportServer headerButtonsUI 
+#' @importFrom shinyTools addCustomPointsToGGplot customPointsServer customPointsUI 
+#'  dataExportButton dataExportServer headerButtonsUI 
 #'  plotExportButton plotExportServer shinyTryCatch textExportButton textExportServer
 #' @importFrom shinyWidgets pickerInput updatePickerInput
 #' @importFrom stats as.formula chisq.test cor lm lm.fit median model.matrix na.omit 

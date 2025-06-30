@@ -1,7 +1,7 @@
 library("BMSCS")
 library(yaml)
 
-options(shiny.maxRequestSize = 100*1024^2)
+options(shiny.maxRequestSize = 250*1024^2)
 
 function(input, output, session) {
   require("BMSC")

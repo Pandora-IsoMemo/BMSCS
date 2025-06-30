@@ -34,7 +34,7 @@ modelPredictionsCustomTab <- function(id) {
       sliderInput(ns("quantileInt"), "Select quantile for y-variable intervals",
                   min = 0.5, max = 0.999, step = 0.001, value = 0.95)
     )),
-    selectInput(ns("modelSelection"), "Select Model", choices = ""),
+    selectInput(ns("modelSelection"), "Select model", choices = ""),
     sliderInput(ns("quantilePred"), "Select quantile for prediction intervals",
                 min = 0.5, max = 0.999, step = 0.001, value = 0.95
     ),

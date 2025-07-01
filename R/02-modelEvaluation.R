@@ -64,21 +64,42 @@ modelEvaluation <- function(input, output, session, model) {
   })
   
   
+  baseplot <- reactive({
+    if (length(model()) == 0)
+      return(NULL)
+    plot(
+      plotModelFit(
+        model()$models,
+        fits = model()$fits,
+        thresholdSE = input$thresholdSE,
+        markBestModel = TRUE,
+        ic = input$ic,
+        tAngle = input$eAngle,
+        aSize = input$eAxis
+      )
+    )
+  })
+  
+  x_choices <- reactive({
+    if (length(model()) == 0)
+      return(NULL)
+    p <- baseplot()
+    # group : p$data$model
+    choices <- p$data$model |> unique() |> as.character()
+    attr(choices, "x") <- "model"
+    
+    return(choices)
+  })
+  
+  modelParamPlotCustPoints <- shinyTools::customPointsServer("evaluationPlotCustomPoints",
+                                                             plot_type = "ggplot",
+                                                             x_choices = x_choices)
+  
+  
   plotFun <- reactive({
     function() {
-      if (length(model()) == 0)
-        return(NULL)
-      plot(
-        plotModelFit(
-          model()$models,
-          fits = model()$fits,
-          thresholdSE = input$thresholdSE,
-          markBestModel = TRUE,
-          ic = input$ic,
-          tAngle = input$eAngle,
-          aSize = input$eAxis
-        )
-      )
+      baseplot() |> 
+        shinyTools::addCustomPointsToGGplot(modelParamPlotCustPoints())
     }
   })
 

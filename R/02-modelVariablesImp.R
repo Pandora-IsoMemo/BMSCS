@@ -150,12 +150,10 @@ extract_coeff_from_model <- function(model, cLevel = 0.95) {
     coef_draws <- draws[, -1, drop = FALSE]
     intercept_name <- var_names[1]
     coef_names <- var_names[-1]
-    param_names <- var_names
   } else if (n_beta == n_varnames) {
     intercept_draws <- NULL
     coef_draws <- draws
     coef_names <- var_names
-    param_names <- var_names
   } else {
     stop("Cannot determine which betaAll component is the intercept.")
   }
@@ -173,7 +171,7 @@ extract_coeff_from_model <- function(model, cLevel = 0.95) {
   
   # Combine all rescaled draws
   all_rescaled <- cbind(intercept_rescaled, coef_rescaled)
-  colnames(all_rescaled) <- param_names
+  colnames(all_rescaled) <- var_names
   
   # Compute summary statistics
   summary_list <- lapply(as.data.frame(all_rescaled), function(x) {

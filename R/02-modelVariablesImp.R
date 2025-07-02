@@ -55,8 +55,8 @@ modelVariablesImp <- function(input, output, session, model, modelAVG) {
           dplyr::select("Model", "Variable", "Importance", "Estimate", "Sign")
       } else {
         extractModelBasedVariableImportance(model = mPar[[input$modelSelection]]) %>%
-          joinRegressionSign(signData = extractSummary(model = mPar[[input$modelSelection]]) %>%
-                               extractCoefTable() %>%
+          joinRegressionSign(signData = mPar[[input$modelSelection]] %>%
+                               extract_coeff_from_model() %>%
                                extractRegressionSign())
       }
     }
@@ -128,6 +128,74 @@ extractRegressionSign <- function(coefTable) {
   estimate
 }
 
+extract_coeff_from_model <- function(model, cLevel = 0.95) {
+  stopifnot(inherits(model, "ConstrainedLinReg"))
+  
+  # Credible interval boundaries
+  lower <- (1 - cLevel) / 2
+  upper <- 1 - lower
+  probs <- c(lower, 0.5, upper)
+  
+  # Read draws
+  draws <- rstan::extract(model, pars = "betaAll", permuted = TRUE)$betaAll
+  var_names <- model@varNames
+  n_beta <- ncol(draws)
+  n_varnames <- length(var_names)
+  
+  # Check if "(Intercept)" is in varNames
+  intercept_in_varnames <- any(grepl("Intercept", var_names, fixed = TRUE))
+  
+  if (intercept_in_varnames) {
+    intercept_draws <- draws[, 1]
+    coef_draws <- draws[, -1, drop = FALSE]
+  } else if (n_beta == n_varnames) {
+    intercept_draws <- NULL
+    coef_draws <- draws
+  } else {
+    stop("Cannot determine which betaAll component is the intercept.")
+  }
+  
+  scale_y  <- model@scaleYScale
+  center_y <- model@scaleYCenter
+  scale_x  <- model@scaleScale
+  center_x <- model@scaleCenter
+  
+  # Rescale coefficients
+  coef_rescaled <- sweep(coef_draws, 2, scale_y / scale_x, "*")
+  
+  # Rescale intercepts using full formula for each draw
+  intercept_rescaled <- intercept_draws * scale_y + center_y - as.vector(coef_rescaled %*% center_x)
+  
+  # Combine all rescaled draws
+  all_rescaled <- cbind(intercept_rescaled, coef_rescaled)
+  colnames(all_rescaled) <- var_names
+  
+  # Compute summary statistics
+  summary_list <- lapply(as.data.frame(all_rescaled), function(x) {
+    list(
+      Estimate = mean(x),
+      Median = median(x),
+      SD = sd(x),
+      Cred_Interval_Min = quantile(x, lower),
+      Cred_Interval_Max = quantile(x, upper)
+    )
+  })
+  
+  # Convert to data.frame
+  summary_df <- do.call(rbind, lapply(summary_list, as.data.frame))
+  summary_df$Parameter <- names(summary_list)
+  
+  summary_df$Parameter <- rownames(summary_df)
+  rownames(summary_df) <- NULL
+  
+  # Reorder columns
+  summary_df <- summary_df[, c("Parameter", "Estimate", "Median", "SD", "Cred_Interval_Min", "Cred_Interval_Max")] %>%
+    mutate(across(where(is.numeric), ~ round(.x, 3)))
+  
+  return(summary_df)
+}
+
+
 getSign <- function(values) {
   -1*(values < 0) + 1*(values > 0)
 }
@@ -144,8 +212,8 @@ extractAllVariableImportance <- function(models, variableData) {
   names(modelNames) <- modelNames
   modelBasedImportance <- lapply(modelNames, function(name) {
     extractModelBasedVariableImportance(model = models[[name]]) %>%
-      joinRegressionSign(signData = extractSummary(model = models[[name]]) %>%
-                           extractCoefTable() %>%
+      joinRegressionSign(signData = models[[name]] %>%
+                           extract_coeff_from_model() %>%
                            extractRegressionSign()) %>%
       prefixNameAsColumn(name = "Model", value = name)
   })

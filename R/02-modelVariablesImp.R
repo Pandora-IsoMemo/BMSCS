@@ -195,7 +195,7 @@ extract_coeff_from_model <- function(model, cLevel = 0.95) {
   
   # Reorder columns
   summary_df <- summary_df[, c("Parameter", "Estimate", "Median", "SD", "Cred_Interval_Min", "Cred_Interval_Max")] %>%
-    dplyr::mutate(across(where(is.numeric), ~ round(.x, 3)))
+    mutate(across(where(is.numeric), ~ round(.x, 3)))
   
   return(summary_df)
 }

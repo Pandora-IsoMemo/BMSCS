@@ -1,3 +1,12 @@
+# BMSCS 25.07.0
+
+## Bug Fixes
+- Fixed an issue during the creation of the coefficient table from model output (#44): Replaced
+  fragile text-parsing logic with a new extract_coeff_from_summary() function that:
+  - Directly uses posterior samples from rstan::sampling()
+  - Rescales coefficients (incl. intercept) to the original data scale
+  - Returns Estimate, Median, SD, and credible intervals for any cLevel
+
 # BMSCS 25.06.1
 
 ## Bug Fixes

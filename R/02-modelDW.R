@@ -113,11 +113,10 @@ printDWTest <- function(inDat, dependent, mPar, tVar, maxLag) {
   if (all(is.nan(predictions))) {
     print("Predictions are all NaN. Please check the model parameters and input data.")
   } else {
-    print(
-      durbinWatsonTest(lm(I(inDat[, dependent] -
-                              BMSC::predict(mPar, newdata = inDat)) ~
-                            tVar), 
-                       max.lag = maxLag)
-    )
+    print(durbinWatsonTest(lm(I(
+      inDat[, dependent] -
+        predictions
+    ) ~
+      tVar), max.lag = maxLag))
   }
 }

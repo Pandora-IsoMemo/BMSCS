@@ -173,6 +173,10 @@ extract_coeff_from_model <- function(model, cLevel = 0.95) {
   
   # Compute summary statistics
   summary_list <- lapply(as.data.frame(all_rescaled), function(x) {
+    if (all(is.nan(x))) {
+      return(list(Estimate = NaN, Median = NaN, SD = NaN, Cred_Interval_Min = NaN, Cred_Interval_Max = NaN))
+    }
+    
     list(
       Estimate = mean(x),
       Median = median(x),

@@ -1,3 +1,11 @@
+# BMSCS 25.07.1
+
+## Bug Fixes
+- Fixed an issue where the app could crash if some models did not return valid results (#44).
+  The update now handles NaN values in model outputs gracefully. If modeling results are missing or 
+  invalid, they are excluded from the output summaries or replaced with a clear error message, 
+  preventing unexpected crashes.
+
 # BMSCS 25.07.0
 
 ## Bug Fixes

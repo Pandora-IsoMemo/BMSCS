@@ -58,7 +58,8 @@ modelEvaluation <- function(input, output, session, model) {
                                    modelNames = names(model()$models),
                                    withColumnICName = TRUE)
     ) %>% 
-      bindAllResults(addEmptyRow = TRUE)
+      bindAllResults(addEmptyRow = TRUE) %>%
+      shinyTryCatch(errorTitle = "Extracting model results failed")
     
     allICData(thisICData)
   })

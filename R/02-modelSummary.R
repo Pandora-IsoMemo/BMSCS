@@ -25,11 +25,10 @@ modelSummary <- function(input, output, session, model, modelAVG) {
   observe({
     req(model())
     
-    thisSummaries <- extractAllSummaries(
-      allModels = model()$models,
-      cLevel = input$quantileInt
-    ) %>% 
-      bindAllResults(addEmptyRow = TRUE)
+    thisSummaries <- extractAllSummaries(allModels = model()$models,
+                                         cLevel = input$quantileInt) %>%
+      bindAllResults(addEmptyRow = TRUE) %>%
+      shinyTryCatch(errorTitle = "Extracting model results failed")
     
     allSummaries(thisSummaries)
   })
@@ -79,7 +78,16 @@ extractAllSummaries <- function(allModels, cLevel, asDataFrame = TRUE) {
 }
 
 extractSummary <- function(model, cLevel = 0.95) {
-  capture.output({
-    print(model, cLevel = cLevel)
-  })
+  res <- try(print(model, cLevel = cLevel), silent = TRUE)
+  
+  if (inherits(res, "try-error")) {
+    capture.output({
+      print(res[[1]])
+    })
+  } else {
+    # if no error, capture output
+    capture.output({
+      print(model, cLevel = cLevel)
+    })
+  }
 }

@@ -29,7 +29,8 @@ modelSummary <- function(input, output, session, model, modelAVG) {
       allModels = model()$models,
       cLevel = input$quantileInt
     ) %>% 
-      bindAllResults(addEmptyRow = TRUE)
+      bindAllResults(addEmptyRow = TRUE) %>%
+      shinyTryCatch(errorTitle = "Extracting model results failed")
     
     allSummaries(thisSummaries)
   })

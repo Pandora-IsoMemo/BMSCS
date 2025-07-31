@@ -32,7 +32,8 @@ modelVariablesImp <- function(input, output, session, model, modelAVG) {
     thisVarImp <- extractAllVariableImportance(models = model()$models,
                                                variableData = model()$variableData) %>%
       bindAllResults(addEmptyRow = TRUE) %>%
-      dplyr::select("Model", "Variable", "Importance", "Estimate", "Sign")
+      dplyr::select("Model", "Variable", "Importance", "Estimate", "Sign") %>%
+      shinyTryCatch(errorTitle = "Extracting model results failed")
     
     allVariableImportance(thisVarImp)
   })

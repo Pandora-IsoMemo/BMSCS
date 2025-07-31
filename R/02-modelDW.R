@@ -33,7 +33,8 @@ modelDW <- function(input, output, session, model, data, modelAVG) {
                            dependent = model()$dependent,
                            inDat = data(), 
                            asDataFrame = TRUE) %>% 
-      bindAllResults(addEmptyRow = TRUE)
+      bindAllResults(addEmptyRow = TRUE) %>%
+      shinyTryCatch(errorTitle = "Extracting model results failed")
     
     allDW(thisDW)
   })
@@ -107,10 +108,16 @@ extractAllDW <- function(allModels, maxLag, dependent, inDat, asDataFrame = TRUE
 }
 
 printDWTest <- function(inDat, dependent, mPar, tVar, maxLag) {
-  print(
-    durbinWatsonTest(lm(I(inDat[, dependent] -
-                            BMSC::predict(mPar, newdata = inDat)) ~
-                          tVar), 
-                     max.lag = maxLag)
-  )
+  predictions <- BMSC::predict(mPar, newdata = inDat)
+  
+  if (all(is.nan(predictions))) {
+    print("Predictions are all NaN. Please check the model parameters and input data.")
+  } else {
+    print(
+      durbinWatsonTest(lm(I(inDat[, dependent] -
+                              BMSC::predict(mPar, newdata = inDat)) ~
+                            tVar), 
+                       max.lag = maxLag)
+    )
+  }
 }

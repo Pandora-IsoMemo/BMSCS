@@ -141,7 +141,8 @@ modelEstimation <- function(input, output, session, data) {
                   inverseExponent = input$inverseExp,
                   interactionDepth = input$interactionDepth,
                   intercept = input$intercept,
-                  categorical = xCategorical)
+                  categorical = xCategorical) %>%
+      shinyTryCatch(errorTitle = "Creating formula failed")
     
     ret <- gsub('[\n ]', '', strsplit(strsplit(as.character(FORMULA)[3], "~")[[1]], " \\+ ")[[1]])
     return(ret)
@@ -287,7 +288,7 @@ modelEstimation <- function(input, output, session, data) {
         shiny = TRUE,
         imputeMissings = input$imputeMissings
       ) %>%
-        shinyTryCatch()
+        shinyTryCatch(errorTitle = "Running model failed")
     },
     value = 0,
     message = "Calculation in progess",

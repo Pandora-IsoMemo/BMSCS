@@ -30,7 +30,8 @@ modelDiagnostics <- function(input, output, session, model, nChains) {
     
     thisDiagnostics <- extractAllDiagnostics(allModels = model()$models,
                                              nChains = nChains) %>% 
-      bindAllResults(addEmptyRow = TRUE)
+      bindAllResults(addEmptyRow = TRUE) %>%
+      shinyTryCatch(errorTitle = "Extracting model results failed")
     
     allDiagnostics(thisDiagnostics)
   })

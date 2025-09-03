@@ -75,7 +75,7 @@ modelParameters <- function(input, output, session, model, modelAVG) {
     p <- ggplot(dataSummary, aes_(x = ~ key)) +
       ylab("Estimate") + xlab("")
     
-    p <- p + geom_boxplot(
+    p + geom_boxplot(
       mapping = aes_(
         lower = ~ q32,
         upper = ~ q68,
@@ -109,7 +109,8 @@ modelParameters <- function(input, output, session, model, modelAVG) {
   plotFun <- reactive({
     function() {
       baseplot() |> 
-        shinyTools::addCustomPointsToGGplot(modelParamPlotCustPoints())
+        shinyTools::addCustomPointsToGGplot(modelParamPlotCustPoints()) |>
+        shinyTryCatch(errorTitle = "Plotting failed")
     }
   })
 

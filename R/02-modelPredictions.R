@@ -5,9 +5,21 @@ modelPredictionsTab <- function(id) {
         "Model Predictions",
         value = "predictionTab",
         selectInput(ns("modelSelection"), "Select model", choices = ""),
-        plotOutput(ns("plot")),
-        plotExportButton(ns("exportPlot")),
-        dataExportButton(ns("exportModelPredictionsData"))
+        tags$br(), tags$br(), 
+        plotOutput(ns("plot")), 
+        tags$br(), 
+        fluidRow(
+          column(6, shinyTools::customPointsUI(
+            id = ns("modelPredictionsCustPoints"),
+            plot_type = "ggplot"
+          )),
+          column(
+            6,
+            align = "right",
+            plotExportButton(ns("exportPlot")),
+            shinyTools::dataExportButton(ns("exportModelPredictionsData"))
+          )
+        )
     )
 }
 
@@ -18,6 +30,9 @@ modelPredictions <- function(input, output, session, model, data, modelAVG) {
         req(modelAVG())
         updateSelectInput(session, "modelSelection", choices = c(names(model()$models), names(modelAVG())))
     })
+  
+  modelPredictionsPlotCustPoints <- shinyTools::customPointsServer("modelPredictionsCustPoints",
+                                                                   plot_type = "ggplot")
 
   plotFun <- reactive({
     function() {
@@ -32,10 +47,28 @@ modelPredictions <- function(input, output, session, model, data, modelAVG) {
         predictions <- BMSC::predict(modelAVG()[[input$modelSelection]], data())
       }
       dependent <- data()[, model()$dependent]
-      # could we simply use ggplot here??? <-- ----
-      plot(dependent ~ predictions,
-           ylab = model()$dependent,
-           xlab = "predictions")
+      # plot(dependent ~ predictions,
+      #      ylab = model()$dependent,
+      #      xlab = "predictions")
+      
+      # replacing plot() with ggplot2 to add custom points
+      p <- ggplot(data.frame(predictions, dependent),
+                  aes(x = predictions, y = dependent)) +
+        geom_point(shape = 1,
+                   color = "black",
+                   size = 2) +
+        labs(title = " ",
+             x = "predictions",
+             y = model()$dependent) +
+        theme_classic(base_size = 14) +
+        theme(
+          panel.border = element_rect(fill = NA, color = "black"),
+          axis.line = element_line(color = "black")
+        )
+      
+      p |>
+        shinyTools::addCustomPointsToGGplot(modelPredictionsPlotCustPoints()) |>
+        shinyTryCatch(errorTitle = "Plotting failed")
     }
   })
 

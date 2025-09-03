@@ -68,16 +68,15 @@ modelEvaluation <- function(input, output, session, model) {
   baseplot <- reactive({
     if (length(model()) == 0)
       return(NULL)
-    plot(
-      plotModelFit(
-        model()$models,
-        fits = model()$fits,
-        thresholdSE = input$thresholdSE,
-        markBestModel = TRUE,
-        ic = input$ic,
-        tAngle = input$eAngle,
-        aSize = input$eAxis
-      )
+    
+    plotModelFit(
+      model()$models,
+      fits = model()$fits,
+      thresholdSE = input$thresholdSE,
+      markBestModel = TRUE,
+      ic = input$ic,
+      tAngle = input$eAngle,
+      aSize = input$eAxis
     )
   })
   
@@ -100,7 +99,9 @@ modelEvaluation <- function(input, output, session, model) {
   plotFun <- reactive({
     function() {
       baseplot() |> 
-        shinyTools::addCustomPointsToGGplot(modelParamPlotCustPoints())
+        shinyTools::addCustomPointsToGGplot(modelParamPlotCustPoints()) |>
+        plot() |>
+        shinyTryCatch(errorTitle = "Plotting failed")
     }
   })
 

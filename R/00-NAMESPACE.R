@@ -2,7 +2,7 @@
 #' @importFrom BMSC constrSelEst createFormula prepModelNames get_avg_model getModelFits 
 #'  get_model_weights plotModelFit
 #' @importFrom car durbinWatsonTest vif
-#' @importFrom coda raftery.diag gelman.diag geweke.diag heidel.diag mcmc
+#' @importFrom coda raftery.diag gelman.diag geweke.diag heidel.diag mcmc mcmc.list
 #' @importFrom DataTools downloadModelUI downloadModelServer importDataServer importDataUI
 #'  importOptions importServer importUI
 #' @importFrom dplyr "%>%" across bind_cols bind_rows group_by left_join mutate summarise ungroup where
@@ -21,7 +21,7 @@
 #'  plotExportButton plotExportServer shinyTryCatch textExportButton textExportServer
 #' @importFrom shinyWidgets pickerInput updatePickerInput
 #' @importFrom stats as.formula chisq.test cor lm lm.fit median model.matrix na.omit 
-#'  predict qnorm quantile rexp rnorm rpois sd setNames terms
+#'  predict qnorm quantile rexp rnorm rpois sd setNames terms window
 #' @importFrom tidyr gather
 #' @importFrom utils capture.output head packageVersion
 #' @importFrom yaml read_yaml

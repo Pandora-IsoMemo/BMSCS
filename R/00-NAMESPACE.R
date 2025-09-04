@@ -7,12 +7,13 @@
 #'  importOptions importServer importUI
 #' @importFrom dplyr "%>%" across bind_cols bind_rows group_by left_join mutate summarise ungroup where
 #' @importFrom DT datatable renderDT DTOutput
-#' @importFrom ggplot2 aes aes_ geom_boxplot element_line element_rect element_text
-#'  geom_errorbar geom_point ggplot labs scale_x_discrete theme theme_classic ylab xlab
+#' @importFrom ggplot2 aes aes_ annotate element_line element_rect element_text
+#'  geom_abline geom_boxplot geom_errorbar geom_point ggplot labs scale_x_discrete
+#'  theme theme_classic ylab xlab
 #' @importFrom graphics plot boxplot
 #' @importFrom grDevices dev.off pdf png svg tiff
 #' @importFrom Rcpp evalCpp
-#' @importFrom pROC plot.roc
+#' @importFrom pROC auc ci.auc ggroc roc
 #' @importFrom rlang .data
 #' @importFrom rstan extract
 #' @importFrom shinyjs useShinyjs alert

@@ -52,7 +52,7 @@ modelPredictions <- function(input, output, session, model, data, modelAVG) {
       #      xlab = "predictions")
       
       # replacing plot() with ggplot2 to add custom points
-      p <- ggplot(data.frame(predictions, dependent),
+      ggplot(data.frame(predictions, dependent),
                   aes(x = predictions, y = dependent)) +
         geom_point(shape = 1,
                    color = "black",
@@ -64,9 +64,7 @@ modelPredictions <- function(input, output, session, model, data, modelAVG) {
         theme(
           panel.border = element_rect(fill = NA, color = "black"),
           axis.line = element_line(color = "black")
-        )
-      
-      p |>
+        ) |>
         shinyTools::addCustomPointsToGGplot(modelPredictionsPlotCustPoints()) |>
         shinyTryCatch(errorTitle = "[Model Predictions]: Plotting failed")
     }

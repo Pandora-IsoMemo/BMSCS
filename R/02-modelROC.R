@@ -168,7 +168,7 @@ plot_roc_gg_app <- function(
     auc_val <- as.numeric(auc(roc_obj))
     if (isTRUE(AUCI)) {
       ci_auc <- ci.auc(roc_obj)
-      auc_lab <- sprintf("AUC: %.1f%% (%.1f%%–%.1f%%)", auc_val, ci_auc[1], ci_auc[3])
+      auc_lab <- sprintf("AUC: %.1f%% (%.1f%%-%.1f%%)", auc_val, ci_auc[1], ci_auc[3])
     } else {
       auc_lab <- sprintf("AUC: %.1f%%", auc_val)
     }

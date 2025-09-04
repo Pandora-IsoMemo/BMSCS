@@ -116,7 +116,7 @@ test_that("plot_roc_gg_app: AUC text toggles and CI content", {
     model = model, modelAVG = modelAVG, dat = dat
   )
   lbl2 <- get_text_labels(p2)
-  expect_true(any(grepl("^AUC:\\s*[0-9]+\\.?[0-9]*%\\s*\\([0-9]+\\.?[0-9]*%[[:space:]]*–[[:space:]]*[0-9]+\\.?[0-9]*%\\)$", lbl2)))
+  expect_true(any(grepl("^AUC:\\s*[0-9]+\\.?[0-9]*%\\s*\\([0-9]+\\.?[0-9]*%[[:space:]]*-[[:space:]]*[0-9]+\\.?[0-9]*%\\)$", lbl2)))
   
   # AUC hidden (regardless of AUCI)
   p3 <- plot_roc_gg_app(

@@ -18,6 +18,7 @@ Imports:
   DT,
   futile.logger,
   ggplot2,
+  methods,
   pROC,
   Rcpp,
   rlang,

@@ -1,3 +1,23 @@
+# BMSCS 25.09.0
+
+## New Features
+- option to add custom points to plots in following tabs:
+  - "Model Evaluation"
+  - "Model Parameters"
+  - "Model Predictions"
+  - "ROC Curve"
+  - "Variable Correlations"
+  
+## Updates
+- Switched all plotting from base R to ggplot2 to enable custom point overlays (#35).
+  - The following tabs now show ggplot2 plots: _Model Predictions_, _ROC Curve_, and 
+    _Variable Correlations_.
+  - Plot styles may look slightly different due to the migration from base R graphics to ggplot2.
+  
+## Bug Fixes
+- Fixed an error in `split()` that could occur when input lengths were inconsistent 
+  (e.g. differing sizes of `parameters` and `splitChains`). 
+
 # BMSCS 25.07.1
 
 ## Bug Fixes

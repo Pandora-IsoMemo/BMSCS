@@ -1,12 +1,8 @@
 # BMSCS 25.09.0
 
 ## New Features
-- option to add custom points to plots in following tabs:
-  - "Model Evaluation"
-  - "Model Parameters"
-  - "Model Predictions"
-  - "ROC Curve"
-  - "Variable Correlations"
+- option to add custom points to all plots (in tabs _Model Evaluation_, _Model Parameters_,
+  _Model Predictions_, _ROC Curve_, _Variable Correlations_)
   
 ## Updates
 - Switched all plotting from base R to ggplot2 to enable custom point overlays (#35).

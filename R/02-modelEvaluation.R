@@ -98,10 +98,12 @@ modelEvaluation <- function(input, output, session, model) {
   
   plotFun <- reactive({
     function() {
+      if (is.null(baseplot())) return(NULL)
+      
       baseplot() |> 
         shinyTools::addCustomPointsToGGplot(modelParamPlotCustPoints()) |>
         plot() |>
-        shinyTryCatch(errorTitle = "Plotting failed")
+        shinyTryCatch(errorTitle = "[Model Evaluation]: Plotting failed")
     }
   })
 

@@ -68,7 +68,7 @@ modelPredictions <- function(input, output, session, model, data, modelAVG) {
       
       p |>
         shinyTools::addCustomPointsToGGplot(modelPredictionsPlotCustPoints()) |>
-        shinyTryCatch(errorTitle = "Plotting failed")
+        shinyTryCatch(errorTitle = "[Model Predictions]: Plotting failed")
     }
   })
 

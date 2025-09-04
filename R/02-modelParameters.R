@@ -110,7 +110,7 @@ modelParameters <- function(input, output, session, model, modelAVG) {
     function() {
       baseplot() |> 
         shinyTools::addCustomPointsToGGplot(modelParamPlotCustPoints()) |>
-        shinyTryCatch(errorTitle = "Plotting failed")
+        shinyTryCatch(errorTitle = "[Model Parameters]: Plotting failed")
     }
   })
 

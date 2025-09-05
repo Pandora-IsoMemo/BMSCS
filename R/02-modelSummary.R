@@ -50,7 +50,8 @@ modelSummary <- function(input, output, session, model, modelAVG) {
 
     output$summary <- renderPrint({
         req(model())
-        printFun()()
+        printFun()() |>
+          shinyTryCatch(errorTitle = "Printing model summary failed")
     })
 
     textExportServer("exportText", outFun = printFun, filename = "summary")

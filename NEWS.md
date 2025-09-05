@@ -1,3 +1,8 @@
+# BMSCS 25.09.1
+
+## Bug Fixes
+- Made `renderPrint()` more robust to gracefully handle `NaN` values, preventing crash scenarios. (#44)
+
 # BMSCS 25.09.0
 
 ## New Features

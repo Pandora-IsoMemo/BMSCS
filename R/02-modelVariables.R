@@ -4,25 +4,65 @@ modelVariablesTab <- function(id) {
   tabPanel(
     "Variable Correlations",
     value = "variablesTab",
-    radioButtons(ns("modelData"), "Data variables or model variables", choices = c("Model" = "model",
-                                              "Data" = "data"), selected = "data"), 
-    conditionalPanel(
-      condition = "input.modelData == 'model'",
-      ns = ns,
-      selectInput(ns("modelSelection"), "Select model", choices = "")),
-    conditionalPanel(
-      condition = "input.modelData == 'data'",
-      ns = ns,
-      pickerInput(ns("variableSelection"), "Select Variables", choices = NULL, multiple = TRUE),
-      pickerInput(ns("variableSelectionCat"), "Select categorical variables (for Cramer's V and Eta computation)", choices = NULL, multiple = TRUE)),
+    tags$br(),
+    fluidRow(column(
+      4,
+      radioButtons(
+        ns("modelData"),
+        "Data variables or model variables",
+        choices = c("Model" = "model", "Data" = "data"),
+        selected = "data"
+      )
+    ),
+    column(
+      8,
+      conditionalPanel(
+        condition = "input.modelData == 'model'",
+        ns = ns,
+        selectInput(ns("modelSelection"), "Select model", choices = "")
+      ),
+      conditionalPanel(condition = "input.modelData == 'data'",
+                       ns = ns,
+                       fluidRow(column(
+                         6,
+                         pickerInput(
+                           ns("variableSelection"),
+                           "Select Variables",
+                           choices = NULL,
+                           multiple = TRUE,
+                           width = "100%"
+                         )
+                       ), column(
+                         6,
+                         pickerInput(
+                           ns("variableSelectionCat"),
+                           "Select categorical variables (for Cramer's V and Eta computation below)",
+                           choices = NULL,
+                           multiple = TRUE,
+                           width = "100%"
+                         )
+                       )))
+    )), 
     h5("Table of variance inflation factors:"),
     tableOutput(ns("VIF")),
     dataExportButton(ns("exportVifs")),
-    h5("Scatter plot of independent variables (select two variables):"),
-    selectInput(ns("v1"), "Select variable 1", choices = NULL, multiple = FALSE, selected = NULL),
-    selectInput(ns("v2"), "Select variable 2", choices = NULL, multiple = FALSE, selected = NULL),
-    plotOutput(ns("plot")),
-    plotExportButton(ns("exportPlot")),
+    tags$hr(),
+    fluidRow(
+      column(
+        8,
+        h5("Scatter plot of independent variables (select two variables):"),
+        selectInput(ns("v1"), "Select variable 1", choices = NULL, multiple = FALSE, selected = NULL),
+        selectInput(ns("v2"), "Select variable 2", choices = NULL, multiple = FALSE, selected = NULL),
+        tags$br(),
+        plotOutput(ns("plot")),
+        plotExportButton(ns("exportPlot")),
+      ),
+      column(4, shinyTools::customPointsUI(
+        id = ns("modelVariablesCustPoints"),
+        plot_type = "ggplot"
+      ))
+    ),
+    tags$hr(),
     h5("Table of correlations:"),
     conditionalPanel(
       condition = "input.modelData == 'data'",
@@ -34,7 +74,8 @@ modelVariablesTab <- function(id) {
                  selected = "corr"),
     ),
     verbatimTextOutput(ns("correlations")),
-    dataExportButton(ns("exportCors"))
+    dataExportButton(ns("exportCors")),
+    tags$br()
   )
 }
 
@@ -78,86 +119,38 @@ modelVariables <- function(input, output, session, model, data, modelAVG) {
     }
   })
   
+  modelVariablesPlotCustPoints <- shinyTools::customPointsServer("modelVariablesCustPoints",
+                                                                 plot_type = "ggplot")
   
   plotFun <- reactive({
     function() {
-      if (input$modelData == "model") {
-        if (length(model()) == 0 ||
-            is.null(input$v1) ||
-            is.null(input$v2) || input$v1 == "" || input$v2 == "")
-          return(NULL)
-        
-        if ((input$modelSelection %in% names(model()$models))) {
-          mPar <- model()$models[[input$modelSelection]]
-        } else {
-          mPar <- modelAVG()[[input$modelSelection]]
-        }
-        
-        vv1 <- mPar@designMatrix[, input$v1]
-        vv2 <- mPar@designMatrix[, input$v2]
-        if (is.numeric(vv1) && is.numeric(vv2)) {
-          plot(
-            vv1 ~ vv2,
-            ylab = input$v1,
-            xlab = input$v2,
-            cex.axis = 1.5,
-            cex.lab = 1.5
-          )
-        }
-        if (is.character(vv1) && is.numeric(vv2)) {
-          boxplot(
-            vv2 ~ vv1,
-            ylab = input$v1,
-            xlab = input$v2,
-            cex.axis = 1.5,
-            cex.lab = 1.5
-          )
-        }
-        if (is.character(vv2) && is.numeric(vv1)) {
-          boxplot(
-            vv1 ~ vv2,
-            ylab = input$v1,
-            xlab = input$v2,
-            cex.axis = 1.5,
-            cex.lab = 1.5
-          )
-        }
-      } else {
-        if (length(data()) == 0 ||
-            is.null(input$v1) ||
-            is.null(input$v2) || input$v1 == "" || input$v2 == "")
-          return(NULL)
-        
-        vv1 <- data()[, input$v1]
-        vv2 <- data()[, input$v2]
-        if (is.numeric(vv1) && is.numeric(vv2)) {
-          plot(
-            vv1 ~ vv2,
-            ylab = input$v1,
-            xlab = input$v2,
-            cex.axis = 1.5,
-            cex.lab = 1.5
-          )
-        }
-        if (is.character(vv1) && is.numeric(vv2)) {
-          boxplot(
-            vv2 ~ vv1,
-            ylab = input$v1,
-            xlab = input$v2,
-            cex.axis = 1.5,
-            cex.lab = 1.5
-          )
-        }
-        if (is.character(vv2) && is.numeric(vv1)) {
-          boxplot(
-            vv1 ~ vv2,
-            ylab = input$v1,
-            xlab = input$v2,
-            cex.axis = 1.5,
-            cex.lab = 1.5
-          )
-        }
-      }
+      if (is.null(input$modelData) || input$modelData == "")
+        return(NULL)
+      
+      # capture everything for reactivity
+      if (length(model())) mod <- model() else mod <- NULL
+      if (length(modelAVG())) mav <- modelAVG() else mav <- NULL
+      if (length(data())) d <- data() else d <- NULL
+      if (identical(input$modelData, "model"))
+        src <- "model"
+      else
+        src <- "data"
+      
+      p <- plot_vars_gg(
+        source = src,
+        v1 = input$v1,
+        v2 = input$v2,
+        model = mod,
+        modelAVG = mav,
+        modelSelection = input$modelSelection,
+        dat = d,
+        cex_axis = 1.5,
+        cex_lab = 1.5,
+        cex_title = 1.5
+      ) |>
+        shinyTools::addCustomPointsToGGplot(modelVariablesPlotCustPoints()) |>
+        shinyTryCatch(errorTitle = "[Variable Correlation]: Plotting failed")
+      if (!is.null(p)) print(p)
     }
   })
   
@@ -317,3 +310,131 @@ modelVariables <- function(input, output, session, model, data, modelAVG) {
                                filename = "Corr")
   
 }
+
+# Helpers ----
+
+# Coerce a vector into the right "type bucket"
+is_num <- function(x) is.numeric(x)
+is_cat <- function(x) is.character(x) || is.factor(x)
+
+# Access design matrix from various model shapes
+get_design_matrix <- function(mPar) {
+  if (isS4(mPar) && "designMatrix" %in% slotNames(mPar)) {
+    return(slot(mPar, "designMatrix"))
+  }
+  if (!is.null(mPar$designMatrix)) return(mPar$designMatrix)
+  dm <- attr(mPar, "designMatrix", exact = TRUE)
+  if (!is.null(dm)) return(dm)
+  NULL
+}
+
+# Fetch v1/v2 from either the model design matrix or the raw data
+fetch_vv <- function(source, v1, v2, model, modelAVG, modelSelection, dat) {
+  if (source == "model") {
+    mods <- model$models
+    mPar <- if (modelSelection %in% names(mods)) mods[[modelSelection]] else modelAVG[[modelSelection]]
+    if (is.null(mPar)) {
+      message("Selected model not found.")
+      return(NULL)
+    }
+    DM <- get_design_matrix(mPar)
+    if (is.null(DM)) {
+      message("No designMatrix found in model.")
+      return(NULL)
+    }
+    list(vv1 = DM[[v1]], vv2 = DM[[v2]], xlab = v2, ylab = v1)
+  } else {
+    if (!is.data.frame(dat)) {
+      message("'dat' must be a data.frame.")
+      return(NULL)
+    }
+    list(vv1 = dat[[v1]], vv2 = dat[[v2]], xlab = v2, ylab = v1)
+  }
+}
+
+# Map "cex-like" knobs to ggplot sizes
+sizes_from_cex <- function(cex_axis = 1.5, cex_lab = 1.5, cex_title = 1.1) {
+  list(
+    axis_text  = 11 * cex_axis,
+    axis_title = 12 * cex_lab,
+    title      = 14 * cex_title
+  )
+}
+
+# Plotting function using ggplot2 ----
+
+# Plot two variables (numeric-numeric scatter or categorical-numeric boxplot)
+# source = "model" uses the selected model's designMatrix; "data" uses dat
+plot_vars_gg <- function(
+    source = c("model","data"),
+    v1, v2,
+    model = NULL, modelAVG = NULL, modelSelection = NULL,
+    dat = NULL,
+    cex_axis = 1.5, cex_lab = 1.5, cex_title = 1.5
+) {
+  source <- match.arg(source)
+  
+  # quick input checks
+  if (is.null(v1) || is.null(v2) || v1 == "" || v2 == "") {
+    message("v1/v2 missing.")
+    return(NULL)
+  }
+  
+  vv <- fetch_vv(source, v1, v2, model, modelAVG, modelSelection, dat)
+  if (is.null(vv)) return(NULL)
+  
+  vv1 <- vv$vv1; vv2 <- vv$vv2
+  sz  <- sizes_from_cex(cex_axis, cex_lab, cex_title)
+  
+  # Cases:
+  # - numeric vs numeric  -> scatter (vv1 ~ vv2)
+  # - categorical vs numeric -> boxplot (vv2 ~ vv1)
+  # - numeric vs categorical -> boxplot (vv1 ~ vv2)
+  # - categorical vs categorical -> not supported (return NULL)
+  
+  if (is_num(vv1) && is_num(vv2)) {
+    df <- data.frame(x = vv2, y = vv1)
+    p <- ggplot(df, aes(x = .data$x, y = .data$y)) +
+      geom_point(shape = 1, size = 2) +
+      labs(x = vv$xlab, y = vv$ylab) +
+      theme_classic() +
+      theme(
+        axis.text  = element_text(size = sz$axis_text),
+        axis.title = element_text(size = sz$axis_title),
+        plot.title = element_text(size = sz$title, hjust = 0.5)
+      )
+    return(p)
+  }
+  
+  if (is_cat(vv1) && is_num(vv2)) {
+    df <- data.frame(g = as.factor(vv1), y = vv2)
+    p <- ggplot(df, aes(x = .data$g, y = .data$y)) +
+      geom_boxplot(outlier.shape = 1, fill = "grey80", colour = "black") +
+      theme_classic() +
+      labs(x = v1, y = v2) +  # x shows the categorical (v1), y is numeric (v2)
+      theme(
+        axis.text  = element_text(size = sz$axis_text),
+        axis.title = element_text(size = sz$axis_title),
+        plot.title = element_text(size = sz$title, hjust = 0.5)
+      )
+    return(p)
+  }
+  
+  if (is_cat(vv2) && is_num(vv1)) {
+    df <- data.frame(g = as.factor(vv2), y = vv1)
+    p <- ggplot(df, aes(x = .data$g, y = .data$y)) +
+      geom_boxplot(outlier.shape = 1, fill = "grey80", colour = "black") +
+      theme_classic() +
+      labs(x = v2, y = v1) +  # x shows the categorical (v2), y is numeric (v1)
+      theme(
+        axis.text  = element_text(size = sz$axis_text),
+        axis.title = element_text(size = sz$axis_title),
+        plot.title = element_text(size = sz$title, hjust = 0.5)
+      )
+    return(p)
+  }
+  
+  message("Both variables are categorical; no plot produced.")
+  NULL
+}
+

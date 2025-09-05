@@ -53,7 +53,8 @@ modelDiagnostics <- function(input, output, session, model, nChains) {
   
   output$diagnostics <- renderPrint({
     req(model())
-    printFun()()
+    printFun()() |>
+      shinyTryCatch(errorTitle = "Printing model diagnostics failed")
   })
   
   textExportServer("exportText", outFun = printFun, filename = "diagnostics")

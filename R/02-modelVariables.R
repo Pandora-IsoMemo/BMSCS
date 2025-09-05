@@ -223,13 +223,15 @@ modelVariables <- function(input, output, session, model, data, modelAVG) {
     })
   
   output$correlations <- renderPrint({
-    if(input$modelData == "model"){
+    if (input$modelData == "model") {
       req(model())
-      correlationMatrix()()
-    } else{
+      correlationMatrix()() |> 
+        shinyTryCatch(errorTitle = "Printing correlation matrix failed")
+    } else {
       req(data())
       req(!is.null(input$variableSelection))
-      correlationMatrix()()
+      correlationMatrix()() |> 
+        shinyTryCatch(errorTitle = "Printing correlation matrix failed")
     }
   })
   

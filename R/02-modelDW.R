@@ -73,7 +73,8 @@ modelDW <- function(input, output, session, model, data, modelAVG) {
   output$DWsummary <- renderPrint({
     req(model())
 
-    printFun()()
+    printFun()() |>
+      shinyTryCatch(errorTitle = "Printing Durbin-Watson test failed")
   })
 
   textExportServer("exportText", outFun = printFun, filename = "summary")

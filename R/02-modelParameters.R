@@ -64,12 +64,12 @@ modelParameters <- function(input, output, session, model, modelAVG) {
       group_by(.data$key) %>%
       summarise(
         # sd = sd(estimate),
-        med = median(.data$value),
-        meanEst = mean(.data$value),
-        q68 = quantile(.data$value, 0.68),
-        q95 = quantile(.data$value, 1 - ((1 - 0.95) / 2)),
-        q32 = quantile(.data$value, 1 - 0.68),
-        q05 = quantile(.data$value, (1 - 0.95) / 2)
+        med = median(.data$value, na.rm = TRUE),
+        meanEst = mean(.data$value, na.rm = TRUE),
+        q68 = quantile(.data$value, 0.68,  na.rm = TRUE, names = FALSE),
+        q95 = quantile(.data$value, 1 - ((1 - 0.95) / 2),  na.rm = TRUE, names = FALSE),
+        q32 = quantile(.data$value, 1 - 0.68,  na.rm = TRUE, names = FALSE),
+        q05 = quantile(.data$value, (1 - 0.95) / 2,  na.rm = TRUE, names = FALSE)
       ) %>%
       ungroup()
     p <- ggplot(dataSummary, aes_(x = ~ key)) +

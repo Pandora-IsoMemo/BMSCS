@@ -378,7 +378,6 @@ plot_vars_gg <- function(
   
   # quick input checks
   if (is.null(v1) || is.null(v2) || v1 == "" || v2 == "") {
-    message("v1/v2 missing.")
     return(NULL)
   }
   

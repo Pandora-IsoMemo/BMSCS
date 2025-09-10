@@ -1,7 +1,7 @@
 # BMSCS 25.09.2
 
 ## Bug Fixes
-- Added validation of `FORMULA` terms:
+- Added validation of `FORMULA` terms (#44):
   - if a term has an exponent and the feature is not numeric, the term is removed from the formula
   - if a term has a negative exponent and the feature contains zero or negative values, the term is removed from the formula
 

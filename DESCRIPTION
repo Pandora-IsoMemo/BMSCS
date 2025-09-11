@@ -1,6 +1,6 @@
 Package: BMSCS
 Title: Interface for Bayesian Model Selection under Constraints
-Version: 25.09.1
+Version: 25.09.2
 Authors@R: c(
     person("Marcus", "Groß", email = "marcus.gross@inwt-statistics.de", role = c("aut", "cre")),
     person("Ricardo", "Fernandes", email = "ldv1452@gmail.com", role = c("aut")),

@@ -28,6 +28,7 @@ modelEstimationUI <- function(id, title = "") {
       checkboxInput(ns("constraint"), label = "Constrain regression parameters to 1", value = FALSE),
       pickerInput(ns("mustInclude"), "Must include variables (optional)", choices = NULL, multiple = TRUE, selected = NULL, options = list(`actions-box` = TRUE)),
       pickerInput(ns("mustExclude"), "Must exclude variables (optional)", choices = NULL, multiple = TRUE, selected = NULL, options = list(`actions-box` = TRUE)),
+      uiOutput(ns("invalidTerms")),
       selectizeInput(ns("xUnc"), "X numerical variables uncertainty (optional)", choices = NULL, multiple = TRUE, selected = NULL),
       selectizeInput(ns("xCatUnc"), "X categorical variables misclassification rate (optional)", choices = NULL, multiple = TRUE, selected = NULL),
       pickerInput(ns("yUnc"), "Dependent variable uncertainty (optional)", choices = NULL, multiple = FALSE, selected = NULL),
@@ -135,13 +136,15 @@ modelEstimation <- function(input, output, session, data) {
       xCategorical <- input$xCategorical
     }
 
-    FORMULA <- generateFormula(input$y, xVars)
+    FORMULA <- generateFormula(input$y, xVars) |>
+      shinyTryCatch(errorTitle = "Generating formula failed")
     FORMULA <- createFormula(formula = FORMULA,
                   maxExponent = input$maxExp,
                   inverseExponent = input$inverseExp,
                   interactionDepth = input$interactionDepth,
                   intercept = input$intercept,
-                  categorical = xCategorical)
+                  categorical = xCategorical) %>%
+      shinyTryCatch(errorTitle = "Creating formula failed")
     
     ret <- gsub('[\n ]', '', strsplit(strsplit(as.character(FORMULA)[3], "~")[[1]], " \\+ ")[[1]])
     return(ret)
@@ -150,9 +153,52 @@ modelEstimation <- function(input, output, session, data) {
     }
   })
   
+  invalidFormulaParts <- reactive({
+    invalid_formula_terms(formulaParts(), data()) |>
+      shinyTryCatch(errorTitle = "Checking formula terms failed")
+  })
+  
+  output$invalidTerms <- renderUI({
+    if (length(invalidFormulaParts()) == 0) return(NULL)
+    
+    tagList(
+      div(class = "form-group shiny-input-container",
+          tags$label(class = "control-label",
+                     tagList(
+                       "Automatically excluded terms ",
+                       tags$i(
+                         class = "glyphicon glyphicon-info-sign",
+                         style = "color:#0072B2;",
+                         title = paste(
+                           "Terms are excluded from formulas if invalid:",
+                           "- an exponent is applied on a non-numeric feature,",
+                           "- a negative exponent is applied on a feature containing zero values.",
+                           sep = "\n"
+                         )
+                       ),
+                       " :"
+                     )
+          ),
+          tags$br()
+      ),
+      tags$code(style = "display:block; margin-left: 1rem; margin-right: 1rem;",
+                paste(invalidFormulaParts(), collapse = ", "))
+    )
+  })
+  
   observe(priority = 40, {
-    updatePickerInput(session, "mustInclude", choices = formulaParts(), selected = "")
-    updatePickerInput(session, "mustExclude", choices = formulaParts(), selected = "")
+    # auto-exclude invalid formula terms (inverse powers w/ zeros, or exponents on non-numeric)
+    choices <- formulaParts()[!(formulaParts() %in% invalidFormulaParts())]
+    
+    # keep non-empty selection on changes
+    updatePickerInput(session, "mustInclude",
+                      choices = choices,
+                      selected = keep_selected(input$mustInclude, choices))
+    
+    updatePickerInput(session,
+                      "mustExclude",
+                      choices  = choices,
+                      selected = keep_selected(input$mustExclude, choices))
   })
   
   observe({
@@ -266,7 +312,7 @@ modelEstimation <- function(input, output, session, data) {
       constrSelEst(
         formula = FORMULA,
         mustInclude = input$mustInclude,
-        mustExclude = input$mustExclude,
+        mustExclude = union(input$mustExclude, invalidFormulaParts()),
         maxExponent = input$maxExp,
         inverseExponent = input$inverseExp,
         interactionDepth = input$interactionDepth,
@@ -287,7 +333,7 @@ modelEstimation <- function(input, output, session, data) {
         shiny = TRUE,
         imputeMissings = input$imputeMissings
       ) %>%
-        shinyTryCatch()
+        shinyTryCatch(errorTitle = "Running model failed")
     },
     value = 0,
     message = "Calculation in progess",
@@ -338,3 +384,51 @@ modelEstimation <- function(input, output, session, data) {
     }
   })
 }
+
+keep_selected <- function(selected, choices) {
+  if (is.null(choices) || length(choices) == 0) return(character(0))
+  if (is.null(selected)) return(character(0))
+  
+  sel <- selected
+  sel <- sel[sel %in% choices]                     # keep only valid choices
+  sel <- if (length(sel)) sel else character(0)    # fall back if nothing left
+  sel
+}
+
+# Returns the INVALID terms from `ret` based on:
+# - any inverse power I(var^k) with k < 0 AND the column has zeros
+# - any exponent I(var^k) where the column is non-numeric
+# - any exponent I(var^k) where var is missing or exponent can't be parsed
+invalid_formula_terms <- function(terms, dat) {
+  if (length(terms) == 0) return(character(0))
+  if (length(terms) == 1 && terms == "") return(character(0))
+  if (is.null(dat) || nrow(dat) == 0) return(character(0))
+  
+  # Match I(<name> ^ <exponent>) with optional spaces; <name> = letters/digits/._ 
+  # Exponent supports signs and decimals (e.g., -2, 2, 0.5, -0.5)
+  pat <- "^I\\(([[:alnum:]_.]+)\\s*\\^\\s*([+-]?(?:\\d+(?:\\.\\d*)?|\\.\\d+))\\)$"
+  
+  m <- regexec(pat, terms)
+  mm <- regmatches(terms, m)
+  is_pow <- lengths(mm) > 0
+  
+  invalid <- rep(FALSE, length(terms))
+  
+  if (any(is_pow)) {
+    bases <- vapply(mm[is_pow], function(x) x[2], character(1))
+    exps  <- vapply(mm[is_pow], function(x) suppressWarnings(as.numeric(x[3])), numeric(1))
+    idx   <- which(is_pow)
+    
+    for (j in seq_along(idx)) {
+      v <- bases[j]
+      k <- exps[j]
+      x <- dat[[v]]
+      
+      invalid[idx[j]] <- is.na(k) || is.null(x) || !is.numeric(x) ||
+        (k < 0 && any(x == 0, na.rm = TRUE))
+    }
+  }
+  
+  terms[invalid]
+}
+

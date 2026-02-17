@@ -5,16 +5,27 @@ modelEvaluationTab <- function(id) {
         "Model Evaluation",
         value = "modelEvaluationTab",
         plotOutput(ns("plot")),
-        sliderInput(ns("eAxis"), label = "Axis label font size", min = 1, max = 24, value = 12),
-        sliderInput(ns("eAngle"), label = "x-Axis label angle", min = 3, max = 60, value = 12),
-        radioButtons(ns("ic"), "Information / Cross-Validation Error criterion",
-            choices = c("Loo", "WAIC", "AIC", "AICc", "BIC", "logLik", "Rsq", "RsqAdj", "Bayes_Rsq", "df", "MallowsCP"), width = "100%"
+        fluidRow(column(
+          4,
+          radioButtons(ns("ic"), "Information / Cross-Validation Error criterion",
+                       choices = c("Loo", "WAIC", "AIC", "AICc", "BIC", "logLik", "Rsq", "RsqAdj", "Bayes_Rsq", "df", "MallowsCP"), width = "100%"
+          ),
+          sliderInput(ns("thresholdSE"), "Standard error threshold for best model selection", min = 0, max = 3, step = 0.1, value = 1, width = "100%"),
+          h5("Table of evaluation measure"),
+          tableOutput(ns("evalData")),
+          shinyTools::dataExportButton(ns("exportModelEvaluationData"))
         ),
-        sliderInput(ns("thresholdSE"), "Standard error threshold for best model selection", min = 0, max = 3, step = 0.1, value = 1),
-        plotExportButton(ns("exportPlot")),
-        h5("Table of evaluation measure"),
-        tableOutput(ns("evalData")),
-        shinyTools::dataExportButton(ns("exportModelEvaluationData"))
+        column(4,
+               sliderInput(ns("eAxis"), label = "Axis label font size", min = 1, max = 24, value = 12, width = "100%"),
+               sliderInput(ns("eAngle"), label = "x-Axis label angle", min = 3, max = 60, value = 12, width = "100%"),
+               plotExportButton(ns("exportPlot"))
+               ),
+        column(4,
+               shinyTools::customPointsUI(
+                 id = ns("evaluationPlotCustomPoints"),
+                 plot_type = "ggplot"
+               )
+        ))
     )
 }
 
@@ -47,27 +58,52 @@ modelEvaluation <- function(input, output, session, model) {
                                    modelNames = names(model()$models),
                                    withColumnICName = TRUE)
     ) %>% 
-      bindAllResults(addEmptyRow = TRUE)
+      bindAllResults(addEmptyRow = TRUE) %>%
+      shinyTryCatch(errorTitle = "Extracting model results failed")
     
     allICData(thisICData)
   })
   
   
+  baseplot <- reactive({
+    if (length(model()) == 0)
+      return(NULL)
+    
+    plotModelFit(
+      model()$models,
+      fits = model()$fits,
+      thresholdSE = input$thresholdSE,
+      markBestModel = TRUE,
+      ic = input$ic,
+      tAngle = input$eAngle,
+      aSize = input$eAxis
+    )
+  })
+  
+  x_choices <- reactive({
+    if (length(model()) == 0)
+      return(NULL)
+    p <- baseplot()
+    # group : p$data$model
+    choices <- p$data$model |> unique() |> as.character()
+    attr(choices, "x") <- "model"
+    
+    return(choices)
+  })
+  
+  modelParamPlotCustPoints <- shinyTools::customPointsServer("evaluationPlotCustomPoints",
+                                                             plot_type = "ggplot",
+                                                             x_choices = x_choices)
+  
+  
   plotFun <- reactive({
     function() {
-      if (length(model()) == 0)
-        return(NULL)
-      plot(
-        plotModelFit(
-          model()$models,
-          fits = model()$fits,
-          thresholdSE = input$thresholdSE,
-          markBestModel = TRUE,
-          ic = input$ic,
-          tAngle = input$eAngle,
-          aSize = input$eAxis
-        )
-      )
+      if (is.null(baseplot())) return(NULL)
+      
+      baseplot() |> 
+        shinyTools::addCustomPointsToGGplot(modelParamPlotCustPoints()) |>
+        plot() |>
+        shinyTryCatch(errorTitle = "[Model Evaluation]: Plotting failed")
     }
   })
 

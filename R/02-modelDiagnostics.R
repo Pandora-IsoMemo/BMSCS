@@ -30,7 +30,8 @@ modelDiagnostics <- function(input, output, session, model, nChains) {
     
     thisDiagnostics <- extractAllDiagnostics(allModels = model()$models,
                                              nChains = nChains) %>% 
-      bindAllResults(addEmptyRow = TRUE)
+      bindAllResults(addEmptyRow = TRUE) %>%
+      shinyTryCatch(errorTitle = "Extracting model results failed")
     
     allDiagnostics(thisDiagnostics)
   })
@@ -52,7 +53,8 @@ modelDiagnostics <- function(input, output, session, model, nChains) {
   
   output$diagnostics <- renderPrint({
     req(model())
-    printFun()()
+    printFun()() |>
+      shinyTryCatch(errorTitle = "Printing model diagnostics failed")
   })
   
   textExportServer("exportText", outFun = printFun, filename = "diagnostics")
@@ -128,20 +130,51 @@ printDiagnostics <- function(allModels, modelName, nChains, diagType) {
 }
 
 convergenceDiagnostics <- function(parameters, nChains){
-  splitChains <- factor(rep(1:nChains, each = nrow(parameters) / nChains))
+  #splitChains <- factor(rep(1:nChains, each = nrow(parameters) / nChains))
+  
+  # fix error in split() if we have different sizes of parameters and splitChains:
+  stopifnot(is.data.frame(parameters) || is.matrix(parameters))
+  
+  n <- nrow(parameters)
+  
+  if (nChains > n) {
+    warning("nChains > number of rows; reducing nChains to ", n)
+    nChains <- n
+  }
+  
+  # compute contiguous, near-equal block sizes that sum to n
+  base_size <- n %/% nChains
+  remainder <- n %% nChains
+  sizes <- rep(base_size, nChains)
+  if (remainder > 0) sizes[seq_len(remainder)] <- sizes[seq_len(remainder)] + 1
+  
+  # build a factor of length n with contiguous blocks per chain
+  splitChains <- factor(rep(seq_len(nChains), times = sizes))
   
   mcmcObject <- split(parameters, splitChains)
   
+  # to coda::mcmc (preserve order)
   mcmcObject <- lapply(mcmcObject, function(x){
     x <- as.matrix(x)
-    x <- mcmc(x, start = 1, end = nrow(x))
-    x
+    #mcmc(x, start = 1, end = nrow(x))
+    mcmc(x, start = 1, thin = 1)
   })
   
-  raftery <- try({raftery.diag(parameters)}, silent = TRUE)
-  gelman <- try({gelman.diag(mcmcObject, autoburnin = FALSE, multivariate = FALSE)}, silent = TRUE)
-  geweke <- try({geweke.diag(mcmcObject)}, silent = TRUE)
-  heidel <- try({heidel.diag(parameters)}, silent = TRUE)
+  # --- align start/end/thin across chains for mcmc.list() ---
+  # (starts all 1; choose end = shortest, thin = 1)
+  min_len <- min(vapply(mcmcObject, nrow, integer(1)))
+  if (min_len < 2L) {
+    warning("Chains too short after alignment for Gelman/Geweke.")
+  }
+  mcmcAligned <- lapply(mcmcObject, function(mc) window(mc, start = 1, end = min_len, thin = 1))
+  mcmcList <- try(mcmc.list(mcmcAligned), silent = TRUE)
+  
+  # Single-chain diags can operate on the full matrix
+  raftery <- try(raftery.diag(mcmc(as.matrix(parameters), start = 1, thin = 1)), silent = TRUE)
+  heidel <- try(heidel.diag(mcmc(as.matrix(parameters), start = 1, thin = 1)), silent = TRUE)
+  
+  gelman <- try(gelman.diag(mcmcList, autoburnin = FALSE, multivariate = FALSE), silent = TRUE)
+  geweke <- try(geweke.diag(mcmcList), silent = TRUE)
   
   if(nChains == 1){
     gelman <- "For Gelman-Rubin diagnostics, at least 2 chains are required.

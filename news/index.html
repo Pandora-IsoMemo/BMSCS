@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">BMSCS</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">25.06.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">25.09.2</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -38,6 +38,59 @@
       
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="25.09.2" id="bmscs-25092">BMSCS 25.09.2<a class="anchor" aria-label="anchor" href="#bmscs-25092"></a></h2>
+<div class="section level3">
+<h3 id="bug-fixes-25-09-2">Bug Fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-25-09-2"></a></h3>
+<ul><li>Added validation of <code>FORMULA</code> terms (#44):
+<ul><li>if a term has an exponent and the feature is not numeric, the term is removed from the formula</li>
+<li>if a term has a negative exponent and the feature contains zero or negative values, the term is removed from the formula</li>
+</ul></li>
+</ul></div>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="25.09.1" id="bmscs-25091">BMSCS 25.09.1<a class="anchor" aria-label="anchor" href="#bmscs-25091"></a></h2>
+<div class="section level3">
+<h3 id="bug-fixes-25-09-1">Bug Fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-25-09-1"></a></h3>
+<ul><li>Made <code>renderPrint()</code> more robust to gracefully handle <code>NaN</code> values, preventing crash scenarios. (#44)</li>
+</ul></div>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="25.09.0" id="bmscs-25090">BMSCS 25.09.0<a class="anchor" aria-label="anchor" href="#bmscs-25090"></a></h2>
+<div class="section level3">
+<h3 id="new-features-25-09-0">New Features<a class="anchor" aria-label="anchor" href="#new-features-25-09-0"></a></h3>
+<ul><li>option to add custom points to all plots (in tabs <em>Model Evaluation</em>, <em>Model Parameters</em>, <em>Model Predictions</em>, <em>ROC Curve</em>, <em>Variable Correlations</em>)</li>
+</ul></div>
+<div class="section level3">
+<h3 id="updates-25-09-0">Updates<a class="anchor" aria-label="anchor" href="#updates-25-09-0"></a></h3>
+<ul><li>Switched all plotting from base R to ggplot2 to enable custom point overlays (#35).
+<ul><li>The following tabs now show ggplot2 plots: <em>Model Predictions</em>, <em>ROC Curve</em>, and <em>Variable Correlations</em>.</li>
+<li>Plot styles may look slightly different due to the migration from base R graphics to ggplot2.</li>
+</ul></li>
+</ul></div>
+<div class="section level3">
+<h3 id="bug-fixes-25-09-0">Bug Fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-25-09-0"></a></h3>
+<ul><li>Fixed an error in <code><a href="https://rdrr.io/r/base/split.html" class="external-link">split()</a></code> that could occur when input lengths were inconsistent (e.g. differing sizes of <code>parameters</code> and <code>splitChains</code>).</li>
+</ul></div>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="25.07.1" id="bmscs-25071">BMSCS 25.07.1<a class="anchor" aria-label="anchor" href="#bmscs-25071"></a></h2>
+<div class="section level3">
+<h3 id="bug-fixes-25-07-1">Bug Fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-25-07-1"></a></h3>
+<ul><li>Fixed an issue where the app could crash if some models did not return valid results (#44). The update now handles NaN values in model outputs gracefully. If modeling results are missing or invalid, they are excluded from the output summaries or replaced with a clear error message, preventing unexpected crashes.</li>
+</ul></div>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="25.07.0" id="bmscs-25070">BMSCS 25.07.0<a class="anchor" aria-label="anchor" href="#bmscs-25070"></a></h2>
+<div class="section level3">
+<h3 id="bug-fixes-25-07-0">Bug Fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-25-07-0"></a></h3>
+<ul><li>Fixed an issue during the creation of the coefficient table from model output (#44): Replaced fragile text-parsing logic with a new extract_coeff_from_summary() function that:
+<ul><li>Directly uses posterior samples from rstan::sampling()</li>
+<li>Rescales coefficients (incl. intercept) to the original data scale</li>
+<li>Returns Estimate, Median, SD, and credible intervals for any cLevel</li>
+</ul></li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="25.06.1" id="bmscs-25061">BMSCS 25.06.1<a class="anchor" aria-label="anchor" href="#bmscs-25061"></a></h2>
 <div class="section level3">

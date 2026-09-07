@@ -45,12 +45,20 @@ jobs:
       - name: Configure Makevars for StanHeaders on Windows
         if: runner.os == 'Windows'
         run: |
-          mkdir -p ~/.R
-          cat << 'EOF' > ~/.R/Makevars.win
-          STANHEADERS_SRC = $(shell "${R_HOME}/bin${R_ARCH_BIN}/Rscript" -e "cat(system.file('include', 'src', package = 'StanHeaders'))")
-          PKG_CPPFLAGS += -I"$(STANHEADERS_SRC)"
-          EOF
-          cat ~/.R/Makevars.win
+          Rscript -e '
+            mv_line <- "PKG_CPPFLAGS += $(subst /StanHeaders/include,/StanHeaders/include/src,$(CLINK_CPPFLAGS))"
+            etc_site <- file.path(R.home("etc"), "Makevars.site")
+            writeLines(mv_line, etc_site)
+            cat("Wrote to", etc_site, ":\n")
+            writeLines(readLines(etc_site))
+            
+            user_dir <- file.path(path.expand("~"), ".R")
+            dir.create(user_dir, showWarnings = FALSE, recursive = TRUE)
+            user_mv <- file.path(user_dir, "Makevars.win")
+            writeLines(mv_line, user_mv)
+            cat("Wrote to", user_mv, ":\n")
+            writeLines(readLines(user_mv))
+          '
         shell: bash
 
       - name: Show R version

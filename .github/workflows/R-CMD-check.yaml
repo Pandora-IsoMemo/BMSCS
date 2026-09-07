@@ -11,8 +11,6 @@ name: R-CMD-check
 jobs:
   R-CMD-check:
     runs-on: ${{ matrix.config.os }}
-    # We use the base-image of complex dependencies
-    container: ghcr.io/pandora-isomemo/base-image:latest
 
     name: ${{ matrix.config.os }} (${{ matrix.config.r }})
 
@@ -20,16 +18,14 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          # We only test only a subset of os & r combination for non CRAN packages
-          
-          # We can't test on mac-os, because Docker in Mac images aren't 
-          # available due to licensing issues
-          # - {os: macos-latest,   r: 'release'}
-          # - {os: windows-latest, r: 'release'}
+          - {os: macos-latest,   r: 'release'}
+          - {os: windows-latest, r: 'release'}
           - {os: ubuntu-latest,   r: 'devel', http-user-agent: 'release'}
           - {os: ubuntu-latest,   r: 'release'}
           - {os: ubuntu-latest,   r: 'oldrel-1'}
           - {os: ubuntu-latest,   r: 'oldrel-2'}
+          - {os: ubuntu-latest,  r: 'oldrel-3'}
+          - {os: ubuntu-latest,  r: 'oldrel-4'}
 
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
@@ -40,18 +36,26 @@ jobs:
 
       - uses: r-lib/actions/setup-pandoc@v2
       
-      # R is already installed in the base-image
-      # - uses: r-lib/actions/setup-r@v2
-      #   with:
-      #     r-version: ${{ matrix.config.r }}
-      #     http-user-agent: ${{ matrix.config.http-user-agent }}
-      #     use-public-rspm: true
-      #     extra-repositories: https://Pandora-IsoMemo.github.io/drat/
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: ${{ matrix.config.r }}
+          http-user-agent: ${{ matrix.config.http-user-agent }}
+          use-public-rspm: true
+          extra-repositories: |
+            Pandora = https://Pandora-IsoMemo.github.io/drat/
+
+      - name: Show R version
+        run: |
+          echo "Matrix R selector: ${{ matrix.config.r }}"
+          Rscript -e 'cat("Resolved R version:", R.version.string, "\n")'
+          Rscript -e 'cat("Repositories:\n"); print(getOption("repos"))'
       
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
           extra-packages: any::rcmdcheck
           needs: check
+          cache: true
+          cache-version: 2
 
       - uses: r-lib/actions/check-r-package@v2
         with:

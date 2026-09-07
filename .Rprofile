@@ -2,8 +2,14 @@
 # It's called libWin resp. libLinux. As it is on the first libPath position,
 # packages are installed into this directory by default. This enables working in
 # a sandbox.
+message("Loading project .Rprofile")
+message(">>> .Rprofile loaded from: ", getwd())
 
 .First <- function() {
+  options(repos = c(getOption("repos"),
+                  PANDORA = "https://Pandora-IsoMemo.github.io/drat/",
+                  INWTLab = "https://inwtlab.github.io/drat/"))
+
   # Check operating system
   if (Sys.info()["sysname"] == "Windows") {
     # Add libWin with the full path to libPaths
@@ -13,9 +19,7 @@
   } else if (Sys.info()["sysname"] == "Darwin") {
     .libPaths(new = c(paste(getwd(), "libMac", sep = "/"), .libPaths()))
   }
-  options(repos = c(getOption("repos"),
-                    PANDORA = "https://Pandora-IsoMemo.github.io/drat/",
-                    INWTLab = "https://inwtlab.github.io/drat/"))
+
 }
 
 .First()

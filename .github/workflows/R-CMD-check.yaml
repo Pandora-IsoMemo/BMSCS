@@ -46,7 +46,12 @@ jobs:
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
-          $line = 'PKG_CPPFLAGS += $(subst /StanHeaders/include,/StanHeaders/include/src,$(CLINK_CPPFLAGS))'
+          $tbbDir = "$env:USERPROFILE/tbb_fix/tbb".Replace('\', '/')
+          New-Item -ItemType Directory -Force -Path $tbbDir | Out-Null
+          Set-Content -Path "$tbbDir/tbb_stddef.h" -Value '#include <tbb/version.h>'
+          
+          $fixPath = "$env:USERPROFILE/tbb_fix".Replace('\', '/')
+          $line = "PKG_CPPFLAGS += -I""$fixPath"" `$(subst /StanHeaders/include,/StanHeaders/include/src,`$(CLINK_CPPFLAGS))"
           
           $targets = @(
             "$env:USERPROFILE\.R",
@@ -57,7 +62,7 @@ jobs:
             New-Item -ItemType Directory -Force -Path $dir | Out-Null
             Set-Content -Path "$dir\Makevars.win" -Value $line
             Set-Content -Path "$dir\Makevars" -Value $line
-            Write-Host "Created Makevars in $dir"
+            Write-Host "Created Makevars in $dir with line: $line"
           }
 
       - name: Show R version

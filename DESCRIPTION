@@ -9,7 +9,7 @@ Authors@R: c(
     person("Andreas", "Neudecker", email = "andreas.neudecker@inwt-statistics.de", role = c("ctb"))
     )
 Description: Shiny interface for BMSC app. 
-Depends: R (>= 3.5.0) 
+Depends: R (>= 4.1.0) 
 Imports:
   car,
   coda,

@@ -42,6 +42,17 @@ jobs:
             Pandora = https://Pandora-IsoMemo.github.io/drat/
             stan-dev = https://stan-dev.r-universe.dev
 
+      - name: Configure Makevars for StanHeaders on Windows
+        if: runner.os == 'Windows'
+        run: |
+          mkdir -p ~/.R
+          cat << 'EOF' > ~/.R/Makevars.win
+          STANHEADERS_SRC = $(shell "${R_HOME}/bin${R_ARCH_BIN}/Rscript" -e "cat(system.file('include', 'src', package = 'StanHeaders'))")
+          PKG_CPPFLAGS += -I"$(STANHEADERS_SRC)"
+          EOF
+          cat ~/.R/Makevars.win
+        shell: bash
+
       - name: Show R version
         run: |
           echo "Matrix R selector: ${{ matrix.config.r }}"

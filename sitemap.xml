@@ -1,42 +1,16 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>https://pandora-isomemo.github.io/BMSC-S/404.html</loc>
-  </url>
-  <url>
-    <loc>https://pandora-isomemo.github.io/BMSC-S/LICENSE.html</loc>
-  </url>
-  <url>
-    <loc>https://pandora-isomemo.github.io/BMSC-S/authors.html</loc>
-  </url>
-  <url>
-    <loc>https://pandora-isomemo.github.io/BMSC-S/index.html</loc>
-  </url>
-  <url>
-    <loc>https://pandora-isomemo.github.io/BMSC-S/news/index.html</loc>
-  </url>
-  <url>
-    <loc>https://pandora-isomemo.github.io/BMSC-S/reference/add_na_row.html</loc>
-  </url>
-  <url>
-    <loc>https://pandora-isomemo.github.io/BMSC-S/reference/bindAllResults.html</loc>
-  </url>
-  <url>
-    <loc>https://pandora-isomemo.github.io/BMSC-S/reference/config.html</loc>
-  </url>
-  <url>
-    <loc>https://pandora-isomemo.github.io/BMSC-S/reference/getICData.html</loc>
-  </url>
-  <url>
-    <loc>https://pandora-isomemo.github.io/BMSC-S/reference/index.html</loc>
-  </url>
-  <url>
-    <loc>https://pandora-isomemo.github.io/BMSC-S/reference/prepareData.html</loc>
-  </url>
-  <url>
-    <loc>https://pandora-isomemo.github.io/BMSC-S/reference/shinyModule.html</loc>
-  </url>
-  <url>
-    <loc>https://pandora-isomemo.github.io/BMSC-S/reference/startApplication.html</loc>
-  </url>
+<urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
+<url><loc>https://pandora-isomemo.github.io/BMSC-S/404.html</loc></url>
+<url><loc>https://pandora-isomemo.github.io/BMSC-S/LICENSE.html</loc></url>
+<url><loc>https://pandora-isomemo.github.io/BMSC-S/authors.html</loc></url>
+<url><loc>https://pandora-isomemo.github.io/BMSC-S/index.html</loc></url>
+<url><loc>https://pandora-isomemo.github.io/BMSC-S/news/index.html</loc></url>
+<url><loc>https://pandora-isomemo.github.io/BMSC-S/reference/add_na_row.html</loc></url>
+<url><loc>https://pandora-isomemo.github.io/BMSC-S/reference/bindAllResults.html</loc></url>
+<url><loc>https://pandora-isomemo.github.io/BMSC-S/reference/config.html</loc></url>
+<url><loc>https://pandora-isomemo.github.io/BMSC-S/reference/getICData.html</loc></url>
+<url><loc>https://pandora-isomemo.github.io/BMSC-S/reference/index.html</loc></url>
+<url><loc>https://pandora-isomemo.github.io/BMSC-S/reference/prepareData.html</loc></url>
+<url><loc>https://pandora-isomemo.github.io/BMSC-S/reference/shinyModule.html</loc></url>
+<url><loc>https://pandora-isomemo.github.io/BMSC-S/reference/startApplication.html</loc></url>
 </urlset>
+

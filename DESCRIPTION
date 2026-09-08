@@ -13,7 +13,7 @@ Depends: R (>= 4.1.0)
 Imports:
   car,
   coda,
-  BMSC (>= 26.09.0),
+  BMSC (>= 26.09.1),
   DataTools (>= 26.08.2),
   dplyr,
   DT,

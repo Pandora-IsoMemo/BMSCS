@@ -33,7 +33,6 @@ jobs:
           use-public-rspm: true
           extra-repositories: |
             Pandora = https://Pandora-IsoMemo.github.io/drat/
-            stan-dev = https://stan-dev.r-universe.dev
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:

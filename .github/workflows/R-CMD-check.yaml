@@ -42,10 +42,11 @@ jobs:
             Pandora = https://Pandora-IsoMemo.github.io/drat/
             stan-dev = https://stan-dev.r-universe.dev
 
-      - name: Pin compatible StanHeaders/rstan/RcppParallel on Windows
+      - name: Pin RcppParallel to last version with legacy TBB headers on Windows
         if: runner.os == 'Windows'
         run: |
-          Rscript -e "pak::pkg_install(c('RcppParallel@5.1.7', 'StanHeaders@2.26.28', 'rstan@2.26.23'), upgrade = FALSE)"
+          Rscript -e "install.packages('pak', repos = 'https://r-lib.github.io/p/pak/stable/')"
+          Rscript -e "pak::pkg_install('RcppParallel@5.1.7', upgrade = FALSE)"
         shell: bash
 
       - name: Show R version

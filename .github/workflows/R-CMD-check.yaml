@@ -42,12 +42,24 @@ jobs:
             Pandora = https://Pandora-IsoMemo.github.io/drat/
             stan-dev = https://stan-dev.r-universe.dev
 
-      - name: Pin RcppParallel to last version with legacy TBB headers on Windows
+      # test fix for stan-dev/rstan#1145 (tbb_stddef.h removed by oneTBB) before applying it upstream in BMSC's own Makevars.win
+      - name: Shim legacy tbb_stddef.h for StanHeaders on Windows
         if: runner.os == 'Windows'
+        shell: pwsh
         run: |
-          Rscript -e "install.packages('pak', repos = 'https://r-lib.github.io/p/pak/stable/')"
-          Rscript -e "pak::pkg_install('RcppParallel@5.1.7', upgrade = FALSE)"
-        shell: bash
+          $tbbDir = "$env:USERPROFILE/tbb_fix/tbb".Replace('\', '/')
+          New-Item -ItemType Directory -Force -Path $tbbDir | Out-Null
+          Set-Content -Path "$tbbDir/tbb_stddef.h" -Value '#include <tbb/version.h>'
+
+          $fixPath = "$env:USERPROFILE/tbb_fix".Replace('\', '/')
+          $line = "CPPFLAGS += -I""$fixPath"""
+
+          $targets = @("$env:USERPROFILE\.R", "$env:USERPROFILE\Documents\.R")
+          foreach ($dir in $targets) {
+            New-Item -ItemType Directory -Force -Path $dir | Out-Null
+            Add-Content -Path "$dir\Makevars.win" -Value $line
+            Write-Host "Appended to $dir\Makevars.win: $line"
+          }
 
       - name: Show R version
         run: |

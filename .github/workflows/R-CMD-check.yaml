@@ -42,8 +42,9 @@ jobs:
             Pandora = https://Pandora-IsoMemo.github.io/drat/
             stan-dev = https://stan-dev.r-universe.dev
 
-      # test fix for stan-dev/rstan#1145 (tbb_stddef.h removed by oneTBB) before applying it upstream in BMSC's own Makevars.win
-      - name: Shim legacy tbb_stddef.h for StanHeaders on Windows
+      # test fixes for stan-dev/rstan#1145 (tbb_stddef.h removed by oneTBB) and StanHeaders
+      # moving stan/version.hpp into include/src, before applying them upstream in BMSC's Makevars.win
+      - name: Shim legacy tbb_stddef.h and StanHeaders/include/src for Windows
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
@@ -52,7 +53,7 @@ jobs:
           Set-Content -Path "$tbbDir/tbb_stddef.h" -Value '#include <tbb/version.h>'
 
           $fixPath = "$env:USERPROFILE/tbb_fix".Replace('\', '/')
-          $line = "CPPFLAGS += -I""$fixPath"""
+          $line = "CPPFLAGS += -I""$fixPath"" `$(subst /StanHeaders/include,/StanHeaders/include/src,`$(CLINK_CPPFLAGS))"
 
           $targets = @("$env:USERPROFILE\.R", "$env:USERPROFILE\Documents\.R")
           foreach ($dir in $targets) {

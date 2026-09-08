@@ -1,6 +1,7 @@
 Package: BMSCS
 Title: Interface for Bayesian Model Selection under Constraints
-Version: 25.09.2
+Version: 26.09.0
+Date: 2026-09-07
 Authors@R: c(
     person("Marcus", "Groß", email = "marcus.gross@inwt-statistics.de", role = c("aut", "cre")),
     person("Ricardo", "Fernandes", email = "ldv1452@gmail.com", role = c("aut")),
@@ -8,12 +9,12 @@ Authors@R: c(
     person("Andreas", "Neudecker", email = "andreas.neudecker@inwt-statistics.de", role = c("ctb"))
     )
 Description: Shiny interface for BMSC app. 
-Depends: R (>= 3.5.0) 
+Depends: R (>= 4.1.0) 
 Imports:
   car,
   coda,
-  BMSC (>= 23.07.1.1),
-  DataTools (>= 24.10.0),
+  BMSC (>= 26.09.1),
+  DataTools (>= 26.08.2),
   dplyr,
   DT,
   futile.logger,
@@ -26,7 +27,7 @@ Imports:
   shiny,
   shinyjs,
   shinythemes,
-  shinyTools (>= 24.11.0),
+  shinyTools (>= 26.05.0),
   shinyWidgets,
   tidyr,
   yaml
@@ -36,5 +37,5 @@ LazyData: true
 Suggests: 
     lintr (>= 1.0.2),
     testthat
-RoxygenNote: 7.3.1
 URL: https://pandora-isomemo.github.io/BMSCS/
+Config/roxygen2/version: 8.0.0

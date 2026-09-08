@@ -1,20 +1,49 @@
-^.+\.Rproj$
+# RStudio / IDE files
+^.*\.Rproj$
 ^\.Rproj\.user$
-^libWin$
-^libMac$
-^lib$
-^libLinux$
-^RScripts$
-^\.dockerignore$
+^\.vscode$
+
+# Local/user config
+^\.Rprofile$
+^\.Renviron$
+^\.env$
+^\.lintr$
+
+# Version control / GitHub
+^\.git$
+^\.gitignore$
+^\.github$
+
+# CI / deployment / containers
 ^Dockerfile$
+^\.dockerignore$
 ^Jenkinsfile$
-^LICENSE\.md$
-^\..*$
-^bin$
+^deploy\.sh$
+
+# pkgdown site and config
 ^_pkgdown\.yml$
 ^docs$
 ^pkgdown$
-^\.github$
+
+# Local dependency/vendor libraries
+^lib$
+^libWin$
+^libMac$
+^libLinux$
+^deps$
+
+# Build/test artifacts
+^covr$
+^bin$
+^src/.*\.(o|so|dll|dylib)$
+^.*\.tar\.gz$
+^.*\.Rcheck$
+
+# Non-package license/readme variants
+^LICENSE\.md$
+
+^inst/data$
 ^inst/app/predefinedModels/
 ^inst/app/dataQueries/
-^tests/testthat/testdata_large
+^tests/testthat/testdata_large/
+^RScripts$

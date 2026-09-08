@@ -42,28 +42,11 @@ jobs:
             Pandora = https://Pandora-IsoMemo.github.io/drat/
             stan-dev = https://stan-dev.r-universe.dev
 
-      - name: Configure Makevars for StanHeaders on Windows
+      - name: Pin compatible StanHeaders/rstan/RcppParallel on Windows
         if: runner.os == 'Windows'
-        shell: pwsh
         run: |
-          $tbbDir = "$env:USERPROFILE/tbb_fix/tbb".Replace('\', '/')
-          New-Item -ItemType Directory -Force -Path $tbbDir | Out-Null
-          Set-Content -Path "$tbbDir/tbb_stddef.h" -Value '#include <tbb/version.h>'
-          
-          $fixPath = "$env:USERPROFILE/tbb_fix".Replace('\', '/')
-          $line = "PKG_CPPFLAGS += -I""$fixPath"" `$(subst /StanHeaders/include,/StanHeaders/include/src,`$(CLINK_CPPFLAGS))"
-          
-          $targets = @(
-            "$env:USERPROFILE\.R",
-            "$env:USERPROFILE\Documents\.R"
-          )
-          
-          foreach ($dir in $targets) {
-            New-Item -ItemType Directory -Force -Path $dir | Out-Null
-            Set-Content -Path "$dir\Makevars.win" -Value $line
-            Set-Content -Path "$dir\Makevars" -Value $line
-            Write-Host "Created Makevars in $dir with line: $line"
-          }
+          Rscript -e "pak::pkg_install(c('RcppParallel@5.1.7', 'StanHeaders@2.26.28', 'rstan@2.26.23'), upgrade = FALSE)"
+        shell: bash
 
       - name: Show R version
         run: |
